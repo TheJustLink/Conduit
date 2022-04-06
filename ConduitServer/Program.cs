@@ -1,11 +1,11 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
+
+namespace ConduitServer;
 
 static class Program
 {
@@ -29,6 +29,7 @@ static class Program
     private static void ReceiveClient(TcpClient client)
     {
         var stream = client.GetStream();
+
         ReadPacket(stream);
 
         client.Close();
@@ -66,12 +67,6 @@ static class Program
             WriteVarInt(stream, 2);
             WriteUUID(stream, Guid.NewGuid());
             WriteVarString(stream, username);
-
-            var buffer = new byte[64];
-            stream.Read(buffer);
-
-            foreach (var data in buffer)
-                Console.WriteLine(data + ", ");
         }
         else if (nextState == 1) // Status
         {
@@ -102,22 +97,6 @@ static class Program
             WriteVarInt(stream, 1);
             WriteLong(stream, pingPayload);
         }
-    }
-
-    private static byte[] ReceiveData(TcpClient client)
-    {
-        using var networkStream = client.GetStream();
-        var buffer = new byte[client.Available];
-        networkStream.Read(buffer);
-
-        Console.WriteLine("Received message: ");
-        foreach (var data in buffer)
-            Console.Write(data + ", ");
-
-        var message = Encoding.UTF8.GetString(buffer);
-        Console.WriteLine($"({message})");
-
-        return buffer;
     }
 
     private static void WriteVarString(Stream stream, string data)
