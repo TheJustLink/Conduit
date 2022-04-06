@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ConduitServer;
 
-static class Program
+internal static class Program
 {
     private static void Main(string[] args)
     {
-        Console.WriteLine("Hello, World! From conduit");
+        var app = new App();
+        app.Start();
     }
 }
