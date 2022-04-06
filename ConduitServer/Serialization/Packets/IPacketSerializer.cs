@@ -4,6 +4,6 @@ namespace ConduitServer.Serialization.Packets
 {
     interface IPacketSerializer
     {
-        byte[] Serialize<T>(T packet) where T : IPacket;
+        byte[] Serialize<T>(T packet) where T : Packet;
     }
 }

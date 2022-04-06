@@ -4,7 +4,7 @@ namespace ConduitServer.Serialization.Packets
 {
     class PacketDeserializer : IPacketDeserializer
     {
-        public T Deserialize<T>(RawPacket rawPacket)
+        public T Deserialize<T>(RawPacket rawPacket) where T : Packet
         {
             var type = typeof(T);
 

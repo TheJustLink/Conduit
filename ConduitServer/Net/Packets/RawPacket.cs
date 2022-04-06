@@ -1,14 +1,7 @@
 ﻿namespace ConduitServer.Net.Packets
 {
-    class RawPacket : IPacket
+    class RawPacket : Packet
     {
-        public int Id { get; }
-        public byte[] Data { get; }
-
-        public RawPacket(int id, byte[] data)
-        {
-            Id = id;
-            Data = data;
-        }
+        public byte[] Data;
     }
 }

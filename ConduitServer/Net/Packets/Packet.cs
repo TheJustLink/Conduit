@@ -1,8 +1,10 @@
-﻿namespace ConduitServer.Net.Packets
+﻿using ConduitServer.Serialization.Attributes;
+
+namespace ConduitServer.Net.Packets
 {
-    class Packet : IPacket
+    class Packet
     {
-        // Attribute
-        public int Id { get; }
+        [VarInt]
+        public int Id;
     }
 }
