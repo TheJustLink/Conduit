@@ -2,18 +2,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using System.Xml.Linq;
-
-using static System.Net.Mime.MediaTypeNames;
+using ConduitServer;
 
 static class Program
 {
     private static void Main(string[] args)
     {
         Console.WriteLine("Hello, World! From Conduit Core");
+
+        Field field = new Field();
+        Type type = field.GetType();
+        var fields = type.GetFields();
+        foreach(var f in fields)
+        {
+            Console.WriteLine(f.ToString());
+        }
+        Console.WriteLine("End");
 
         TcpListener tcpListener = new TcpListener(IPAddress.Any, 25565);
         tcpListener.Start();
@@ -91,8 +97,6 @@ static class Program
 
             stream.Write(resultLogin.ToArray(), 0, resultLogin.Count);
         }
-
-        //Console.WriteLine("Username: " + ReadString(stream));
 
     }
     static int ReadVarInt(Stream stream)
