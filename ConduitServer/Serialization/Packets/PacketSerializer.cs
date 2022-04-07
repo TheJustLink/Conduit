@@ -1,40 +1,63 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
+using ConduitServer.Extensions;
 using ConduitServer.Net.Packets;
 using ConduitServer.Serialization.Attributes;
+using BinaryWriter = ConduitServer.Net.BinaryWriter;
 
 namespace ConduitServer.Serialization.Packets
 {
-    //class PacketSerializer : IPacketSerializer
-    //{
-    //    public byte[] Serialize<T>(T packet) where T : Packet
-    //    {
-    //        var memoryStream = new MemoryStream();
-    //        var writer = new BinaryWriter(memoryStream);
+    class PacketSerializer : IPacketSerializer
+    {
+        public byte[] Serialize<T>(T packet) where T : Packet
+        {
+            using var memory = new MemoryStream();
 
-    //        var type = typeof(T);
-    //        var fields = type.GetFields();
+            Serialize(memory, packet);
 
-    //        foreach (var field in fields)
-    //            SerializeField(BinaryWriter writer, packet, field);
-    //    }
+            return memory.ToArray();
+        }
+        public void Serialize<T>(Stream output, T packet) where T : Packet
+        {
+            using var writer = new BinaryWriter(output, Encoding.UTF8, true);
+            using var bufferStream = new MemoryStream();
+            using var bufferWriter = new BinaryWriter(bufferStream, Encoding.UTF8);
 
-    //    private void SerializeField(BinaryWriter writer, object @object, FieldInfo field)
-    //    {
-    //        var value = field.GetValue(@object);
-    //        if (value == null)
-    //            throw new SerializationException($"Value of field {field.Name} empty");
+            var type = typeof(T);
+            SerializeObject(bufferWriter, type, packet);
+            
+            var buffer = bufferStream.ToArray();
+            packet.Length = buffer.Length + 1;
+            
+            SerializeObject(writer, typeof(Packet), packet);
+            writer.Write(buffer);
+        }
 
-    //        if (field.GetCustomAttribute(typeof(VarIntAttribute), true) != null)
-    //            return SerializeVarInt((int)value);
-    //        if (field.GetCustomAttribute(typeof(VarLongAttribute), true) != null)
-    //            return SerializeVarLong((long)value);
-
-    //        writer.Write();
-    //        writer.Write();
-    //    }
-    //}
+        private static void SerializeObject(BinaryWriter writer, Type type, object @object)
+        {
+            if (type.BaseType != typeof(Packet) && type.BaseType != typeof(object))
+                SerializeObject(writer, type.BaseType, @object);
+            SerializeFields(writer, @object, type.GetDeclaredPublicFields());
+        }
+        private static void SerializeFields(BinaryWriter writer, object @object, FieldInfo[] fields)
+        {
+            foreach (var field in fields)
+                SerializeField(writer, @object, field);
+        }
+        private static void SerializeField(BinaryWriter writer, object @object, FieldInfo field)
+        {
+            var value = field.GetValue(@object);
+            if (value is null)
+                throw new SerializationException($"Value of field {field.Name} empty");
+            
+            if (field.GetCustomAttribute(typeof(VarIntAttribute), true) is not null)
+                writer.Write7BitEncodedInt((int)value);
+            else if (field.GetCustomAttribute(typeof(VarLongAttribute), true) is not null)
+                writer.Write7BitEncodedInt64((long)value);
+            else writer.WriteObject(value);
+        }
+    }
 }

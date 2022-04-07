@@ -1,10 +1,14 @@
 ﻿using System;
-using System.Buffers.Binary;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+
+using ConduitServer.Net.Packets.Handshake;
+using ConduitServer.Net.Packets.Login;
+using ConduitServer.Net.Packets.Status;
+using ConduitServer.Serialization.Packets;
 
 namespace ConduitServer
 {
@@ -20,16 +24,15 @@ namespace ConduitServer
             var client = listener.AcceptTcpClient();
             Console.WriteLine($"Client {client.Client.LocalEndPoint} connected");
 
-            Thread.Sleep(2000);
-
             var countBytes = client.Available;
             Console.WriteLine($"Received {countBytes} bytes");
 
             ReceiveClient(client);
         }
+
         private static void ReceiveClient(TcpClient client)
         {
-            var stream = client.GetStream();
+            using var stream = client.GetStream();
 
             ReadPacket(stream);
 
@@ -38,74 +41,74 @@ namespace ConduitServer
 
         private static void ReadPacket(Stream stream)
         {
-            var reader = new BinaryReader(stream);
-            var writer = new BinaryWriter(stream);
+            var deserializer = new PacketDeserializer();
+            var serializer = new PacketSerializer();
 
-            //var countInPacket = ReadVarInt(stream);
-            //var packetId = ReadVarInt(stream);
-            //var protocolVersion = ReadVarInt(stream);
-            //var serverAddress = ReadVarString(stream);
-            //var serverPort = ReadUShort(stream);
-            //var nextState = ReadVarInt(stream);
-            var countInPacket = reader.Read7BitEncodedInt();
-            var packetId = reader.Read7BitEncodedInt();
-            var protocolVersion = reader.Read7BitEncodedInt();
-            var serverAddress = reader.ReadString();
-            var serverPort = BinaryPrimitives.ReverseEndianness(reader.ReadUInt16());
-            var nextState = reader.Read7BitEncodedInt();
+            var sw = Stopwatch.StartNew();
+            var handshake = deserializer.Deserialize<Handshake>(stream);
+            sw.Stop();
 
+            Console.WriteLine("Deserialization ms = " + sw.ElapsedMilliseconds);
             Console.WriteLine("Get packet:");
-            Console.WriteLine($"[{packetId}](length={countInPacket})");
+            Console.WriteLine($"[{handshake.Id}](length={handshake.Length})");
             Console.WriteLine("HandShake");
-            Console.WriteLine("ProtocolVerision=" + protocolVersion);
-            Console.WriteLine("ServerAddress=" + serverAddress);
-            Console.WriteLine("ServerPort=" + serverPort);
-            Console.WriteLine("NextState=" + nextState);
+            Console.WriteLine("ProtocolVerision=" + handshake.ProtocolVersion);
+            Console.WriteLine("ServerAddress=" + handshake.ServerAddress);
+            Console.WriteLine("ServerPort=" + handshake.ServerPort);
+            Console.WriteLine("NextState=" + handshake.NextState);
 
-            if (nextState == 2) // Login
+            if (handshake.NextState == 2) // Login
             {
-                countInPacket = ReadVarInt(stream);
-                packetId = ReadVarInt(stream);
-                var username = ReadVarString(stream);
+                sw.Restart();
+                var loginStart = deserializer.Deserialize<LoginStart>(stream);
+                sw.Stop();
 
                 Console.WriteLine();
+                Console.WriteLine("Deserialization ms = " + sw.ElapsedMilliseconds);
                 Console.WriteLine("Get packet:");
-                Console.WriteLine($"[{packetId}](length={countInPacket})");
-                Console.WriteLine("Username=" + username);
+                Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
+                Console.WriteLine("Username=" + loginStart.Username);
 
-                WriteVarInt(stream, 1 + 16 + Encoding.UTF8.GetBytes(username).Length);
-                WriteVarInt(stream, 2);
-                WriteUUID(stream, Guid.NewGuid());
-                WriteVarString(stream, username);
+                var loginSuccess = new LoginSuccess()
+                {
+                    Guid = Guid.NewGuid(),
+                    Username = loginStart.Username
+                };
+
+                sw.Restart();
+                serializer.Serialize(stream, loginSuccess);
+                sw.Stop();
+
+                Console.WriteLine();
+                Console.WriteLine("Serialization ms = " + sw.ElapsedMilliseconds);
             }
-            else if (nextState == 1) // Status
+            else if (handshake.NextState == 1) // Status
             {
-                countInPacket = ReadVarInt(stream);
-                packetId = ReadVarInt(stream);
+                sw.Restart();
+                deserializer.Deserialize<Request>(stream);
+                sw.Stop();
+
+                Console.WriteLine();
+                Console.WriteLine("Deserialization ms = " + sw.ElapsedMilliseconds);
+                Console.WriteLine("Get packet:");
+                Console.WriteLine("Request");                
+
+                var statusText = @"{""version"": {""name"": ""Hell server 1.18"",""protocol"": 757},""players"": {""max"": 666,""online"": 99}}";
+                var response = new Response()
+                {
+                    Json = statusText
+                };
+                serializer.Serialize(stream, response);
+
+                var ping = deserializer.Deserialize<Ping>(stream);
 
                 Console.WriteLine();
                 Console.WriteLine("Get packet:");
-                Console.WriteLine($"[{packetId}](length={countInPacket})");
-                Console.WriteLine("Request");
-
-                var statusText2 = @"{""version"": {""name"": ""Hell server 1.18"",""protocol"": 757},""players"": {""max"": 666,""online"": 99}}";
-                WriteVarInt(stream, 1 + 1 + Encoding.UTF8.GetBytes(statusText2).Length);
-                WriteVarInt(stream, 0);
-                WriteVarString(stream, statusText2);
-
-                countInPacket = ReadVarInt(stream);
-                packetId = ReadVarInt(stream);
-                var pingPayload = ReadLong(stream);
-
-                Console.WriteLine();
-                Console.WriteLine("Get packet:");
-                Console.WriteLine($"[{packetId}](length={countInPacket})");
+                Console.WriteLine($"[{ping.Id}](length={ping.Length})");
                 Console.WriteLine("Ping");
-                Console.WriteLine("Payload=" + pingPayload);
+                Console.WriteLine("Payload=" + ping.Payload);
 
-                WriteVarInt(stream, 1 + 8);
-                WriteVarInt(stream, 1);
-                WriteLong(stream, pingPayload);
+                serializer.Serialize(stream, ping);
             }
         }
 
