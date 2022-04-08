@@ -2,7 +2,7 @@
 
 namespace ConduitServer.Services.Listeners
 {
-    interface IClientListener
+    interface IClientListener : IService
     {
         public event Action<Client>? Connected;
     }

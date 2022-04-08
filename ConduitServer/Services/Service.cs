@@ -1,16 +1,39 @@
-﻿namespace ConduitServer.Services
-{
-    class Service : IService
-    {
-        public bool IsRunning { get; }
+﻿using System.Threading;
 
-        public void Start()
+namespace ConduitServer.Services
+{
+    abstract class Service : IService
+    {
+        public bool IsRunning { get; private set; }
+
+        private readonly int _tickRate;
+
+        public Service(int tickRate)
         {
-            throw new System.NotImplementedException();
+            _tickRate = tickRate;
         }
-        public void Stop()
+
+        public virtual void Start()
         {
-            throw new System.NotImplementedException();
+            IsRunning = true;
+
+            var thread = new Thread(ThreadLoop);
+            thread.IsBackground = true;
+            thread.Start();
         }
+        public virtual void Stop()
+        {
+            IsRunning = false;
+        }
+
+        private void ThreadLoop()
+        {
+            while(IsRunning)
+            {
+                Tick();
+                Thread.Sleep(_tickRate);
+            }
+        }
+        protected abstract void Tick();
     }
 }
