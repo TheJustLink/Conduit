@@ -16,6 +16,8 @@ namespace ConduitServer.Net
 {
     internal class Client
     {
+        public Action<Client> Disconnected;
+
         private TcpClient _tcpClient;
 
         public Client(TcpClient tcpClient)
@@ -26,6 +28,8 @@ namespace ConduitServer.Net
         public void ReadPacket()
         {
             var stream = _tcpClient.GetStream();
+            if (!stream.DataAvailable) return;
+
             var deserializer = new PacketDeserializer();
             var serializer = new PacketSerializer();
 
@@ -99,6 +103,7 @@ namespace ConduitServer.Net
                 Console.WriteLine("Payload=" + ping.Payload);
 
                 serializer.Serialize(stream, ping);
+                Disconnected?.Invoke(this);
             }
         }
     }

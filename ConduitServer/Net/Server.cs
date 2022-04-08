@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -13,15 +14,13 @@ namespace ConduitServer.Net
     {
         private TcpListener _listener;
         private bool _isRunning;
-        private List<Client> _clients;
-        private List<Client> _clientToAdd;
+        private ConcurrentDictionary<Client, Client> _clients;
 
         public Server(string ip, int port)
         {
             //IPAddress adress = IPAddress.Parse(_ip)
             _listener = new TcpListener(IPAddress.Any, port);
-            _clients = new List<Client>();
-            _clientToAdd = new List<Client>();
+            _clients = new ConcurrentDictionary<Client, Client>();
         }
 
         public void Start()
@@ -29,7 +28,7 @@ namespace ConduitServer.Net
             _isRunning = true;
 
             Thread acceptThread = new Thread(AcceptLoop);
-            Thread processThread = new Thread(ProcessingPool);
+            Thread processThread = new Thread(ProcessingLoop);
 
             acceptThread.Start();
             processThread.Start();
@@ -52,31 +51,29 @@ namespace ConduitServer.Net
                     var tcpClient = _listener.AcceptTcpClient();
                     var client = new Client(tcpClient);
 
-                    _clientToAdd.Add(client);
+                    client.Disconnected = OnDisconnected;
+                    _clients.TryAdd(client, client);
                 }
                 else
                     Thread.Sleep(1);
             }
         }
-        private void ProcessingPool()
+        private void ProcessingLoop()
         {
             while(_isRunning)
             {
-                if(_clients.Count > 0)
-                {
-                    foreach (var client in _clients)
-                    {
-                        client.ReadPacket();
-                    }
-                }
-                if (_clientToAdd.Count == 0) continue;
+                if (_clients.Count <= 0) continue;
 
-                foreach (var clientToAdd in _clientToAdd)
+                foreach (var client in _clients)
                 {
-                    _clients.Add(clientToAdd);
+                    client.Value.ReadPacket();
                 }
-                _clientToAdd.Clear();
             }
+        }
+
+        private void OnDisconnected(Client client)
+        {
+            _clients.TryRemove(client, out Client value);
         }
     }
 }
