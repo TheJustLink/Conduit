@@ -4,13 +4,8 @@ using ConduitServer.Net.Packets.Status;
 using ConduitServer.Serialization.Packets;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConduitServer.Net
 {

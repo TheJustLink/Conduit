@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ConduitServer.Net
 {
@@ -16,9 +12,8 @@ namespace ConduitServer.Net
         private bool _isRunning;
         private ConcurrentDictionary<Client, Client> _clients;
 
-        public Server(string ip, int port)
+        public Server(int port)
         {
-            //IPAddress adress = IPAddress.Parse(_ip)
             _listener = new TcpListener(IPAddress.Any, port);
             _clients = new ConcurrentDictionary<Client, Client>();
         }

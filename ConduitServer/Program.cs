@@ -19,7 +19,7 @@ namespace ConduitServer
         {
             Console.WriteLine("Server started");
 
-            Server server = new Server("", 666);
+            Server server = new Server(666);
             server.Start();
 
             /*
