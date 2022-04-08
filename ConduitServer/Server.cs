@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace ConduitServer.Net
+namespace ConduitServer
 {
-    internal class Server
+    class Server
     {
         private TcpListener _listener;
         private bool _isRunning;
