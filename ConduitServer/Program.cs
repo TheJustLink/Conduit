@@ -1,83 +1,65 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using ConduitServer;
 
 static class Program
 {
     private static void Main(string[] args)
     {
         Console.WriteLine("Hello, World! From Conduit Core");
-
-        Field field = new Field();
-        Type type = field.GetType();
-        var fields = type.GetFields();
-        foreach(var f in fields)
-        {
-            Console.WriteLine(f.ToString());
-        }
-        Console.WriteLine("End");
+        Console.WriteLine("Server is started");
 
         TcpListener tcpListener = new TcpListener(IPAddress.Any, 25565);
         tcpListener.Start();
-        Console.WriteLine("Server started");
         var client = tcpListener.AcceptTcpClient();
-        Console.WriteLine("Someone Connected");
         var stream = client.GetStream();
 
+        Console.WriteLine("Someone Connected");
+
+        BinaryReader reader = new BinaryReader(stream);
+        BinaryWriter writer = new BinaryWriter(stream);
+
         Console.WriteLine("[Read First Packet]");
-        Console.WriteLine("Packet Length: " + ReadVarInt(stream));
-        Console.WriteLine("Packet ID: " + ReadVarInt(stream));
-        Console.WriteLine("Protocol Version: " + ReadVarInt(stream));
-        Console.WriteLine("Server Adress: " + ReadString(stream));
-        Console.WriteLine("Server Port: " + ReadPort(stream));
-        var nextState = ReadVarInt(stream);
+        Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
+        Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
+        Console.WriteLine("Protocol Version: " + reader.Read7BitEncodedInt());
+        Console.WriteLine("Server Adress: " + reader.ReadString());
+        Console.WriteLine("Server Port: " + BinaryPrimitives.ReverseEndianness(reader.ReadUInt16()));
+        var nextState = reader.Read7BitEncodedInt();
         Console.WriteLine("Next State: " + nextState);
 
         if(nextState == 1)
         {
             Console.WriteLine("[Read Second Packet]");
-            Console.WriteLine("Packet Length: " + ReadVarInt(stream));
-            Console.WriteLine("Packet ID: " + ReadVarInt(stream));
-            var data = new List<byte>();
-            var result = new List<byte>();
-            WriteVarInt(0, data);
-            WriteString(@"{""version"": {""name"": ""1.18"",""protocol"": 757},""players"": {""max"": 666,""online"": 1200}}", data);
-            WriteVarInt(data.Count, result);
+            Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
+            Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
 
-            foreach (var b in data)
-            {
-                result.Add(b);
-            }
-            stream.Write(result.ToArray(), 0, result.Count);
+            var jsonString = @"{""version"": {""name"": ""1.18"",""protocol"": 757},""players"": {""max"": 777,""online"": 444}}";
+
+            writer.Write7BitEncodedInt(Encoding.UTF8.GetBytes(jsonString).Length + 2);
+            writer.Write7BitEncodedInt(0);
+            writer.Write(jsonString);
 
             Console.WriteLine("[Read Third Packet]");
-            Console.WriteLine("Packet Length: " + ReadVarInt(stream));
-            Console.WriteLine("Packet ID: " + ReadVarInt(stream));
-            var value = ReadLong(stream);
+            Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
+            Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
+            var value = reader.ReadInt64();
             Console.WriteLine("Long: " + value);
 
-            var pongData = new List<byte>();
-            var pongResult = new List<byte>();
-            WriteVarInt(1, pongData);
-            WriteLong(value, pongData);
-            WriteVarInt(pongData.Count, pongResult);
-
-            foreach (var b in pongData)
-            {
-                pongResult.Add(b);
-            }
-            stream.Write(pongResult.ToArray(), 0, pongResult.Count);
+            writer.Write7BitEncodedInt(9);
+            writer.Write7BitEncodedInt(1);
+            writer.Write(value);
         }
         else if(nextState == 2)
         {
             Console.WriteLine("[Read Second Packet]");
-            Console.WriteLine("Packet Length: " + ReadVarInt(stream));
-            Console.WriteLine("Packet ID: " + ReadVarInt(stream));
-            var username = ReadString(stream);
+            Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
+            Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
+            var username = reader.ReadString();
             Console.WriteLine("Username: " + username);
             var guid = Guid.NewGuid().ToByteArray();
 
@@ -95,7 +77,7 @@ static class Program
                 resultLogin.Add(b);
             }
 
-            stream.Write(resultLogin.ToArray(), 0, resultLogin.Count);
+            writer.Write(resultLogin.ToArray(), 0, resultLogin.Count);
         }
 
     }
