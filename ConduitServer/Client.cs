@@ -1,13 +1,12 @@
-﻿using ConduitServer.Net.Packets.Handshake;
+﻿using System;
+using System.Diagnostics;
+using System.Net.Sockets;
+using ConduitServer.Net.Packets.Handshake;
 using ConduitServer.Net.Packets.Login;
 using ConduitServer.Net.Packets.Status;
 using ConduitServer.Serialization.Packets;
 
-using System;
-using System.Diagnostics;
-using System.Net.Sockets;
-
-namespace ConduitServer.Net
+namespace ConduitServer
 {
     internal class Client
     {

@@ -1,5 +1,4 @@
 ﻿using System;
-using ConduitServer.Net;
 
 namespace ConduitServer
 {
@@ -7,10 +6,14 @@ namespace ConduitServer
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine("Server started");
-
-            Server server = new Server(666);
+            InitializeConsole();
+            
+            var server = new Server(666);
             server.Start();
+        }
+        private static void InitializeConsole()
+        {
+            Console.Title = "Conduit Minecraft Server";
         }
     }
 }
