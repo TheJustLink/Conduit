@@ -1,171 +1,239 @@
 ﻿using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-static class Program
+using ConduitServer.Net.Packets.Handshake;
+using ConduitServer.Net.Packets.Login;
+using ConduitServer.Net.Packets.Status;
+using ConduitServer.Serialization.Packets;
+
+namespace ConduitServer
 {
-    private static void Main(string[] args)
+    static class Program
     {
-        Console.WriteLine("Hello, World! From Conduit Core");
-        Console.WriteLine("Server is started");
-
-        TcpListener tcpListener = new TcpListener(IPAddress.Any, 25565);
-        tcpListener.Start();
-        var client = tcpListener.AcceptTcpClient();
-        var stream = client.GetStream();
-
-        Console.WriteLine("Someone Connected");
-
-        BinaryReader reader = new BinaryReader(stream);
-        BinaryWriter writer = new BinaryWriter(stream);
-
-        Console.WriteLine("[Read First Packet]");
-        Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
-        Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
-        Console.WriteLine("Protocol Version: " + reader.Read7BitEncodedInt());
-        Console.WriteLine("Server Adress: " + reader.ReadString());
-        Console.WriteLine("Server Port: " + BinaryPrimitives.ReverseEndianness(reader.ReadUInt16()));
-        var nextState = reader.Read7BitEncodedInt();
-        Console.WriteLine("Next State: " + nextState);
-
-        if(nextState == 1)
+        private static void Main(string[] args)
         {
-            Console.WriteLine("[Read Second Packet]");
-            Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
-            Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
+            Console.WriteLine("Server started");
 
-            var jsonString = @"{""version"": {""name"": ""1.18"",""protocol"": 757},""players"": {""max"": 777,""online"": 444}}";
+            var listener = new TcpListener(IPAddress.Any, 666);
+            listener.Start();
 
-            writer.Write7BitEncodedInt(Encoding.UTF8.GetBytes(jsonString).Length + 2);
-            writer.Write7BitEncodedInt(0);
-            writer.Write(jsonString);
+            var client = listener.AcceptTcpClient();
+            Console.WriteLine($"Client {client.Client.LocalEndPoint} connected");
 
-            Console.WriteLine("[Read Third Packet]");
-            Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
-            Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
-            var value = reader.ReadInt64();
-            Console.WriteLine("Long: " + value);
+            var countBytes = client.Available;
+            Console.WriteLine($"Received {countBytes} bytes");
 
-            writer.Write7BitEncodedInt(9);
-            writer.Write7BitEncodedInt(1);
-            writer.Write(value);
+            ReceiveClient(client);
         }
-        else if(nextState == 2)
-        {
-            Console.WriteLine("[Read Second Packet]");
-            Console.WriteLine("Packet Length: " + reader.Read7BitEncodedInt());
-            Console.WriteLine("Packet ID: " + reader.Read7BitEncodedInt());
-            var username = reader.ReadString();
-            Console.WriteLine("Username: " + username);
-            var guid = Guid.NewGuid().ToByteArray();
 
-            var resultLogin = new List<byte>();
-            var loginData = new List<byte>();
-            WriteVarInt(2, loginData);
-            foreach(var b in guid)
+        private static void ReceiveClient(TcpClient client)
+        {
+            using var stream = client.GetStream();
+
+            ReadPacket(stream);
+
+            client.Close();
+        }
+
+        private static void ReadPacket(Stream stream)
+        {
+            var deserializer = new PacketDeserializer();
+            var serializer = new PacketSerializer();
+
+            var sw = Stopwatch.StartNew();
+            var handshake = deserializer.Deserialize<Handshake>(stream);
+            sw.Stop();
+
+            Console.WriteLine("Deserialization ms = " + sw.ElapsedMilliseconds);
+            Console.WriteLine("Get packet:");
+            Console.WriteLine($"[{handshake.Id}](length={handshake.Length})");
+            Console.WriteLine("HandShake");
+            Console.WriteLine("ProtocolVerision=" + handshake.ProtocolVersion);
+            Console.WriteLine("ServerAddress=" + handshake.ServerAddress);
+            Console.WriteLine("ServerPort=" + handshake.ServerPort);
+            Console.WriteLine("NextState=" + handshake.NextState);
+
+            if (handshake.NextState == 2) // Login
             {
-                loginData.Add(b);
+                sw.Restart();
+                var loginStart = deserializer.Deserialize<LoginStart>(stream);
+                sw.Stop();
+
+                Console.WriteLine();
+                Console.WriteLine("Deserialization ms = " + sw.ElapsedMilliseconds);
+                Console.WriteLine("Get packet:");
+                Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
+                Console.WriteLine("Username=" + loginStart.Username);
+
+                var loginSuccess = new LoginSuccess()
+                {
+                    Guid = Guid.NewGuid(),
+                    Username = loginStart.Username
+                };
+
+                sw.Restart();
+                serializer.Serialize(stream, loginSuccess);
+                sw.Stop();
+
+                Console.WriteLine();
+                Console.WriteLine("Serialization ms = " + sw.ElapsedMilliseconds);
             }
-            WriteString(username, loginData);
-            WriteVarInt(loginData.Count, resultLogin);
-            foreach(var b in loginData)
+            else if (handshake.NextState == 1) // Status
             {
-                resultLogin.Add(b);
-            }
+                sw.Restart();
+                deserializer.Deserialize<Request>(stream);
+                sw.Stop();
 
-            writer.Write(resultLogin.ToArray(), 0, resultLogin.Count);
-        }
+                Console.WriteLine();
+                Console.WriteLine("Deserialization ms = " + sw.ElapsedMilliseconds);
+                Console.WriteLine("Get packet:");
+                Console.WriteLine("Request");                
 
-    }
-    static int ReadVarInt(Stream stream)
-    {
-        var value = 0;
-        var size = 0;
-        int b;
-        while (((b = stream.ReadByte()) & 0x80) == 0x80)
-        {
-            value |= (b & 0x7F) << (size++ * 7);
-            if (size > 5)
-            {
-                throw new IOException("VarInt too long.");
-            }
-        }
-        return value | ((b & 0x7F) << (size * 7));
-    }
-    static long ReadLong(Stream stream)
-    {
-        var l = Read(8, stream);
-        return IPAddress.NetworkToHostOrder(BitConverter.ToInt64(l, 0));
-    }
-    static string ReadString(Stream stream)
-    {
-        var length = ReadVarInt(stream);
-        var stringValue = Read(length, stream);
-        return Encoding.UTF8.GetString(stringValue);
-    }
-    static ushort ReadPort(Stream stream)
-    {
-        var bytes = Read(2, stream);
-        int port = bytes[1] | (bytes[0] << 8);
+                var statusText = @"{""version"": {""name"": ""Hell server 1.18"",""protocol"": 757},""players"": {""max"": 666,""online"": 99}}";
+                var response = new Response()
+                {
+                    Json = statusText
+                };
+                
+                sw.Restart();
+                serializer.Serialize(stream, response);
+                sw.Stop();
+                Console.WriteLine();
+                Console.WriteLine("Serialization ms = " + sw.ElapsedMilliseconds);
 
-        return (ushort)port;
-    }
-    static byte[] Read(int length, Stream stream)
-    {
-        var buffered = new List<byte>();
-        for (int i = 0; i < length; i++)
-        {
-            buffered.Add((byte)stream.ReadByte());
-        }
-        return buffered.ToArray();
-    }
+                var ping = deserializer.Deserialize<Ping>(stream);
 
-    static void WriteVarInt(int integer, List<byte> buffer)
-    {
-        while ((integer & -128) != 0)
-        {
-            buffer.Add((byte)(integer & 127 | 128));
-            integer = (int)(((uint)integer) >> 7);
-        }
-        buffer.Add((byte)integer);
-    }
-    static int ReadVarInt(List<byte> buffer)
-    {
-        var value = 0;
-        var size = 0;
-        int b;
-        while (((b = buffer[size]) & 0x80) == 0x80)
-        {
-            value |= (b & 0x7F) << (size++ * 7);
-            if (size > 5)
-            {
-                throw new IOException("VarInt too long.");
+                Console.WriteLine();
+                Console.WriteLine("Get packet:");
+                Console.WriteLine($"[{ping.Id}](length={ping.Length})");
+                Console.WriteLine("Ping");
+                Console.WriteLine("Payload=" + ping.Payload);
+
+                serializer.Serialize(stream, ping);
             }
         }
-        return value | ((b & 0x7F) << (size * 7));
-    }
-    static void WriteString(string str, List<byte> buffer)
-    {
-        byte[] data = Encoding.UTF8.GetBytes(str);
-        WriteVarInt(data.Length, buffer);
-        foreach (var b in data)
+
+        private static void WriteVarString(Stream stream, string data)
         {
-            buffer.Add(b);
+            var stringData = Encoding.UTF8.GetBytes(data);
+
+            WriteVarInt(stream, stringData.Length);
+            stream.Write(stringData);
         }
-    }
-    static void WriteLong(long data, List<byte> buffer)
-    {
-        Write(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(data)), buffer);
-    }
-    static void Write(byte[] data, List<byte> buffer)
-    {
-        foreach (var i in data)
+        private static void WriteVarInt(Stream stream, int number)
         {
-            buffer.Add(i);
+            const int countBitsInSegment = 7;
+            const int segmentMask = 0x7F;
+            const int continueBitMask = 0x80;
+
+            while ((number & ~segmentMask) != 0)
+            {
+                stream.WriteByte((byte)((number & segmentMask) | continueBitMask));
+                number = (int)((uint)number >> countBitsInSegment);
+            }
+            stream.WriteByte((byte)number);
+        }
+        private static void WriteVarLong(Stream stream, long number)
+        {
+            const int countBitsInSegment = 7;
+            const int segmentMask = 0x7F;
+            const int continueBitMask = 0x80;
+
+            while ((number & ~segmentMask) != 0)
+            {
+                stream.WriteByte((byte)((number & segmentMask) | continueBitMask));
+                number = (long)((ulong)number >> countBitsInSegment);
+            }
+            stream.WriteByte((byte)number);
+        }
+
+        private static void WriteUUID(Stream stream, Guid guid)
+        {
+            stream.Write(guid.ToByteArray());
+        }
+        private static void WriteLong(Stream stream, long number)
+        {
+            stream.Write(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(number)));
+        }
+
+        private static ushort ReadUShort(Stream stream)
+        {
+            var byte1 = stream.ReadByte();
+            var byte2 = stream.ReadByte();
+
+            return (ushort)(byte2 | (byte1 << 8));
+        }
+        private static ushort ReadUShort2(Stream stream)
+        {
+            var buffer = new byte[2];
+            stream.Read(buffer);
+
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(buffer);
+
+            return BitConverter.ToUInt16(buffer);
+        }
+        private static long ReadLong(Stream stream)
+        {
+            var buffer = new byte[8];
+
+            stream.Read(buffer);
+
+            return IPAddress.NetworkToHostOrder(BitConverter.ToInt64(buffer, 0));
+        }
+
+        private static string ReadVarString(Stream stream)
+        {
+            var length = ReadVarInt(stream);
+            var buffer = new byte[length];
+
+            stream.Read(buffer);
+
+            return Encoding.UTF8.GetString(buffer);
+        }
+        private static int ReadVarInt(Stream stream)
+        {
+            const int countBitsInSegment = 7;
+            const int segmentMask = 0x7F;
+            const int continueBitMask = 0x80;
+
+            int value = 0;
+            int size = 0;
+            int numberSegment;
+
+            while (((numberSegment = stream.ReadByte()) & continueBitMask) == continueBitMask)
+            {
+                value |= (numberSegment & segmentMask) << (size++ * countBitsInSegment);
+
+                if (size > 5)
+                    throw new IOException("VarInt too long");
+            }
+
+            return value | ((numberSegment & segmentMask) << (size * countBitsInSegment));
+        }
+        private static int ReadVarLong(Stream stream)
+        {
+            const int countBitsInSegment = 7;
+            const int segmentMask = 0x7F;
+            const int continueBitMask = 0x80;
+
+            int value = 0;
+            int size = 0;
+            int numberSegment;
+
+            while (((numberSegment = stream.ReadByte()) & continueBitMask) == continueBitMask)
+            {
+                value |= (numberSegment & segmentMask) << (size++ * countBitsInSegment);
+
+                if (size > 10)
+                    throw new IOException("VarLong too long");
+            }
+
+            return value | ((numberSegment & segmentMask) << (size * countBitsInSegment));
         }
     }
 }
