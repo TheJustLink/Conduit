@@ -16,20 +16,21 @@ namespace ConduitServer.Net
 {
     internal class Client
     {
-        private Stream _stream;
+        private TcpClient _tcpClient;
 
-        public Client(Stream stream)
+        public Client(TcpClient tcpClient)
         {
-            _stream = stream;
+            _tcpClient = tcpClient;
         }
 
         public void ReadPacket()
         {
+            var stream = _tcpClient.GetStream();
             var deserializer = new PacketDeserializer();
             var serializer = new PacketSerializer();
 
             var sw = Stopwatch.StartNew();
-            var handshake = deserializer.Deserialize<Handshake>(_stream);
+            var handshake = deserializer.Deserialize<Handshake>(stream);
             sw.Stop();
 
             Console.WriteLine("Deserialization ms = " + sw.ElapsedMilliseconds);
@@ -44,7 +45,7 @@ namespace ConduitServer.Net
             if (handshake.NextState == 2) // Login
             {
                 sw.Restart();
-                var loginStart = deserializer.Deserialize<LoginStart>(_stream);
+                var loginStart = deserializer.Deserialize<LoginStart>(stream);
                 sw.Stop();
 
                 Console.WriteLine();
@@ -60,7 +61,7 @@ namespace ConduitServer.Net
                 };
 
                 sw.Restart();
-                serializer.Serialize(_stream, loginSuccess);
+                serializer.Serialize(stream, loginSuccess);
                 sw.Stop();
 
                 Console.WriteLine();
@@ -69,7 +70,7 @@ namespace ConduitServer.Net
             else if (handshake.NextState == 1) // Status
             {
                 sw.Restart();
-                deserializer.Deserialize<Request>(_stream);
+                deserializer.Deserialize<Request>(stream);
                 sw.Stop();
 
                 Console.WriteLine();
@@ -84,12 +85,12 @@ namespace ConduitServer.Net
                 };
 
                 sw.Restart();
-                serializer.Serialize(_stream, response);
+                serializer.Serialize(stream, response);
                 sw.Stop();
                 Console.WriteLine();
                 Console.WriteLine("Serialization ms = " + sw.ElapsedMilliseconds);
 
-                var ping = deserializer.Deserialize<Ping>(_stream);
+                var ping = deserializer.Deserialize<Ping>(stream);
 
                 Console.WriteLine();
                 Console.WriteLine("Get packet:");
@@ -97,7 +98,7 @@ namespace ConduitServer.Net
                 Console.WriteLine("Ping");
                 Console.WriteLine("Payload=" + ping.Payload);
 
-                serializer.Serialize(_stream, ping);
+                serializer.Serialize(stream, ping);
             }
         }
     }
