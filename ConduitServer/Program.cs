@@ -98,7 +98,12 @@ namespace ConduitServer
                 {
                     Json = statusText
                 };
+                
+                sw.Restart();
                 serializer.Serialize(stream, response);
+                sw.Stop();
+                Console.WriteLine();
+                Console.WriteLine("Serialization ms = " + sw.ElapsedMilliseconds);
 
                 var ping = deserializer.Deserialize<Ping>(stream);
 
