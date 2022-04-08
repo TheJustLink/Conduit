@@ -9,6 +9,7 @@ using ConduitServer.Net.Packets.Handshake;
 using ConduitServer.Net.Packets.Login;
 using ConduitServer.Net.Packets.Status;
 using ConduitServer.Serialization.Packets;
+using ConduitServer.Net;
 
 namespace ConduitServer
 {
@@ -18,6 +19,10 @@ namespace ConduitServer
         {
             Console.WriteLine("Server started");
 
+            Server server = new Server("", 666);
+            server.Start();
+
+            /*
             var listener = new TcpListener(IPAddress.Any, 666);
             listener.Start();
 
@@ -28,6 +33,7 @@ namespace ConduitServer
             Console.WriteLine($"Received {countBytes} bytes");
 
             ReceiveClient(client);
+            */
         }
 
         private static void ReceiveClient(TcpClient client)
