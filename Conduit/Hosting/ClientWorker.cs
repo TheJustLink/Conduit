@@ -22,6 +22,7 @@ namespace Conduit.Hosting
         {
             MemoryStream ms = new MemoryStream();
             ms.Write(ClientMaintainer.VClient.NetworkStream.ReadData(length));
+            ms.Position = 0;
             return ms;
         }
         protected void WaitToAvailable()

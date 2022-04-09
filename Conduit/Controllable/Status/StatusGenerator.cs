@@ -20,7 +20,7 @@ namespace Conduit.Controllable.Status
                 Version = new Version()
                 {
                     Name = "Conduit # 1.18.2",
-                    ProtocolVersion = 758,
+                    ProtocolVersion = 757,
                 },
                 Players = new Players()
                 {

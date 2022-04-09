@@ -9,6 +9,6 @@ namespace Conduit.Controllable.Status
 {
     public interface IStatus
     {
-        public StatusInfo GetInfo();
+        public string GetInfo();
     }
 }

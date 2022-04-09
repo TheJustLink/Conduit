@@ -11,14 +11,16 @@ namespace Conduit.Controllable.Status
     public abstract class StatusCacher : IStatus, IMoreToOne
     {
         public StatusInfo LastStatusInfo;
-        public StatusInfo GetInfo()
+        public string CachedJSON;
+        public string GetInfo()
         {
-            return LastStatusInfo;
+            return CachedJSON;
         }
 
         public void Invoke()
         {
             LastStatusInfo = Maintain();
+            CachedJSON = LastStatusInfo.Serialize();
         }
 
         /// <summary>
