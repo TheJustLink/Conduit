@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Conduit.Network.Protocol.Serializable
 {
-    public enum ClientState
+    public enum NetworkState
     {
         Handshake,
         Status,

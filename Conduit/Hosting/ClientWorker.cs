@@ -17,7 +17,7 @@ namespace Conduit.Hosting
         {
             ClientMaintainer = cm;
         }
-        public abstract void Maintain();
+        public abstract void Handling();
         protected MemoryStream ReadToStream(int length)
         {
             MemoryStream ms = new MemoryStream();

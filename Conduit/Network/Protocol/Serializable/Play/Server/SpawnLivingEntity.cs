@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Network.Protocol.Serializable.Play
+namespace Conduit.Network.Protocol.Serializable.Play.Server
 {
-    public sealed class SpawnEntity : Packet
+    public sealed class SpawnLivingEntity : Packet
     {
         [VarInt]
         public int EntityID;
@@ -20,9 +20,14 @@ namespace Conduit.Network.Protocol.Serializable.Play
         public double Z;
         public double Pitch;
         public double Yaw;
-        public int Data;
+        public double HeadYaw;
         public short VelocityX;
         public short VelocityY;
         public short VelocityZ;
+
+        public SpawnLivingEntity()
+        {
+            Id = 0x02;
+        }
     }
 }

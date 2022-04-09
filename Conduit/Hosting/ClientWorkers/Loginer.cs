@@ -16,7 +16,7 @@ namespace Conduit.Hosting.ClientWorkers
         {
         }
 
-        public override void Maintain()
+        public override void Handling()
         {
             WaitToAvailable();
 
@@ -27,21 +27,30 @@ namespace Conduit.Hosting.ClientWorkers
             {
                 default:
                     {
-                        MemoryStream ms = ReadToStream(onlyheader.Length - 1);
-                        OnLoginStart(ms);
+                        OnLoginStart(onlyheader.Length - 1);
                         break;
                     }
                 case 0x01:
                     {
-                        
+                        OnEncryptionResponse(onlyheader.Length - 1);
                         break;
                     }
             }
 
         }
 
-        private void OnLoginStart(MemoryStream ms)
+        private void OnEncryptionResponse(int len)
         {
+            MemoryStream ms = ReadToStream(len);
+
+            var lea = new LoginEncryptionResponse();
+            ClientMaintainer.Protocol.SLoginEncryptionResponse.DeserializeLess(ms, lea);
+
+        }
+
+        private void OnLoginStart(int len)
+        {
+            MemoryStream ms = ReadToStream(len);
             var loginstart = new LoginStart();
             ClientMaintainer.Protocol.SLoginStart.DeserializeLess(ms, loginstart);
             Console.WriteLine("Username=" + loginstart.Username);
@@ -54,7 +63,7 @@ namespace Conduit.Hosting.ClientWorkers
 
             ClientMaintainer.Protocol.SLoginSuccess.Serialize(ClientMaintainer.VClient.NetworkStream, loginSuccess);
 
-            ClientMaintainer.ChangeState(ClientState.Play);
+            ClientMaintainer.ChangeState(NetworkState.Play); // тут кароч рано писать пероход на игру но можно и так а так надо понять как робит шифрование
         }
     }
 }

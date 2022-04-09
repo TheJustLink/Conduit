@@ -23,6 +23,8 @@ namespace Conduit.Hosting
 
         public Serializator<LoginStart> SLoginStart { get; private set; }
         public Serializator<LoginSuccess> SLoginSuccess { get; private set; }
+        public Serializator<LoginEncryptionResponse> SLoginEncryptionResponse { get; private set; }
+        public Serializator<LoginEncryptionRequest> SLoginEncryptionRequest { get; private set; }
 
         public Protocol()
         {
@@ -37,6 +39,8 @@ namespace Conduit.Hosting
 
             SLoginStart = new Serializator<LoginStart>();
             SLoginSuccess = new Serializator<LoginSuccess>();
+            SLoginEncryptionResponse = new Serializator<LoginEncryptionResponse>();
+            SLoginEncryptionRequest = new Serializator<LoginEncryptionRequest>();
         }
     }
 }

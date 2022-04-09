@@ -18,7 +18,7 @@ namespace Conduit.Hosting.ClientWorkers
         {
         }
 
-        public override void Maintain()
+        public override void Handling()
         {
             WaitToAvailable();
 
@@ -29,13 +29,12 @@ namespace Conduit.Hosting.ClientWorkers
             {
                 default:
                     {
-                        MaintainStatus();
+                        OnStatus();
                         break;
                     }
                 case 0x01:
                     {
-                        MemoryStream ms = ReadToStream(onlyheader.Length - 1);
-                        MaintainPing(ms);
+                        OnPing(onlyheader.Length - 1);
                         break;
                     }
             }
@@ -43,7 +42,7 @@ namespace Conduit.Hosting.ClientWorkers
             if (Pinged)
                 ShutdownClient();
         }
-        private void MaintainStatus()
+        private void OnStatus()
         {
             Console.WriteLine("Requested status");
 
@@ -57,8 +56,10 @@ namespace Conduit.Hosting.ClientWorkers
             sw.Stop();
             Console.WriteLine($"Serialized response for {sw.Elapsed.TotalMilliseconds}ms");
         }
-        private void MaintainPing(MemoryStream ms)
+        private void OnPing(int len)
         {
+            MemoryStream ms = ReadToStream(len);
+
             var ping = new Ping();
             ClientMaintainer.Protocol.SPing.DeserializeLess(ms, ping);
             Console.WriteLine("Requested ping");

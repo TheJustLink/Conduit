@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Network.Protocol.Serializable.Play
+namespace Conduit.Network.Protocol.Serializable.Play.Server
 {
     public sealed class SpawnXPOrb : Packet
     {

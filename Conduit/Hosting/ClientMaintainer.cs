@@ -20,12 +20,12 @@ namespace Conduit.Hosting
         public Player Player { get; private set; }
         public Stater Stater { get; private set; }
         public ClientWorker CurrentWorker { get; private set; }
-        public ClientState State { get; private set; }
+        public NetworkState State { get; private set; }
         public ClientMaintainer(VClient vClient)
         {
             VClient = vClient;
             Protocol = VClient.ServerInstance.Protocol;
-            State = ClientState.Handshake;
+            State = NetworkState.Handshake;
 
             Handshaker = new Handshaker(this);
             Stater = new Stater(this);
@@ -34,26 +34,26 @@ namespace Conduit.Hosting
 
             CurrentWorker = Handshaker;
         }
-        public void ChangeState(ClientState state)
+        public void ChangeState(NetworkState state)
         {
             if (State == state || // if current state equals requested state
-                !Enum.IsDefined(typeof(ClientState), state)) // if not defined in enum
+                !Enum.IsDefined(typeof(NetworkState), state)) // if not defined in enum
                 return; // break;
 
             State = state;
             switch (State)
             {
-                case ClientState.Status:
+                case NetworkState.Status:
                     {
                         CurrentWorker = Stater;
                         break;
                     }
-                case ClientState.Login:
+                case NetworkState.Login:
                     {
                         CurrentWorker = Loginer;
                         break;
                     }
-                case ClientState.Play:
+                case NetworkState.Play:
                     {
                         CurrentWorker = Player;
                         break;
@@ -63,7 +63,7 @@ namespace Conduit.Hosting
 
         public void MaintaintClient()
         {
-            CurrentWorker.Maintain();
+            CurrentWorker.Handling();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Conduit.Hosting.ClientWorkers
         {
         }
 
-        public override void Maintain()
+        public override void Handling()
         {
             WaitToAvailable();
 
@@ -31,12 +31,12 @@ namespace Conduit.Hosting.ClientWorkers
             {
                 case NextState.Status:
                     {
-                        ClientMaintainer.ChangeState(ClientState.Status);
+                        ClientMaintainer.ChangeState(NetworkState.Status);
                         break;
                     }
                 case NextState.Login:
                     {
-                        ClientMaintainer.ChangeState(ClientState.Login);
+                        ClientMaintainer.ChangeState(NetworkState.Login);
                         break;
                     }
             }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Conduit.Network.Protocol.Serializable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,26 @@ namespace Conduit.Hosting.ClientWorkers
         {
         }
 
-        public override void Maintain()
+        public override void Handling()
         {
-            throw new NotImplementedException("ща");
+            Packet onlyheader = new Packet();
+            ClientMaintainer.Protocol.SPacket.Deserialize(ClientMaintainer.VClient.NetworkStream, onlyheader);
+            
+            switch (onlyheader.Id)
+            {
+                default:
+                    {
+                        //OnStatus();
+                        break;
+                    }
+                case 0x01:
+                    {
+                        //OnPing(onlyheader.Length - 1);
+                        break;
+                    }
+            }
+
+
         }
     }
 }
