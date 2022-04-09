@@ -14,7 +14,7 @@ namespace Conduit.Hosting.ClientWorkers
 
         public override void Maintain()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("ща");
         }
     }
 }

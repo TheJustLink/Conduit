@@ -21,13 +21,14 @@ namespace Conduit.Hosting.ClientWorkers
             WaitToAvailable();
 
             Packet onlyheader = new Packet();
-            ClientMaintainer.Protocol.SPacket.Deserialize(ClientMaintainer.VClient.NetworkStream, onlyheader, out MemoryStream readed);
+            ClientMaintainer.Protocol.SPacket.Deserialize(ClientMaintainer.VClient.NetworkStream, onlyheader);
 
             switch (onlyheader.Id)
             {
                 default:
                     {
-                        OnLoginStart(readed);
+                        MemoryStream ms = ReadToStream(onlyheader.Length - 1);
+                        OnLoginStart(ms);
                         break;
                     }
                 case 0x01:
@@ -39,12 +40,10 @@ namespace Conduit.Hosting.ClientWorkers
 
         }
 
-        private void OnLoginStart(Stream stream)
+        private void OnLoginStart(MemoryStream ms)
         {
-            var cstream = new ConnectedStreams(stream, ClientMaintainer.VClient.NetworkStream);
-
             var loginstart = new LoginStart();
-            ClientMaintainer.Protocol.SLoginStart.Deserialize(cstream, loginstart);
+            ClientMaintainer.Protocol.SLoginStart.DeserializeLess(ms, loginstart);
             Console.WriteLine("Username=" + loginstart.Username);
 
             var loginSuccess = new LoginSuccess()
