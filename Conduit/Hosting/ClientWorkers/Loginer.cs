@@ -40,7 +40,7 @@ namespace Conduit.Hosting.ClientWorkers
 
         private void OnEncryptionResponse(byte[] data)
         {
-            MemoryStream ms = new MemoryStream(data);
+            MemoryStream ms = new(data);
 
             var lea = new LoginEncryptionResponse();
             ClientMaintainer.Protocol.SLoginEncryptionResponse.DeserializeLess(ms, lea);
@@ -49,7 +49,7 @@ namespace Conduit.Hosting.ClientWorkers
 
         private void OnLoginStart(byte[] data)
         {
-            MemoryStream ms = new MemoryStream(data);
+            MemoryStream ms = new(data);
             var loginstart = new LoginStart();
             ClientMaintainer.Protocol.SLoginStart.DeserializeLess(ms, loginstart);
             ms.Close();

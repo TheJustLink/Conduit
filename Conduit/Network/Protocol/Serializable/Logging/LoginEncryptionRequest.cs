@@ -11,10 +11,15 @@ namespace Conduit.Network.Protocol.Serializable.Logging
     {
         public string ServerID;
         [VarInt]
+        [BigDataLength(1)]
         public int PublicKeyLength;
+        [BigData(1)]
         public byte[] PublicKey;
+
         [VarInt]
+        [BigDataLength(2)]
         public int VerifyTokenLength;
+        [BigData(2)]
         public byte[] VerifyToken;
 
         public LoginEncryptionRequest()
