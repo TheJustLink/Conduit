@@ -1,5 +1,6 @@
 ﻿using Conduit.Network.Protocol.Serializable;
 using Conduit.Network.Protocol.Serializable.Logging;
+using Conduit.Network.Protocol.Serializable.Play.Server;
 using Conduit.Network.Protocol.Serializable.Status;
 using Conduit.Network.Serialization;
 using System;
@@ -26,6 +27,7 @@ namespace Conduit.Hosting
         public Serializator<LoginEncryptionResponse> SLoginEncryptionResponse { get; private set; }
         public Serializator<LoginEncryptionRequest> SLoginEncryptionRequest { get; private set; }
 
+        public Serializator<SpawnPlayer> SSpawnPlayer { get; private set; }
         public Protocol()
         {
             SPacket = new Serializator<Packet>();
@@ -41,6 +43,8 @@ namespace Conduit.Hosting
             SLoginSuccess = new Serializator<LoginSuccess>();
             SLoginEncryptionResponse = new Serializator<LoginEncryptionResponse>(true);
             SLoginEncryptionRequest = new Serializator<LoginEncryptionRequest>(true);
+            
+            SSpawnPlayer = new Serializator<SpawnPlayer>();
         }
     }
 }

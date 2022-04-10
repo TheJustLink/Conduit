@@ -16,7 +16,7 @@ namespace Conduit
         {
             ThreadPoolTool.Setup();
             Server = new Server();
-            Server.ServerIntergrate.Setup(new MCServer());
+            //Server.ServerIntergrate.Setup(new MCServer());
 
             var sgen = new StatusGenerator();
             sgen.Invoke(); 

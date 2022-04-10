@@ -1,6 +1,7 @@
 ﻿using Conduit.Network.JSON.Chat;
 using Conduit.Network.Protocol.Serializable;
 using Conduit.Network.Protocol.Serializable.Logging;
+using Conduit.Network.Protocol.Serializable.Play.Server;
 using Conduit.Network.Protocol.Serializable.Status;
 using Conduit.Utilities;
 using System;
@@ -56,7 +57,6 @@ namespace Conduit.Hosting.ClientWorkers
             ClientMaintainer.Protocol.SLoginStart.DeserializeLess(ms, loginstart);
             ms.Close();
             Console.WriteLine("Username=" + loginstart.Username);
-
 
             if (!ClientMaintainer.VClient.ServerInstance.ServerIntergrate.HandleState(out string mes))
             {

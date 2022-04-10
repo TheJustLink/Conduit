@@ -8,5 +8,7 @@ namespace Conduit.Minecraft.Game.Objects
 {
     public class Entity : UniqueObject
     {
+        public bool IsSpawned;
+        public double Health;
     }
 }

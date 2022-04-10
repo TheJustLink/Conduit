@@ -7,11 +7,16 @@ using System.Threading.Tasks;
 
 namespace Conduit.Minecraft.Game.Objects
 {
-    public class Player : Entity
+    public class Player : AdvancedEntity
     {
         private VClient vClient;
 
         public string Username;
+        public ulong Gamemode; // 0: survival | minecraft reserved
+                               // 1: creative
+                               // 2: adventure
+                               // 3: spectator
+        
 
         public Player(VClient vCl)
         {
