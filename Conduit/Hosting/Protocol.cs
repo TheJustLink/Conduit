@@ -35,7 +35,7 @@ namespace Conduit.Hosting
             SPing = new Serializator<Ping>();
             SRequest = new Serializator<Request>();
             SResponse = new Serializator<Response>();
-            SRawPacket = new Serializator<RawPacket>();
+            SRawPacket = new Serializator<RawPacket>(true);
 
             SLoginStart = new Serializator<LoginStart>();
             SLoginSuccess = new Serializator<LoginSuccess>();

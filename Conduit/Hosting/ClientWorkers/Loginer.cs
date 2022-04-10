@@ -20,39 +20,39 @@ namespace Conduit.Hosting.ClientWorkers
         {
             WaitToAvailable();
 
-            Packet onlyheader = new Packet();
-            ClientMaintainer.Protocol.SPacket.Deserialize(ClientMaintainer.VClient.NetworkStream, onlyheader);
+            RawPacket onlyheader = new RawPacket();
+            ClientMaintainer.Protocol.SRawPacket.DeserializeBigDataOffset(ClientMaintainer.VClient.NetworkStream, onlyheader);
 
             switch (onlyheader.Id)
             {
                 default:
                     {
-                        OnLoginStart(onlyheader.Length - 1);
+                        OnLoginStart(onlyheader.Data);
                         break;
                     }
                 case 0x01:
                     {
-                        OnEncryptionResponse(onlyheader.Length - 1);
+                        OnEncryptionResponse(onlyheader.Data);
                         break;
                     }
             }
-
         }
 
-        private void OnEncryptionResponse(int len)
+        private void OnEncryptionResponse(byte[] data)
         {
-            MemoryStream ms = ReadToStream(len);
+            MemoryStream ms = new MemoryStream(data);
 
             var lea = new LoginEncryptionResponse();
             ClientMaintainer.Protocol.SLoginEncryptionResponse.DeserializeLess(ms, lea);
-
+            ms.Close();
         }
 
-        private void OnLoginStart(int len)
+        private void OnLoginStart(byte[] data)
         {
-            MemoryStream ms = ReadToStream(len);
+            MemoryStream ms = new MemoryStream(data);
             var loginstart = new LoginStart();
             ClientMaintainer.Protocol.SLoginStart.DeserializeLess(ms, loginstart);
+            ms.Close();
             Console.WriteLine("Username=" + loginstart.Username);
 
             var loginSuccess = new LoginSuccess()

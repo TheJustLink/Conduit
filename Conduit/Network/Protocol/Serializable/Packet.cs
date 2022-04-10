@@ -9,6 +9,8 @@ namespace Conduit.Network.Protocol.Serializable
 {
     public class Packet
     {
+        [BigDataLength(0)]
+        [BigDataOffset(-1)]
         [VarInt]
         public int Length;
         [VarInt]

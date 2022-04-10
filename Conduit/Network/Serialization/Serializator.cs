@@ -16,20 +16,29 @@ namespace Conduit.Network.Serialization
         private Type TType;
         private List<FieldInfo> DeclaredFields;
         private List<FieldInfo> DeclaredLessFields; // without packet fields
+        private Dictionary<ulong, (FieldInfo, BigDataOffsetAttribute)> BigDataFields;
 
         private static Type VIA = typeof(VarIntAttribute);
         private static Type VLA = typeof(VarLongAttribute);
+        private static Type BD = typeof(BigDataAttribute);
+        private static Type BDO = typeof(BigDataOffsetAttribute);
+        private static Type BDL = typeof(BigDataLengthAttribute);
 
-        public Serializator()
+        public Serializator(bool withbigdata = false)
         {
             TType = typeof(T);
             DeclaredFields = new List<FieldInfo>();
             DeclaredLessFields = new List<FieldInfo>();
             Resolve(TType);
             ResolveLess(TType);
+            if (withbigdata)
+            {
+                BigDataFields = new Dictionary<ulong, (FieldInfo, BigDataOffsetAttribute)>();
+                ResolveBigData(TType);
+            }
         }
         private void ResolveLess(Type type)
-        {
+        { // resolving with out baseclass "Packet"
             var bt = type.BaseType;
             if (bt != typeof(object) && bt != typeof(Packet))
                 ResolveLess(bt);
@@ -38,7 +47,7 @@ namespace Conduit.Network.Serialization
             DeclaredLessFields.AddRange(df);
         }
         private void Resolve(Type type)
-        {
+        { // full resolve
             var bt = type.BaseType;
             if (bt != typeof(object))
                 Resolve(bt);
@@ -46,67 +55,24 @@ namespace Conduit.Network.Serialization
             var df = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
             DeclaredFields.AddRange(df);
         }
+        private void ResolveBigData(Type type)
+        { // resolving fields with bigDataLength
+            var bt = type.BaseType;
+            if (bt != typeof(object))
+                ResolveBigData(bt);
 
-        public void Deserialize(Stream stream, T obj, out MemoryStream readed)
-        {
-            readed = new MemoryStream();
-            using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
-            using var bwrite = new PBinaryWriter(readed, Encoding.UTF8, true);
-            For.ForFixedListIncrease(DeclaredFields, (finfo) =>
+            var df = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            For.ForFixedArrayIncrease(df, (finfo) =>
             {
-                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
-                if (hasvia)
+                var abdl = finfo.GetCustomAttribute(BDL);
+                var abdo = finfo.GetCustomAttribute(BDO);
+                if (abdl is BigDataLengthAttribute bdl && (abdo is BigDataOffsetAttribute bdo))
                 {
-                    var val = bread.Read7BitEncodedInt();
-                    bwrite.Write7BitEncodedInt(val);
-                    finfo.SetValue(obj, val);
-                    return;
+                    BigDataFields.Add(bdl.Id, (finfo, bdo));
                 }
-                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
-                if (hasvla)
-                {
-                    var val = bread.Read7BitEncodedInt64();
-                    bwrite.Write7BitEncodedInt64(val);
-                    finfo.SetValue(obj, val);
-                    return;
-                }
-
-                var sval = bread.ReadObject(finfo.FieldType, out MemoryStream r);
-                bwrite.Write(r.ReadData(r.Length));
-                finfo.SetValue(obj, sval);
-
             });
         }
-        public void DeserializeLess(Stream stream, T obj, out MemoryStream readed)
-        {
-            readed = new MemoryStream();
-            using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
-            using var bwrite = new PBinaryWriter(readed, Encoding.UTF8, true);
-            For.ForFixedListIncrease(DeclaredLessFields, (finfo) =>
-            {
-                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
-                if (hasvia)
-                {
-                    var val = bread.Read7BitEncodedInt();
-                    bwrite.Write7BitEncodedInt(val);
-                    finfo.SetValue(obj, val);
-                    return;
-                }
-                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
-                if (hasvla)
-                {
-                    var val = bread.Read7BitEncodedInt64();
-                    bwrite.Write7BitEncodedInt64(val);
-                    finfo.SetValue(obj, val);
-                    return;
-                }
 
-                var sval = bread.ReadObject(finfo.FieldType, out MemoryStream r);
-                bwrite.Write(r.ReadData(r.Length));
-                finfo.SetValue(obj, sval);
-
-            });
-        }
         public void Deserialize(Stream stream, T obj)
         {
             using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
@@ -114,6 +80,124 @@ namespace Conduit.Network.Serialization
             {
                 bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
                 if (hasvia) 
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    return;
+                }
+                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
+                if (hasvla)
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    return;
+                }
+
+                finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
+            });
+        }
+        public void DeserializeBigDataOffset(Stream stream, T obj)
+        {
+            using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
+            For.ForFixedListIncrease(DeclaredFields, (finfo) =>
+            {
+                if (finfo.GetCustomAttribute(BD) is BigDataAttribute bd)
+                {
+                    if (!BigDataFields.TryGetValue(bd.Id, out (FieldInfo, BigDataOffsetAttribute) _out))
+                        throw new Exception("ты сначало атрибут с длиной поставь, ок?");
+
+                    var len = (int)_out.Item1.GetValue(obj) + _out.Item2.Offset;
+                    finfo.SetValue(obj, bread.ReadBytes(len));
+                    return;
+                }
+                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
+                if (hasvia)
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    return;
+                }
+                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
+                if (hasvla)
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    return;
+                }
+
+                finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
+            });
+        }
+        public void DeserializeBigData(Stream stream, T obj)
+        {
+            using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
+            For.ForFixedListIncrease(DeclaredFields, (finfo) =>
+            {
+                if (finfo.GetCustomAttribute(BD) is BigDataAttribute bd)
+                {
+                    if (!BigDataFields.TryGetValue(bd.Id, out (FieldInfo, BigDataOffsetAttribute) _out))
+                        throw new Exception("ты сначало атрибут с длиной поставь, ок?");
+
+                    finfo.SetValue(obj, bread.ReadBytes((int)_out.Item1.GetValue(obj)));
+                    return;
+                }
+                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
+                if (hasvia)
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    return;
+                }
+                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
+                if (hasvla)
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    return;
+                }
+
+                finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
+            });
+        }
+        public void DeserializeLessBigDataOffset(Stream stream, T obj)
+        {
+            using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
+            For.ForFixedListIncrease(DeclaredLessFields, (finfo) =>
+            {
+                if (finfo.GetCustomAttribute(BD) is BigDataAttribute bd)
+                {
+                    if (!BigDataFields.TryGetValue(bd.Id, out (FieldInfo, BigDataOffsetAttribute) _out))
+                        throw new Exception("ты сначало атрибут с длиной поставь, ок?");
+
+                    var len = (int)_out.Item1.GetValue(obj) + _out.Item2.Offset;
+                    finfo.SetValue(obj, bread.ReadBytes(len));
+                    return;
+                }
+                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
+                if (hasvia)
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    return;
+                }
+                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
+                if (hasvla)
+                {
+                    finfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    return;
+                }
+
+                finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
+            });
+        }
+        public void DeserializeLessBigData(Stream stream, T obj)
+        {
+            using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
+            For.ForFixedListIncrease(DeclaredLessFields, (finfo) =>
+            {
+                if (finfo.GetCustomAttribute(BD) is BigDataAttribute bd)
+                {
+                    if (!BigDataFields.TryGetValue(bd.Id, out (FieldInfo, BigDataOffsetAttribute) _out))
+                        throw new Exception("ты сначало атрибут с длиной поставь, ок?");
+
+                    finfo.SetValue(obj, bread.ReadBytes((int)_out.Item1.GetValue(obj)));
+                    return;
+                }
+                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
+                if (hasvia)
                 {
                     finfo.SetValue(obj, bread.Read7BitEncodedInt());
                     return;
