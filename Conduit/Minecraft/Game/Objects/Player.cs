@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Minecraft.Chatting
+namespace Conduit.Minecraft.Game
 {
-    public abstract class Chat
+    public sealed class Player
     {
     }
 }

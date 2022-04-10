@@ -11,9 +11,9 @@ namespace Conduit.Hosting
 {
     public abstract class ClientWorker
     {
-        protected ClientMaintainer ClientMaintainer { get; private set; }
+        protected ClientHandler ClientMaintainer { get; private set; }
 
-        public ClientWorker(ClientMaintainer cm)
+        public ClientWorker(ClientHandler cm)
         {
             ClientMaintainer = cm;
         }

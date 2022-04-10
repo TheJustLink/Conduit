@@ -1,5 +1,6 @@
 ﻿using Conduit.Configurable;
 using Conduit.Controllable.Status;
+using Conduit.Intergration;
 using Conduit.Utilities;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,13 @@ namespace Conduit.Hosting
         public Protocol Protocol { get; private set; }
         public ClientAccepter ClientAccepter { get; private set; }
         public IStatus Status { get; set; }
+        public ServerIntergrate ServerIntergrate { get; private set; }
         public Server()
         {
             ClientsManager = new ClientsManager();
             ClientAccepter = new ClientAccepter(this);
             Protocol = new Protocol();
+            ServerIntergrate = new ServerIntergrate();
         }
 
         public void Setup(ServerOptions so)

@@ -10,7 +10,7 @@ namespace Conduit.Hosting.ClientWorkers
     public class Handshaker : ClientWorker
     {
         public bool IsHandshaked { get; private set; }
-        public Handshaker(ClientMaintainer cm) : base(cm)
+        public Handshaker(ClientHandler cm) : base(cm)
         {
         }
 

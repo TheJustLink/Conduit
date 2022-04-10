@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Conduit.Minecraft.Chatting
 {
-    public sealed class GlobalChat : Chat
+    internal class DistanceChat : Chat
     {
+        public DistanceChat(ulong id) : base(id)
+        {
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace Conduit.Hosting.ClientWorkers
     public sealed class Stater : ClientWorker
     {
         public bool Pinged;
-        public Stater(ClientMaintainer cm) : base(cm)
+        public Stater(ClientHandler cm) : base(cm)
         {
         }
 

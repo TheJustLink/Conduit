@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Minecraft.Chatting
+namespace Conduit.Minecraft.Game
 {
-    internal class DistanceChat
+    public abstract class World
     {
+        private ObjectsManager ObjectsManager;
+
     }
 }

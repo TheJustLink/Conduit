@@ -5,9 +5,7 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Conduit", "Conduit\Conduit.csproj", "{51047AEB-2288-4774-9F3F-F927311BC28E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConduitConsole", "ConduitConsole\ConduitConsole.csproj", "{F4BB7F8C-C430-405D-ACA9-9FAA06A7D9BC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conduit.Minecraft", "Conduit.Minecraft\Conduit.Minecraft.csproj", "{FA2FFED4-D7BA-4F2D-8CD7-DB54BAE6F94F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConduitConsole", "ConduitConsole\ConduitConsole.csproj", "{F4BB7F8C-C430-405D-ACA9-9FAA06A7D9BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{F4BB7F8C-C430-405D-ACA9-9FAA06A7D9BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4BB7F8C-C430-405D-ACA9-9FAA06A7D9BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4BB7F8C-C430-405D-ACA9-9FAA06A7D9BC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FA2FFED4-D7BA-4F2D-8CD7-DB54BAE6F94F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FA2FFED4-D7BA-4F2D-8CD7-DB54BAE6F94F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FA2FFED4-D7BA-4F2D-8CD7-DB54BAE6F94F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FA2FFED4-D7BA-4F2D-8CD7-DB54BAE6F94F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

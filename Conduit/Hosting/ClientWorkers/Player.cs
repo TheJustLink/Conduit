@@ -9,7 +9,7 @@ namespace Conduit.Hosting.ClientWorkers
 {
     public sealed class Player : ClientWorker
     {
-        public Player (ClientMaintainer cm) : base(cm)
+        public Player (ClientHandler cm) : base(cm)
         {
         }
 

@@ -12,7 +12,7 @@ namespace Conduit.Hosting.ClientWorkers
 {
     public class Loginer : ClientWorker
     {
-        public Loginer (ClientMaintainer cm) : base(cm)
+        public Loginer (ClientHandler cm) : base(cm)
         {
         }
 

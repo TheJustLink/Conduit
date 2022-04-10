@@ -29,8 +29,10 @@ namespace Conduit.Network.Serialization
             TType = typeof(T);
             DeclaredFields = new List<FieldInfo>();
             DeclaredLessFields = new List<FieldInfo>();
+
             Resolve(TType);
             ResolveLess(TType);
+
             if (withbigdata)
             {
                 BigDataFields = new Dictionary<ulong, (FieldInfo, BigDataOffsetAttribute)>();

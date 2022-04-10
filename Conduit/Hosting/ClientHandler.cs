@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Conduit.Hosting
 {
-    public sealed class ClientMaintainer
+    public sealed class ClientHandler
     {
         public VClient VClient { get; private set; }
         public Protocol Protocol { get; private set; }
@@ -21,7 +21,7 @@ namespace Conduit.Hosting
         public Stater Stater { get; private set; }
         public ClientWorker CurrentWorker { get; private set; }
         public NetworkState State { get; private set; }
-        public ClientMaintainer(VClient vClient)
+        public ClientHandler(VClient vClient)
         {
             VClient = vClient;
             Protocol = VClient.ServerInstance.Protocol;

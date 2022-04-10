@@ -12,7 +12,7 @@ namespace Conduit.Hosting
     public sealed class VClient
     {
         public GuidUnsafe Id { get; private set; }
-        public ClientMaintainer ClientMaintainer { get; private set; }
+        public ClientHandler ClientMaintainer { get; private set; }
 
         public TcpClient TcpClient { get; private set; }
         private NetworkStream NetworkStream;
@@ -29,7 +29,7 @@ namespace Conduit.Hosting
             ServerInstance = server;
             NetworkStream = tcpClient.GetStream();
             RemoteStream = new RemoteStream(NetworkStream);
-            ClientMaintainer = new ClientMaintainer(this);
+            ClientMaintainer = new ClientHandler(this);
         }
 
         public void Virtualize()

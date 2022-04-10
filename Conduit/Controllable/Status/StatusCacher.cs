@@ -1,4 +1,5 @@
-﻿using Conduit.Network.JSON.Status;
+﻿using Conduit.Network.JSON;
+using Conduit.Network.JSON.Status;
 using Conduit.Utilities.SpecialAPI;
 using System;
 using System.Collections.Generic;
@@ -8,19 +9,23 @@ using System.Threading.Tasks;
 
 namespace Conduit.Controllable.Status
 {
-    public abstract class StatusCacher : IStatus, IMoreToOne
+    public abstract class StatusCacher : JSONCacher, IStatus, IMoreToOne
     {
         public StatusBase LastStatusInfo;
-        public string CachedJSON;
+
         public string GetInfo()
         {
-            return CachedJSON;
+            return LastJSON;
         }
 
-        public void Invoke()
+        protected override void AInvoke()
         {
             LastStatusInfo = Maintain();
-            CachedJSON = LastStatusInfo.Serialize();
+        }
+
+        protected override string Cache()
+        {
+            return LastStatusInfo.Serialize();
         }
 
         /// <summary>
