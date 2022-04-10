@@ -1,4 +1,5 @@
-﻿using Conduit.Utilities;
+﻿using Conduit.Network.Protocol.StreamingData;
+using Conduit.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,8 @@ namespace Conduit.Hosting
         public ClientMaintainer ClientMaintainer { get; private set; }
 
         public TcpClient TcpClient { get; private set; }
-        public NetworkStream NetworkStream { get; private set; }
+        private NetworkStream NetworkStream;
+        public RemoteStream RemoteStream { get; private set; }
         public Server ServerInstance { get; private set; }
 
         public bool IsConnected { get; private set; }
@@ -26,6 +28,7 @@ namespace Conduit.Hosting
             TcpClient = tcpClient;
             ServerInstance = server;
             NetworkStream = tcpClient.GetStream();
+            RemoteStream = new RemoteStream(NetworkStream);
             ClientMaintainer = new ClientMaintainer(this);
         }
 

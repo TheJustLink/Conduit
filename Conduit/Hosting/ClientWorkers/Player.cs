@@ -15,10 +15,10 @@ namespace Conduit.Hosting.ClientWorkers
 
         public override void Handling()
         {
-            Packet onlyheader = new Packet();
-            ClientMaintainer.Protocol.SPacket.Deserialize(ClientMaintainer.VClient.NetworkStream, onlyheader);
+            RawPacket raw = new RawPacket();
+            ClientMaintainer.Protocol.SRawPacket.Deserialize(ClientMaintainer.VClient.RemoteStream, raw);
             
-            switch (onlyheader.Id)
+            switch (raw.Id)
             {
                 default:
                     {

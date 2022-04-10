@@ -20,19 +20,19 @@ namespace Conduit.Hosting.ClientWorkers
         {
             WaitToAvailable();
 
-            RawPacket onlyheader = new RawPacket();
-            ClientMaintainer.Protocol.SRawPacket.DeserializeBigDataOffset(ClientMaintainer.VClient.NetworkStream, onlyheader);
+            RawPacket raw = new RawPacket();
+            ClientMaintainer.Protocol.SRawPacket.DeserializeBigDataOffset(ClientMaintainer.VClient.RemoteStream, raw);
 
-            switch (onlyheader.Id)
+            switch (raw.Id)
             {
                 default:
                     {
-                        OnLoginStart(onlyheader.Data);
+                        OnLoginStart(raw.Data);
                         break;
                     }
                 case 0x01:
                     {
-                        OnEncryptionResponse(onlyheader.Data);
+                        OnEncryptionResponse(raw.Data);
                         break;
                     }
             }
@@ -61,7 +61,7 @@ namespace Conduit.Hosting.ClientWorkers
                 Username = loginstart.Username
             };
 
-            ClientMaintainer.Protocol.SLoginSuccess.Serialize(ClientMaintainer.VClient.NetworkStream, loginSuccess);
+            ClientMaintainer.Protocol.SLoginSuccess.Serialize(ClientMaintainer.VClient.RemoteStream, loginSuccess);
 
             ClientMaintainer.ChangeState(NetworkState.Play); // тут кароч рано писать пероход на игру но можно и так а так надо понять как робит шифрование
         }

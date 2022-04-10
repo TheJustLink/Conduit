@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Network.Protocol.Serializable
+namespace Conduit.Minecraft
 {
-    public enum NextState
+    public sealed class MCServer
     {
-        Unknown,
-        Status,
-        Login,
     }
 }

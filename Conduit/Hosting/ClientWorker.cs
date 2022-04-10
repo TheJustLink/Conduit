@@ -21,13 +21,13 @@ namespace Conduit.Hosting
         protected MemoryStream ReadToStream(int length)
         {
             MemoryStream ms = new MemoryStream();
-            ms.Write(ClientMaintainer.VClient.NetworkStream.ReadData(length));
+            ms.Write(ClientMaintainer.VClient.RemoteStream.ReadData(length));
             ms.Position = 0;
             return ms;
         }
         protected void WaitToAvailable()
         {
-            while (!ClientMaintainer.VClient.NetworkStream.DataAvailable)
+            while (!ClientMaintainer.VClient.RemoteStream.DataAvailable)
             {
                 Thread.Sleep(1);
             }

@@ -39,8 +39,8 @@ namespace Conduit.Hosting
 
             SLoginStart = new Serializator<LoginStart>();
             SLoginSuccess = new Serializator<LoginSuccess>();
-            SLoginEncryptionResponse = new Serializator<LoginEncryptionResponse>();
-            SLoginEncryptionRequest = new Serializator<LoginEncryptionRequest>();
+            SLoginEncryptionResponse = new Serializator<LoginEncryptionResponse>(true);
+            SLoginEncryptionRequest = new Serializator<LoginEncryptionRequest>(true);
         }
     }
 }

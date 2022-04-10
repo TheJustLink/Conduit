@@ -20,8 +20,8 @@ namespace Conduit.Hosting.ClientWorkers
 
             Console.WriteLine("Handshaking...");
 
-            var handshake = new Handshake();
-            ClientMaintainer.Protocol.SHandshake.Deserialize(ClientMaintainer.VClient.NetworkStream, handshake);
+            Handshake handshake = new();
+            ClientMaintainer.Protocol.SHandshake.Deserialize(ClientMaintainer.VClient.RemoteStream, handshake);
             if (!handshake.IsValidLength)
                 return;
 

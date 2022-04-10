@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Conduit.Network.JSON.Status
 {
-    public sealed class StatusInfo : JsonObject<StatusInfo>
+    public sealed class StatusBase : JsonObject<StatusBase>
     {
         [JsonPropertyName("version")]       public Version Version { get; set; }
         [JsonPropertyName("players")]       public Players Players { get; set; }

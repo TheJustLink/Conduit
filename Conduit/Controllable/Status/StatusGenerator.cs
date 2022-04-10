@@ -13,9 +13,9 @@ namespace Conduit.Controllable.Status
     /// </summary>
     public sealed class StatusGenerator : StatusCacher
     {
-        protected override StatusInfo Maintain()
+        protected override StatusBase Maintain()
         {
-            return new StatusInfo()
+            return new StatusBase()
             {
                 Version = new Version()
                 {

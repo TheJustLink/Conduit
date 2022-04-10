@@ -22,10 +22,10 @@ namespace Conduit.Hosting.ClientWorkers
         {
             WaitToAvailable();
 
-            Packet onlyheader = new Packet();
-            ClientMaintainer.Protocol.SPacket.Deserialize(ClientMaintainer.VClient.NetworkStream, onlyheader);
+            RawPacket raw = new RawPacket();
+            ClientMaintainer.Protocol.SRawPacket.DeserializeBigDataOffset(ClientMaintainer.VClient.RemoteStream, raw);
 
-            switch (onlyheader.Id)
+            switch (raw.Id)
             {
                 default:
                     {
@@ -34,7 +34,7 @@ namespace Conduit.Hosting.ClientWorkers
                     }
                 case 0x01:
                     {
-                        OnPing(onlyheader.Length - 1);
+                        OnPing(raw.Data);
                         break;
                     }
             }
@@ -52,18 +52,19 @@ namespace Conduit.Hosting.ClientWorkers
             };
 
             Stopwatch sw = Stopwatch.StartNew();
-            ClientMaintainer.Protocol.SResponse.Serialize(ClientMaintainer.VClient.NetworkStream, response);
+            ClientMaintainer.Protocol.SResponse.Serialize(ClientMaintainer.VClient.RemoteStream, response);
             sw.Stop();
             Console.WriteLine($"Serialized response for {sw.Elapsed.TotalMilliseconds}ms");
         }
-        private void OnPing(int len)
+        private void OnPing(byte[] data)
         {
-            MemoryStream ms = ReadToStream(len);
+            MemoryStream ms = new(data);
 
             var ping = new Ping();
             ClientMaintainer.Protocol.SPing.DeserializeLess(ms, ping);
             Console.WriteLine("Requested ping");
-            ClientMaintainer.Protocol.SPing.Serialize(ClientMaintainer.VClient.NetworkStream, ping);
+            ClientMaintainer.Protocol.SPing.Serialize(ClientMaintainer.VClient.RemoteStream, ping);
+            ms.Close();
             Pinged = true;
         }
     }

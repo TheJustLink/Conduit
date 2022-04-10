@@ -10,7 +10,7 @@ namespace Conduit.Controllable.Status
 {
     public abstract class StatusCacher : IStatus, IMoreToOne
     {
-        public StatusInfo LastStatusInfo;
+        public StatusBase LastStatusInfo;
         public string CachedJSON;
         public string GetInfo()
         {
@@ -27,6 +27,6 @@ namespace Conduit.Controllable.Status
         /// Created for generating status about server by events.
         /// </summary>
         /// <returns></returns>
-        protected abstract StatusInfo Maintain();
+        protected abstract StatusBase Maintain();
     }
 }
