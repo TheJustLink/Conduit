@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Conduit.Controllable.Status
 {
-    public abstract class StatusCacher : JSONCacher, IStatus, IMoreToOne
+    public abstract class StatusCacher : JSONCacherComponent, IStatus, IMoreToOne
     {
         public StatusBase LastStatusInfo;
 

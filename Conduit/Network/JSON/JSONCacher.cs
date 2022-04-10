@@ -1,4 +1,4 @@
-﻿using Conduit.Utilities.SpecialAPI;
+﻿using Conduit.Network.JSON.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace Conduit.Network.JSON
 {
-    public abstract class JSONCacher : IMoreToOne
+    public sealed class JSONCacher<TJSON> where TJSON : JsonObject<TJSON> 
     {
-        public string LastJSON { get; private set; }
-        public void Invoke()
+        public TJSON JsonObject;
+        public string LastJson { get; private set; }
+        public JSONCacher(TJSON json)
         {
-            AInvoke();
-            LastJSON = Cache();
+            JsonObject = json;
         }
-        protected abstract void AInvoke();
-        protected abstract string Cache();
+        public void Cache()
+        {
+            LastJson = JsonObject.Serialize();
+        }
     }
 }

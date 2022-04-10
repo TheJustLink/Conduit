@@ -22,16 +22,16 @@ namespace Conduit.Intergration
             ChatIntegrate = new ChatIntegrate();
         }
 
-        public bool HandleState(out ChatBase chatbase)
+        public bool HandleState(out string message)
         {
             if (IsPlayable)
             {
-                chatbase = null;
+                message = null;
                 return true;
             }
             else
             {
-                chatbase = ChatIntegrate.Messages.ServerNotAvailable;
+                message = ChatIntegrate.Messages.ServerNotAvailable.LastJson;
                 return false;
             }
         }

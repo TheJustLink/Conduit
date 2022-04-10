@@ -58,11 +58,11 @@ namespace Conduit.Hosting.ClientWorkers
             Console.WriteLine("Username=" + loginstart.Username);
 
 
-            if (!ClientMaintainer.VClient.ServerInstance.ServerIntergrate.HandleState(out ChatBase cb))
+            if (!ClientMaintainer.VClient.ServerInstance.ServerIntergrate.HandleState(out string mes))
             {
                 var response = new Response()
                 {
-                    Json = cb.Serialize(),
+                    Json = mes,
                 };
                 ClientMaintainer.Protocol.SResponse.Serialize(ClientMaintainer.VClient.RemoteStream, response);
                 return;

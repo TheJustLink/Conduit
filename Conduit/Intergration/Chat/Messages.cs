@@ -1,4 +1,5 @@
-﻿using Conduit.Network.JSON.Chat;
+﻿using Conduit.Network.JSON;
+using Conduit.Network.JSON.Chat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,12 @@ namespace Conduit.Intergration.Chat
 {
     public sealed class Messages
     {
-        public ChatBase ServerNotAvailable;
+        public JSONCacher<ChatBase> ServerNotAvailable;
 
         public Messages()
         {
-            ServerNotAvailable = "Server is not available now.";
+            ServerNotAvailable = new JSONCacher<ChatBase>("Server is not available now.");
+            ServerNotAvailable.Cache();
         }
     }
 }
