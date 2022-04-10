@@ -65,6 +65,8 @@ namespace Conduit.Hosting.ClientWorkers
                     Json = mes,
                 };
                 ClientMaintainer.Protocol.SResponse.Serialize(ClientMaintainer.VClient.RemoteStream, response);
+
+                ShutdownClient();
                 return;
             }
 

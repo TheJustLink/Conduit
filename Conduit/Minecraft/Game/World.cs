@@ -11,7 +11,12 @@ namespace Conduit.Minecraft.Game
     {
         public GuidUnsafe UUID { get; private set; }
 
-        private ObjectsManager ObjectsManager;
+        private EntityManager EntityManager;
+
+        public World()
+        {
+            EntityManager = new EntityManager();
+        }
 
         public void SetUUID(GuidUnsafe guid)
         {

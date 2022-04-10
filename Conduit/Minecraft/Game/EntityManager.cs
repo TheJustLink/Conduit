@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Minecraft.Game.Objects
+namespace Conduit.Minecraft.Game
 {
-    public sealed class Block : Object
+    public sealed class EntityManager
     {
-        public ulong BlockType;
     }
 }

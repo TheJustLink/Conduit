@@ -34,10 +34,11 @@ namespace Conduit.Hosting
 
         public void Virtualize()
         {
-            DedicatedThread = new Thread(Maintenance);
-            DedicatedThread.Start();
+            ThreadPool.QueueUserWorkItem(Maintenance);
+            //DedicatedThread = new Thread(Maintenance);
+            //DedicatedThread.Start();
         }
-        public void Maintenance()
+        public void Maintenance(object state)
         {
             IsConnected = true;
             //try
