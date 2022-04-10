@@ -14,7 +14,21 @@ namespace Conduit.Intergration.Chat
 
         public Messages()
         {
+            SetupDefault();
+        }
+
+        private void SetupDefault()
+        {
+            InitAll();
+            CacheAll();
+        }
+
+        private void InitAll()
+        {
             ServerNotAvailable = new JSONCacher<ChatBase>("Server is not available now.");
+        }
+        private void CacheAll()
+        {
             ServerNotAvailable.Cache();
         }
     }

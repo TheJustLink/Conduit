@@ -1,5 +1,6 @@
 ﻿using Conduit.Controllable.Status;
 using Conduit.Hosting;
+using Conduit.Minecraft;
 using Conduit.Utilities;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,11 @@ namespace Conduit
         {
             ThreadPoolTool.Setup();
             Server = new Server();
+            Server.ServerIntergrate.Setup(new MCServer());
+
             var sgen = new StatusGenerator();
+            sgen.Invoke(); 
             Server.Status = sgen;
-            sgen.Invoke();
         }
     }
 }

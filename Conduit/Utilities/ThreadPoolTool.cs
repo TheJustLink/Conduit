@@ -14,6 +14,7 @@ namespace Conduit.Utilities
         public static void Setup()
         {
             MaxThreads = Environment.ProcessorCount * 4;
+            MinThreads = 2;
             ThreadPool.SetMaxThreads(MaxThreads, MaxThreads);
             ThreadPool.SetMinThreads(MinThreads, MinThreads);
         }

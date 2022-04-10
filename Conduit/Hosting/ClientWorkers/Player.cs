@@ -31,8 +31,6 @@ namespace Conduit.Hosting.ClientWorkers
                         break;
                     }
             }
-
-
         }
     }
 }
