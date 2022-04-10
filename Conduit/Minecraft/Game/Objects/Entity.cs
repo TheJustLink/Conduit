@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Minecraft.Game
+namespace Conduit.Minecraft.Game.Objects
 {
-    internal class Entity
+    public class Entity : UniqueObject
     {
     }
 }

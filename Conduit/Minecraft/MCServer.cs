@@ -8,5 +8,6 @@ namespace Conduit.Minecraft
 {
     public sealed class MCServer
     {
+        public WorldManager WorldManager;
     }
 }

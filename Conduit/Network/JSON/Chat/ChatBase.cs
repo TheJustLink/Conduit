@@ -13,11 +13,19 @@ namespace Conduit.Network.JSON.Chat
         [JsonPropertyName("text")] public string Text { get; set; }
         [JsonPropertyName("bold")] public bool Bold { get; set; }
 
-        [JsonPropertyName("extra")] public List<string> Extra { get; set; }
+        //[JsonPropertyName("extra")] public List<string> Extra { get; set; }
 
         public ChatBase()
         {
-            Extra = new List<string>();
+           // Extra = new List<string>();
+        }
+
+        public static implicit operator ChatBase(string text)
+        {
+            return new ChatBase() 
+            { 
+                Text = text 
+            };
         }
     }
 }

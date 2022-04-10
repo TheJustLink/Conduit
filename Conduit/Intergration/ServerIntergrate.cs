@@ -1,5 +1,6 @@
 ﻿using Conduit.Intergration.Chat;
 using Conduit.Minecraft;
+using Conduit.Network.JSON.Chat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +19,30 @@ namespace Conduit.Intergration
 
         public ServerIntergrate()
         {
+            ChatIntegrate = new ChatIntegrate();
+        }
 
+        public bool HandleState(out ChatBase chatbase)
+        {
+            if (IsPlayable)
+            {
+                chatbase = null;
+                return true;
+            }
+            else
+            {
+                chatbase = ChatIntegrate.Messages.ServerNotAvailable;
+                return false;
+            }
         }
 
         public void Setup(MCServer server)
         {
-
+            if (server is not null)
+            {
+                MCServer = server;
+                IsPlayable = true;
+            }
         }
     }
 }

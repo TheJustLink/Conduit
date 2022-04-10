@@ -8,6 +8,15 @@ namespace Conduit.Intergration.Chat
 {
     public sealed class ChatIntegrate
     {
-        public 
+        public Messages Messages;
+
+        public ChatIntegrate(Messages mes)
+        {
+            Messages = mes;
+        }
+        public ChatIntegrate()
+        {
+            Messages = new Messages();
+        }
     }
 }

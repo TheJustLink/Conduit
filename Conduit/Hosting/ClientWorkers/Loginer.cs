@@ -1,5 +1,7 @@
-﻿using Conduit.Network.Protocol.Serializable;
+﻿using Conduit.Network.JSON.Chat;
+using Conduit.Network.Protocol.Serializable;
 using Conduit.Network.Protocol.Serializable.Logging;
+using Conduit.Network.Protocol.Serializable.Status;
 using Conduit.Utilities;
 using System;
 using System.Collections.Generic;
@@ -54,6 +56,17 @@ namespace Conduit.Hosting.ClientWorkers
             ClientMaintainer.Protocol.SLoginStart.DeserializeLess(ms, loginstart);
             ms.Close();
             Console.WriteLine("Username=" + loginstart.Username);
+
+
+            if (!ClientMaintainer.VClient.ServerInstance.ServerIntergrate.HandleState(out ChatBase cb))
+            {
+                var response = new Response()
+                {
+                    Json = cb.Serialize(),
+                };
+                ClientMaintainer.Protocol.SResponse.Serialize(ClientMaintainer.VClient.RemoteStream, response);
+                return;
+            }
 
             var loginSuccess = new LoginSuccess()
             {

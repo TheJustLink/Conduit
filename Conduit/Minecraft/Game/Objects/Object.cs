@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Minecraft.Game
+namespace Conduit.Minecraft.Game.Objects
 {
     public class Object
     {
