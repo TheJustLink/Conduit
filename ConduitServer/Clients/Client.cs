@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+
 using ConduitServer.Clients;
 using ConduitServer.Net.Packets;
 using ConduitServer.Net.Packets.Handshake;
 using ConduitServer.Net.Packets.Login;
 using ConduitServer.Net.Packets.Status;
+
+using LoginDisconnect = ConduitServer.Net.Packets.Login.Disconnect;
 
 namespace ConduitServer
 {
@@ -93,18 +96,24 @@ namespace ConduitServer
         }
         private void LoginState()
         {
-            var loginStart = _packetProvider.Read<LoginStart>();
+            var loginStart = _packetProvider.Read<Start>();
 
             Console.WriteLine("Get packet:");
             Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
             Console.WriteLine("Username=" + loginStart.Username);
 
-            var loginSuccess = new LoginSuccess
+            //var loginSuccess = new Success
+            //{
+            //    Guid = Guid.NewGuid(),
+            //    Username = loginStart.Username
+            //};
+            //_packetSender.Send(loginSuccess);
+
+            var disconnect = new LoginDisconnect
             {
-                Guid = Guid.NewGuid(),
-                Username = loginStart.Username
+                Reason = new Chat { Text  = "ABOBUS!" }
             };
-            _packetSender.Send(loginSuccess);
+            _packetSender.Send(disconnect);
 
             _state = ClientState.Play;
         }

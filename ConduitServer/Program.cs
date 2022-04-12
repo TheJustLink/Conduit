@@ -14,7 +14,7 @@ namespace ConduitServer
             var deserializer = new PacketDeserializer();
             var serializer = new PacketSerializer();
 
-            var listener = new TcpClientListener(1, 666, deserializer, serializer);
+            var listener = new TcpClientListener(100, 666, deserializer, serializer);
             var server = new Server(listener);
             
             server.Start();

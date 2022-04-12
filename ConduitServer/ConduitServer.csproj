@@ -16,4 +16,8 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\fNbt\fNbt.csproj" />
+  </ItemGroup>
+
 </Project>
