@@ -16,8 +16,4 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Net\Packets\Disconnect\" />
-  </ItemGroup>
-
 </Project>

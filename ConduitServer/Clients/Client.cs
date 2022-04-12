@@ -35,7 +35,7 @@ namespace ConduitServer
                         case ClientState.Handshaking: HandshakingState(); break;
                         case ClientState.Status: StatusState(); break;
                         case ClientState.Login: LoginState(); break;
-                        case ClientState.Play:
+                        case ClientState.Play: 
                         default:
                         case ClientState.Disconnected: Disconnect(); return;
                     }
