@@ -2,11 +2,11 @@
 
 namespace ConduitServer.Net.Packets.Login
 {
-    class LoginSuccess : Packet
+    class Success : Packet
     {
         public Guid Guid;
         public string Username;
 
-        public LoginSuccess() => Id = 2;
+        public Success() => Id = 2;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace ConduitServer.Net.Packets.Login
 {
-    class LoginStart : Packet
+    class Start : Packet
     {
         public string Username;
     }

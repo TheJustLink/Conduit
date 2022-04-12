@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Net\Packets\Disconnect\" />
+    <ProjectReference Include="..\fNbt\fNbt.csproj" />
   </ItemGroup>
 
 </Project>

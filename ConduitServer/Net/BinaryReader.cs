@@ -8,7 +8,7 @@ namespace ConduitServer.Net
 {
     class BinaryReader : System.IO.BinaryReader
     {
-        private static readonly Dictionary<Type, Func<BinaryReader, object>> s_typeTable = new()
+        private static readonly Dictionary<Type, Func<BinaryReader, dynamic>> s_typeTable = new()
         {
             { typeof(bool), input => input.ReadBoolean() },
             { typeof(sbyte), input => input.ReadSByte() },
@@ -27,7 +27,7 @@ namespace ConduitServer.Net
         public BinaryReader(Stream input, Encoding encoding) : base(input, encoding) { }
         public BinaryReader(Stream input, Encoding encoding, bool leaveOpen) : base(input, encoding, leaveOpen) { }
 
-        public virtual object ReadObject(Type type)
+        public virtual dynamic ReadObject(Type type)
         {
             return s_typeTable[type](this);
         }
