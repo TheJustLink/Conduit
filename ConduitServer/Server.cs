@@ -23,16 +23,16 @@ namespace ConduitServer
         private void OnClientConnected(IClient client)
         {
             _clients.Add(client);
+
+            var thread = new Thread(client.Tick);
+            thread.IsBackground = true;
+            thread.Start();
         }
 
         public void TickLoop()
         {
             while (_isRunning)
             {
-                for (int i = 0; i < _clients.Count; i++)
-                {
-                    _clients[i].Tick();
-                }
 
                 Thread.Sleep(1);
             }
