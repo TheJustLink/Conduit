@@ -30,23 +30,19 @@ namespace ConduitServer
         
         public void Tick()
         {
-            try
+            while (true)
             {
-                while (true)
+                switch (_state)
                 {
-                    switch (_state)
-                    {
-                        case ClientState.Handshaking: HandshakingState(); break;
-                        case ClientState.Status: StatusState(); break;
-                        case ClientState.Login: LoginState(); break;
-                        case ClientState.Play: PlayState(); break;
-                        default:
-                        case ClientState.Disconnected: Disconnect(); return;
-                    }
-                    Thread.Sleep(1);
+                    case ClientState.Handshaking: HandshakingState(); break;
+                    case ClientState.Status: StatusState(); break;
+                    case ClientState.Login: LoginState(); break;
+                    case ClientState.Play: PlayState(); break;
+                    default:
+                    case ClientState.Disconnected: Disconnect(); return;
                 }
+                Thread.Sleep(1);
             }
-            catch { }
         }
 
         private void HandshakingState()
@@ -140,6 +136,7 @@ namespace ConduitServer
                 IsDebug = true,
                 IsFlat = true
             };
+            _packetSender.Send(joinGame);
         }
 
         protected abstract void Disconnect();

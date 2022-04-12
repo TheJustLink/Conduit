@@ -63,9 +63,30 @@ namespace ConduitServer.Serialization.Packets
                 writer.Write7BitEncodedInt(value);
             else if (field.GetCustomAttribute<VarLongAttribute>(true) is not null)
                 writer.Write7BitEncodedInt64(value);
-            else if (field.FieldType.IsValueType || field.FieldType == typeof(string))
+            else SerializeValue(writer, value, field.FieldType);
+        }
+        private static void SerializeValue(BinaryWriter writer, dynamic value, Type type)
+        {
+            if (type.IsArray)
+                SerializeArray(writer, value, type.GetElementType());
+            else if (type.IsEnum)
+                writer.Write(Convert.ChangeType(value, Enum.GetUnderlyingType(type)));
+            else if (type.IsStandartValueType())
                 writer.Write(value);
             else writer.Write(JsonSerializer.Serialize(value, s_jsonOptions));
+        }
+        private static void SerializeArray(BinaryWriter writer, dynamic array, Type valueType)
+        {
+            if (valueType.IsStandartValueType())
+            {
+                foreach (var item in array)
+                    writer.Write(item);
+            }
+            else
+            {
+                foreach (var item in array)
+                    writer.Write(JsonSerializer.Serialize(item, s_jsonOptions));
+            }
         }
     }
 }
