@@ -15,9 +15,11 @@ namespace Conduit.Hosting.ClientWorkers
 
         public override void Handling()
         {
-            RawPacket raw = new RawPacket();
-            ClientMaintainer.Protocol.SRawPacket.Deserialize(ClientMaintainer.VClient.RemoteStream, raw);
-            
+            var ptools = ClientMaintainer.Protocol;
+
+            RawPacket raw = ptools.SRawPacket.PacketPool.Get();
+            ptools.SRawPacket.Serializator.Deserialize(ClientMaintainer.VClient.RemoteStream, raw);
+
             switch (raw.Id)
             {
                 default:
@@ -31,6 +33,8 @@ namespace Conduit.Hosting.ClientWorkers
                         break;
                     }
             }
+
+            ptools.SRawPacket.PacketPool.Return(raw);
         }
     }
 }

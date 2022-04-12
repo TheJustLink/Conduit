@@ -20,10 +20,10 @@ namespace Conduit.Hosting.ClientWorkers
 
             Console.WriteLine("Handshaking...");
 
-            Handshake handshake = new();
-            ClientMaintainer.Protocol.SHandshake.Deserialize(ClientMaintainer.VClient.RemoteStream, handshake);
-            if (!handshake.IsValidLength)
-                return;
+            var handshake = ClientMaintainer.Protocol.SHandshake.PacketPool.Get();
+            ClientMaintainer.Protocol.SHandshake.Serializator.Deserialize(ClientMaintainer.VClient.RemoteStream, handshake);
+            //if (!handshake.IsValidLength)
+            //    return;
 
             Console.WriteLine("Handshaked!");
 
@@ -40,6 +40,7 @@ namespace Conduit.Hosting.ClientWorkers
                         break;
                     }
             }
+            ClientMaintainer.Protocol.SHandshake.PacketPool.Return(handshake);
         }
     }
 }

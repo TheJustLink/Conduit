@@ -8,6 +8,11 @@ namespace Conduit.Network.Protocol.Serializable.Status
 {
     public class Response : Packet
     {
-        public string Json;
+        public string Json { get; set; }
+
+        protected override void OnClear()
+        {
+            Json = null;
+        }
     }
 }

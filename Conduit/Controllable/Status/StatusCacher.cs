@@ -11,12 +11,9 @@ namespace Conduit.Controllable.Status
 {
     public abstract class StatusCacher : JSONCacherComponent, IStatus, IMoreToOne
     {
-        public StatusBase LastStatusInfo;
+        public StatusBase LastStatusInfo { get; private set; }
 
-        public string GetInfo()
-        {
-            return LastJSON;
-        }
+        public string LastStatus => LastJSON;
 
         protected override void AInvoke()
         {

@@ -10,6 +10,11 @@ namespace Conduit.Network.Protocol.Serializable.Play.Server
     public sealed class Statistics : Packet
     {
         [VarInt]
-        public int Count;
+        public int Count { get; set; }
+
+        protected override void OnClear()
+        {
+            Count = 0;
+        }
     }
 }

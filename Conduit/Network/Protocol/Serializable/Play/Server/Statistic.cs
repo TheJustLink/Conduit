@@ -10,10 +10,10 @@ namespace Conduit.Network.Protocol.Serializable.Play.Server
     public sealed class Statistic
     {
         [VarInt]
-        public int CategoryID;
+        public int CategoryID { get; set; }
         [VarInt]
-        public int StatisticID;
+        public int StatisticID { get; set; }
         [VarInt]
-        public int Value;
+        public int Value { get; set; }
     }
 }

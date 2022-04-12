@@ -28,6 +28,8 @@ namespace Conduit.Network.Serialization
         {
             base.Write(guid.ToByteArray());
         }
+        
+        /*
         public virtual void WriteObject(object @object)
         {
             switch (@object)
@@ -45,5 +47,6 @@ namespace Conduit.Network.Serialization
                 case Guid v: Write(v); return;
             }
         }
+        */
     }
 }

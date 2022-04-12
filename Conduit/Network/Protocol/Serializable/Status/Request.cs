@@ -8,5 +8,9 @@ namespace Conduit.Network.Protocol.Serializable.Status
 {
     public class Request : Packet
     {
+        protected override void OnClear()
+        {
+            
+        }
     }
 }

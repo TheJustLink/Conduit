@@ -1,4 +1,5 @@
-﻿using Conduit.Network.Protocol.Serializable;
+﻿using Conduit.Network.Protocol;
+using Conduit.Network.Protocol.Serializable;
 using Conduit.Network.Protocol.Serializable.Logging;
 using Conduit.Network.Protocol.Serializable.Play.Server;
 using Conduit.Network.Protocol.Serializable.Status;
@@ -13,38 +14,47 @@ namespace Conduit.Hosting
 {
     public sealed class Protocol
     {
-        public Serializator<Packet> SPacket { get; private set; }
+        //public PacketTool<Packet> SPacket { get; private set; }
 
-        public Serializator<Handshake> SHandshake { get; private set; }
+        public PacketTool<Handshake> SHandshake { get; private set; }
         
-        public Serializator<Ping> SPing { get; private set; }
-        public Serializator<Request> SRequest { get; private set; }
-        public Serializator<Response> SResponse { get; private set; }
-        public Serializator<RawPacket> SRawPacket { get; private set; }
+        public PacketTool<Ping> SPing { get; private set; }
+        public PacketTool<Request> SRequest { get; private set; }
+        public PacketTool<Response> SResponse { get; private set; }
+        public PacketTool<RawPacket> SRawPacket { get; private set; }
 
-        public Serializator<LoginStart> SLoginStart { get; private set; }
-        public Serializator<LoginSuccess> SLoginSuccess { get; private set; }
-        public Serializator<LoginEncryptionResponse> SLoginEncryptionResponse { get; private set; }
-        public Serializator<LoginEncryptionRequest> SLoginEncryptionRequest { get; private set; }
+        public PacketTool<LoginStart> SLoginStart { get; private set; }
+        public PacketTool<LoginSuccess> SLoginSuccess { get; private set; }
+        public PacketTool<LoginEncryptionResponse> SLoginEncryptionResponse { get; private set; }
+        public PacketTool<LoginEncryptionRequest> SLoginEncryptionRequest { get; private set; }
 
-        public Serializator<SpawnPlayer> SSpawnPlayer { get; private set; }
+        public PacketTool<SpawnPlayer> SSpawnPlayer { get; private set; }
         public Protocol()
         {
-            SPacket = new Serializator<Packet>();
+            //SPacket = new PacketTool<Packet>();
 
-            SHandshake = new Serializator<Handshake>();
+            SHandshake = new PacketTool<Handshake>();
 
-            SPing = new Serializator<Ping>();
-            SRequest = new Serializator<Request>();
-            SResponse = new Serializator<Response>();
-            SRawPacket = new Serializator<RawPacket>(true);
+            SPing = new PacketTool<Ping>();
 
-            SLoginStart = new Serializator<LoginStart>();
-            SLoginSuccess = new Serializator<LoginSuccess>();
-            SLoginEncryptionResponse = new Serializator<LoginEncryptionResponse>(true);
-            SLoginEncryptionRequest = new Serializator<LoginEncryptionRequest>(true);
+            SRequest = new PacketTool<Request>();
+
+            SResponse = new PacketTool<Response>();
+
+            SRawPacket = new PacketTool<RawPacket>() 
+            { Serializator = new Serializator<RawPacket>(true) };
+
+            SLoginStart = new PacketTool<LoginStart>();
+
+            SLoginSuccess = new PacketTool<LoginSuccess>();
+
+            SLoginEncryptionResponse = new PacketTool<LoginEncryptionResponse>() 
+            { Serializator = new Serializator<LoginEncryptionResponse>(true)};
+
+            SLoginEncryptionRequest = new PacketTool<LoginEncryptionRequest>() 
+            { Serializator = new Serializator<LoginEncryptionRequest>(true)};
             
-            SSpawnPlayer = new Serializator<SpawnPlayer>();
+            SSpawnPlayer = new PacketTool<SpawnPlayer>();
         }
     }
 }

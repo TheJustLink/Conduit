@@ -4,6 +4,6 @@ using System.Text;
 
 namespace Conduit.Network.Serialization.Attributes
 {
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property)]
     public sealed class VarIntAttribute : Attribute { }
 }

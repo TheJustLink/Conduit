@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Conduit.Network.Serialization.Attributes
 {
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property)]
     public sealed class BigDataOffsetAttribute : Attribute
     {
         public int Offset;

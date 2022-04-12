@@ -12,5 +12,11 @@ namespace Conduit.Network.Protocol.Serializable.Play.Server
         public Position SourcePosition;
         public string DestinationIdentifier;
         // я нихуя не понял поэтому не закончил
+
+        protected override void OnClear()
+        {
+            SourcePosition = default;
+            DestinationIdentifier = null;
+        }
     }
 }

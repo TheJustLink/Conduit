@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Conduit.Network.Serialization.Attributes
 {
-    [AttributeUsage(AttributeTargets.Field)]
-    public sealed class BigDataLengthAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class BigDataLengthAttribute : Attribute, IIDAtribute
     {
         public ulong Id { get; private set; }
         public BigDataLengthAttribute(ulong id) => Id = id;

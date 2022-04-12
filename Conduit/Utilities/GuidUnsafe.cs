@@ -34,13 +34,10 @@ namespace Conduit.Utilities
         { // high performance for native execution
             long* p1 = (long*)&g1;
             long* p2 = (long*)&g2;
-            
-            bool state = 
-                p1[0] == p2[0] &&
-                p1[1] == p2[1];
             //Console.WriteLine($"p1[0]:{p1[0]} == p2[0]:{p2[0]}\np1[1]:{p1[1]} == p2[1]:{p2[1]}\n");
 
-            return state;
+            return p1[0] == p2[0] &&
+                p1[1] == p2[1];
         }
     }
 }

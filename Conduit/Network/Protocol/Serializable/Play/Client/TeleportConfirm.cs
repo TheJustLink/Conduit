@@ -10,6 +10,11 @@ namespace Conduit.Network.Protocol.Serializable.Play.Client
     public sealed class TeleportConfirm : Packet
     {
         [VarInt]
-        public int TeleportID;
+        public int TeleportID { get; set; }
+
+        protected override void OnClear()
+        {
+            TeleportID = 0;
+        }
     }
 }

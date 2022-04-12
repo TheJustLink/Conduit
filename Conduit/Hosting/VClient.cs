@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
@@ -38,6 +39,7 @@ namespace Conduit.Hosting
             //DedicatedThread = new Thread(Maintenance);
             //DedicatedThread.Start();
         }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public void Maintenance(object state)
         {
             IsConnected = true;

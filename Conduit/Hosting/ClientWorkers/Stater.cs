@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,8 +23,10 @@ namespace Conduit.Hosting.ClientWorkers
         {
             WaitToAvailable();
 
-            RawPacket raw = new RawPacket();
-            ClientMaintainer.Protocol.SRawPacket.DeserializeBigDataOffset(ClientMaintainer.VClient.RemoteStream, raw);
+            var ptools = ClientMaintainer.Protocol;
+
+            RawPacket raw = ptools.SRawPacket.PacketPool.Get();
+            ptools.SRawPacket.Serializator.DeserializeBigDataOffset(ClientMaintainer.VClient.RemoteStream, raw);
 
             switch (raw.Id)
             {
@@ -39,21 +42,25 @@ namespace Conduit.Hosting.ClientWorkers
                     }
             }
 
+            ptools.SRawPacket.PacketPool.Return(raw);
+
             if (Pinged)
                 ShutdownClient();
         }
+
         private void OnStatus()
         {
             Console.WriteLine("Requested status");
 
-            var response = new Response()
-            {
-                Json = ClientMaintainer.VClient.ServerInstance.Status.GetInfo(),
-            };
+            var response = ClientMaintainer.Protocol.SResponse.PacketPool.Get();
+            response.Json = ClientMaintainer.VClient.ServerInstance.Status.LastStatus;
 
             Stopwatch sw = Stopwatch.StartNew();
-            ClientMaintainer.Protocol.SResponse.Serialize(ClientMaintainer.VClient.RemoteStream, response);
+            ClientMaintainer.Protocol.SResponse.Serializator.Serialize(ClientMaintainer.VClient.RemoteStream, response);
             sw.Stop();
+
+            ClientMaintainer.Protocol.SResponse.PacketPool.Return(response);
+
             Console.WriteLine($"Serialized response for {sw.Elapsed.TotalMilliseconds}ms");
         }
         private void OnPing(byte[] data)
@@ -61,9 +68,9 @@ namespace Conduit.Hosting.ClientWorkers
             MemoryStream ms = new(data);
 
             var ping = new Ping();
-            ClientMaintainer.Protocol.SPing.DeserializeLess(ms, ping);
+            ClientMaintainer.Protocol.SPing.Serializator.DeserializeLess(ms, ping);
             Console.WriteLine("Requested ping");
-            ClientMaintainer.Protocol.SPing.Serialize(ClientMaintainer.VClient.RemoteStream, ping);
+            ClientMaintainer.Protocol.SPing.Serializator.Serialize(ClientMaintainer.VClient.RemoteStream, ping);
             ms.Close();
             Pinged = true;
         }

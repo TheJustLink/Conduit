@@ -11,5 +11,10 @@ namespace Conduit.Network.Protocol.Serializable.Play.Client
         public string Message;
 
         public ChatMessage() => Id = 0x03;
+
+        protected override void OnClear()
+        {
+            Message = null;
+        }
     }
 }

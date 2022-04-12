@@ -11,9 +11,15 @@ namespace Conduit.Network.Protocol.Serializable.Play.Client
     public sealed class QueryBlockNBT : Packet
     {
         [VarInt]
-        public int TransactionID;
-        public Position Location;
+        public int TransactionID { get; set; }
+        public Position Location { get; set; }
 
         public QueryBlockNBT() => Id = 0x01;
+
+        protected override void OnClear()
+        {
+            TransactionID = 0;
+            Location = default;
+        }
     }
 }

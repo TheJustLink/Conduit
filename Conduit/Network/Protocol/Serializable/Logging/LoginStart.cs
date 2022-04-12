@@ -9,5 +9,10 @@ namespace Conduit.Network.Protocol.Serializable.Logging
     public sealed class LoginStart : Packet
     {
         public string Username;
+
+        protected override void OnClear()
+        {
+            Username = null;
+        }
     }
 }

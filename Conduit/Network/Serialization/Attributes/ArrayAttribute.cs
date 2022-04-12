@@ -7,9 +7,13 @@ using System.Threading.Tasks;
 namespace Conduit.Network.Serialization.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class BigDataAttribute : Attribute, IIDAtribute
+    public sealed class ArrayAttribute : Attribute, IIDAtribute
     {
         public ulong Id { get; private set; }
-        public BigDataAttribute(ulong id) => Id = id;
+
+        public ArrayAttribute(ulong id)
+        {
+            Id = id;
+        }
     }
 }

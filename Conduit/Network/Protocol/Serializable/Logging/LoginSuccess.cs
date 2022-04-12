@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Conduit.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,15 @@ namespace Conduit.Network.Protocol.Serializable.Logging
 {
     public class LoginSuccess : Packet
     {
-        public Guid Guid;
+        public GuidUnsafe UUID;
         public string Username;
 
         public LoginSuccess() => Id = 2;
+
+        protected override void OnClear()
+        {
+            UUID = default;
+            Username = null;
+        }
     }
 }

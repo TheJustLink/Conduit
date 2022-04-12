@@ -23,8 +23,8 @@ namespace Conduit.Hosting.ClientWorkers
         {
             WaitToAvailable();
 
-            RawPacket raw = new RawPacket();
-            ClientMaintainer.Protocol.SRawPacket.DeserializeBigDataOffset(ClientMaintainer.VClient.RemoteStream, raw);
+            RawPacket raw = ClientMaintainer.Protocol.SRawPacket.PacketPool.Get();
+            ClientMaintainer.Protocol.SRawPacket.Serializator.DeserializeBigDataOffset(ClientMaintainer.VClient.RemoteStream, raw);
 
             switch (raw.Id)
             {
@@ -39,6 +39,8 @@ namespace Conduit.Hosting.ClientWorkers
                         break;
                     }
             }
+
+            ClientMaintainer.Protocol.SRawPacket.PacketPool.Return(raw);
         }
 
         private void OnEncryptionResponse(byte[] data)
@@ -46,7 +48,7 @@ namespace Conduit.Hosting.ClientWorkers
             MemoryStream ms = new(data);
 
             var lea = new LoginEncryptionResponse();
-            ClientMaintainer.Protocol.SLoginEncryptionResponse.DeserializeLess(ms, lea);
+            ClientMaintainer.Protocol.SLoginEncryptionResponse.Serializator.DeserializeLess(ms, lea);
             ms.Close();
         }
 
@@ -54,7 +56,7 @@ namespace Conduit.Hosting.ClientWorkers
         {
             MemoryStream ms = new(data);
             var loginstart = new LoginStart();
-            ClientMaintainer.Protocol.SLoginStart.DeserializeLess(ms, loginstart);
+            ClientMaintainer.Protocol.SLoginStart.Serializator.DeserializeLess(ms, loginstart);
             ms.Close();
             Console.WriteLine("Username=" + loginstart.Username);
 
@@ -64,7 +66,7 @@ namespace Conduit.Hosting.ClientWorkers
                 {
                     Json = mes,
                 };
-                ClientMaintainer.Protocol.SResponse.Serialize(ClientMaintainer.VClient.RemoteStream, response);
+                ClientMaintainer.Protocol.SResponse.Serializator.Serialize(ClientMaintainer.VClient.RemoteStream, response);
 
                 ShutdownClient();
                 return;
@@ -72,11 +74,11 @@ namespace Conduit.Hosting.ClientWorkers
 
             var loginSuccess = new LoginSuccess()
             {
-                Guid = Guid.NewGuid(),
+                UUID = Guid.NewGuid(),
                 Username = loginstart.Username
             };
 
-            ClientMaintainer.Protocol.SLoginSuccess.Serialize(ClientMaintainer.VClient.RemoteStream, loginSuccess);
+            ClientMaintainer.Protocol.SLoginSuccess.Serializator.Serialize(ClientMaintainer.VClient.RemoteStream, loginSuccess);
 
             ClientMaintainer.ChangeState(NetworkState.Play); // тут кароч рано писать пероход на игру но можно и так а так надо понять как робит шифрование
         }

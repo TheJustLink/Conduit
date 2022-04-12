@@ -2,6 +2,7 @@
 using Conduit.Network.Protocol.Serializable;
 using Conduit.Network.Serialization.Attributes;
 using Conduit.Utilities;
+using FastMember;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,31 +12,35 @@ using System.Text;
 
 namespace Conduit.Network.Serialization
 {
-    public sealed class Serializator<T> : ISerializator where T : Packet, new()
+    public sealed class Serializator<TPacket> : ISerializator where TPacket : Packet, new()
     {
         private Type TType;
-        private List<FieldInfo> DeclaredFields;
-        private List<FieldInfo> DeclaredLessFields; // without packet fields
-        private Dictionary<ulong, (FieldInfo, BigDataOffsetAttribute)> BigDataFields;
+        private List<DataContain> DeclaredFields;
+        private List<DataContain> DeclaredLessFields; // without packet fields
+        private Dictionary<ulong, (PropertyInfo, BigDataOffsetAttribute)> BigDataFields;
+
+        private TypeAccessor TypeA;
 
         private static Type VIA = typeof(VarIntAttribute);
         private static Type VLA = typeof(VarLongAttribute);
         private static Type BD = typeof(BigDataAttribute);
         private static Type BDO = typeof(BigDataOffsetAttribute);
         private static Type BDL = typeof(BigDataLengthAttribute);
+        private static Type IGN = typeof(IgnoreAttribute);
 
         public Serializator(bool withbigdata = false)
         {
-            TType = typeof(T);
-            DeclaredFields = new List<FieldInfo>();
-            DeclaredLessFields = new List<FieldInfo>();
+            TType = typeof(TPacket);
+            TypeA = TypeAccessor.Create(TType);
+            DeclaredFields = new List<DataContain>();
+            DeclaredLessFields = new List<DataContain>();
 
             Resolve(TType);
             ResolveLess(TType);
 
             if (withbigdata)
             {
-                BigDataFields = new Dictionary<ulong, (FieldInfo, BigDataOffsetAttribute)>();
+                BigDataFields = new Dictionary<ulong, (PropertyInfo, BigDataOffsetAttribute)>();
                 ResolveBigData(TType);
             }
         }
@@ -45,8 +50,16 @@ namespace Conduit.Network.Serialization
             if (bt != typeof(object) && bt != typeof(Packet))
                 ResolveLess(bt);
 
-            var df = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-            DeclaredLessFields.AddRange(df);
+            var df = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            For.ForFixedArrayIncrease(df, (pinfo) =>
+            {
+                if (pinfo.GetCustomAttribute(IGN) is null)
+                    DeclaredLessFields.Add(new DataContain(TType, pinfo,
+                        pinfo.GetCustomAttribute(VIA) is not null,
+                        pinfo.GetCustomAttribute(VLA) is not null,
+                        pinfo.GetCustomAttribute(BD) is not null,
+                        pinfo.PropertyType.IsArray));
+            });
         }
         private void Resolve(Type type)
         { // full resolve
@@ -54,8 +67,16 @@ namespace Conduit.Network.Serialization
             if (bt != typeof(object))
                 Resolve(bt);
 
-            var df = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-            DeclaredFields.AddRange(df);
+            var df = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            For.ForFixedArrayIncrease(df, (pinfo) =>
+            {
+                if (pinfo.GetCustomAttribute(IGN) is null)
+                    DeclaredFields.Add(new DataContain(TType, pinfo,
+                        pinfo.GetCustomAttribute(VIA) is not null,
+                        pinfo.GetCustomAttribute(VLA) is not null,
+                        pinfo.GetCustomAttribute(BD) is not null,
+                        pinfo.PropertyType.IsArray));
+            });
         }
         private void ResolveBigData(Type type)
         { // resolving fields with bigDataLength
@@ -63,69 +84,70 @@ namespace Conduit.Network.Serialization
             if (bt != typeof(object))
                 ResolveBigData(bt);
 
-            var df = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-            For.ForFixedArrayIncrease(df, (finfo) =>
+            var df = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            For.ForFixedArrayIncrease(df, (pinfo) =>
             {
-                var abdl = finfo.GetCustomAttribute(BDL);
-                var abdo = finfo.GetCustomAttribute(BDO);
-                if (abdl is BigDataLengthAttribute bdl && (abdo is BigDataOffsetAttribute bdo))
+                if (pinfo.GetCustomAttribute(IGN) is null)
                 {
-                    BigDataFields.Add(bdl.Id, (finfo, bdo));
+                    var abdl = pinfo.GetCustomAttribute(BDL);
+                    var abdo = pinfo.GetCustomAttribute(BDO);
+                    if (abdl is BigDataLengthAttribute bdl && (abdo is BigDataOffsetAttribute bdo))
+                    {
+                        BigDataFields.Add(bdl.Id, (pinfo, bdo));
+                    }
                 }
             });
         }
 
-        public void Deserialize(Stream stream, T obj)
+        public void Deserialize(Stream stream, TPacket obj)
         {
             using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
-            For.ForFixedListIncrease(DeclaredFields, (finfo) =>
+            For.ForFixedListIncrease(DeclaredFields, (dc) =>
             {
-                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
-                if (hasvia) 
+                if (dc.HasVIA) 
                 {
-                    finfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt());
                     return;
                 }
-                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
-                if (hasvla)
+                if (dc.HasVLA)
                 {
-                    finfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt64());
                     return;
                 }
 
-                finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
+                dc.PropertyInfo.SetValue(obj, bread.ReadObject(dc.PropertyInfo.PropertyType));
             });
         }
-        public void DeserializeBigDataOffset(Stream stream, T obj)
+        public void DeserializeBigDataOffset(Stream stream, TPacket obj)
         {
             using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
-            For.ForFixedListIncrease(DeclaredFields, (finfo) =>
+            For.ForFixedListIncrease(DeclaredFields, (dc) =>
             {
-                if (finfo.GetCustomAttribute(BD) is BigDataAttribute bd)
+                if (dc.PropertyInfo.GetCustomAttribute(BD) is BigDataAttribute bd)
                 {
-                    if (!BigDataFields.TryGetValue(bd.Id, out (FieldInfo, BigDataOffsetAttribute) _out))
+                    if (!BigDataFields.TryGetValue(bd.Id, out (PropertyInfo, BigDataOffsetAttribute) _out))
                         throw new Exception("ты сначало атрибут с длиной поставь, ок?");
-
                     var len = (int)_out.Item1.GetValue(obj) + _out.Item2.Offset;
-                    finfo.SetValue(obj, bread.ReadBytes(len));
+                    dc.PropertyInfo.SetValue(obj, bread.ReadBytes(len));
                     return;
                 }
-                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
-                if (hasvia)
+                if (dc.HasVIA)
                 {
-                    finfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt());
                     return;
                 }
-                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
-                if (hasvla)
+                if (dc.HasVLA)
                 {
-                    finfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt64());
                     return;
                 }
 
-                finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
+                dc.PropertyInfo.SetValue(obj, bread.ReadObject(dc.PropertyInfo.PropertyType));
             });
         }
+
+        /* [is not using now but can be in future]
+        
         public void DeserializeBigData(Stream stream, T obj)
         {
             using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
@@ -214,28 +236,28 @@ namespace Conduit.Network.Serialization
                 finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
             });
         }
-        public void DeserializeLess(Stream stream, T obj)
+        */
+
+        public void DeserializeLess(Stream stream, TPacket obj)
         {
             using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
-            For.ForFixedListIncrease(DeclaredLessFields, (finfo) =>
+            For.ForFixedListIncrease(DeclaredLessFields, (dc) =>
             {
-                bool hasvia = finfo.GetCustomAttribute(VIA) is not null;
-                if (hasvia)
+                if (dc.HasVIA)
                 {
-                    finfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt());
                     return;
                 }
-                bool hasvla = finfo.GetCustomAttribute(VLA) is not null;
-                if (hasvla)
+                if (dc.HasVLA)
                 {
-                    finfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt64());
                     return;
                 }
 
-                finfo.SetValue(obj, bread.ReadObject(finfo.FieldType));
+                dc.PropertyInfo.SetValue(obj, bread.ReadObject(dc.PropertyInfo.PropertyType));
             });
         }
-        public void Serialize(Stream stream, T data)
+        public void Serialize(Stream stream, TPacket data)
         {
             using var memstream = new MemoryStream();
             SerializeObject(memstream, data);
@@ -247,26 +269,27 @@ namespace Conduit.Network.Serialization
 
             stream.Write(memstream.GetBuffer());
         }
-        public void SerializeObject(Stream stream, T data)
+        public void SerializeObject(Stream stream, TPacket data)
         {
             var bwrite = new PBinaryWriter(stream, Encoding.UTF8, true);
-            For.ForFixedListIncrease(DeclaredFields, (finfo) =>
+            For.ForFixedListIncrease(DeclaredFields, (dc) =>
             {
-                var obj = finfo.GetValue(data);
+                dynamic obj = dc.Getter(data); //dc.PropertyInfo.GetValue(data);
+                //var obj = dc.PropertyInfo.GetValue(data);
                 if (obj is null)
-                    throw new Exception($"{finfo.Name} value null");
+                    throw new Exception($"{dc.PropertyInfo.Name} value null");
 
-                if (finfo.GetCustomAttribute(VIA, true) is not null)
-                    bwrite.Write7BitEncodedInt((int)obj);
-                else if (finfo.GetCustomAttribute(VLA, true) is not null)
-                    bwrite.Write7BitEncodedInt64((long)obj);
+                if (dc.HasVIA)
+                    bwrite.Write7BitEncodedInt(obj);
+                else if (dc.HasVLA)
+                    bwrite.Write7BitEncodedInt64(obj);
                 else
-                    bwrite.WriteObject(obj);
+                    bwrite.Write(obj);
             });
         }
 
-        public void Deserialize(Stream stream, object data) => Deserialize(stream, (T)data);
+        public void Deserialize(Stream stream, object data) => Deserialize(stream, (TPacket)data);
 
-        public void Serialize(Stream stream, object data) => Serialize(stream, (T)data);
+        public void Serialize(Stream stream, object data) => Serialize(stream, (TPacket)data);
     }
 }

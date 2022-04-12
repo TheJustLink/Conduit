@@ -10,6 +10,11 @@ namespace Conduit.Network.Protocol.Serializable.Logging
     public sealed class LoginSetCompression : Packet
     {
         [VarInt]
-        public int Threshold;
+        public int Threshold { get; set; }
+
+        protected override void OnClear()
+        {
+            Threshold = 0;
+        }
     }
 }

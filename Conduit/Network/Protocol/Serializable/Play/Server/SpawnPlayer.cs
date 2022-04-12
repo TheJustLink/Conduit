@@ -11,14 +11,25 @@ namespace Conduit.Network.Protocol.Serializable.Play.Server
     public sealed class SpawnPlayer : Packet
     {
         [VarInt]
-        public int EntityID;
-        public GuidUnsafe UUID;
-        public double X;
-        public double Y;
-        public double Z;
-        public double Yaw;
-        public double Pitch;
+        public int EntityID { get; set; }
+        public GuidUnsafe UUID { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
+        public float Yaw { get; set; }
+        public float Pitch { get; set; }
 
         public SpawnPlayer() => Id = 0x04;
+
+        protected override void OnClear()
+        {
+            EntityID = 0;
+            UUID = default;
+            X = 0;
+            Y = 0;
+            Z = 0;
+            Yaw = 0;
+            Pitch = 0;
+        }
     }
 }

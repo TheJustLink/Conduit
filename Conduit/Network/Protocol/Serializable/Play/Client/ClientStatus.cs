@@ -11,9 +11,14 @@ namespace Conduit.Network.Protocol.Serializable.Play.Client
     public sealed class ClientStatus : Packet
     {
         [VarInt]
-        public int Status;
+        public int Status { get; set; }
         public ActionID ActionID => (ActionID)Status;
 
         public ClientStatus() => Id = 0x04;
+
+        protected override void OnClear()
+        {
+            Status = 0;
+        }
     }
 }
