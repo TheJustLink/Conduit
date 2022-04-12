@@ -1,5 +1,4 @@
 ﻿using System;
-
 using ConduitServer.Serialization.Packets;
 using ConduitServer.Services.Listeners;
 
