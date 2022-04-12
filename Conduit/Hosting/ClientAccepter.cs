@@ -28,8 +28,9 @@ namespace Conduit.Hosting
             if (!IsWorking)
             {
                 IsWorking = true;
-                NativeThread = new Thread(AcceptWaiter);
-                NativeThread.Start();
+                ThreadPool.QueueUserWorkItem(AcceptWaiter);
+                //NativeThread = new Thread(AcceptWaiter);
+                //NativeThread.Start();
             }
         }
         public void Stop()
@@ -37,22 +38,27 @@ namespace Conduit.Hosting
             IsWorking = false;
         }
 
-        private void AcceptWaiter()
+        private void AcceptWaiter(object obj)
         {
             TcpListener = new TcpListener(System.Net.IPAddress.Any, Server.ServerOptions.Port);
             TcpListener.Start();
 
             while (IsWorking)
             {
-                MRES.Reset();
+                var cl = TcpListener.AcceptTcpClient();
+                var vclient = new VClient(Guid.NewGuid(), cl, Server);
 
-                TcpListener.BeginAcceptTcpClient(new AsyncCallback(OnAccept), null);
+                vclient.Virtualize();
+                //MRES.Reset();
 
-                MRES.Wait(); // lock for future connection
+                //TcpListener.BeginAcceptTcpClient(new AsyncCallback(OnAccept), null);
+
+                //MRES.Wait(); // lock for future connection
             }
             IsWorking = false;
         }
 
+        /*
         private void OnAccept(IAsyncResult ar)
         {
             if (!IsWorking)
@@ -66,5 +72,6 @@ namespace Conduit.Hosting
             
             vclient.Virtualize();
         }
+        */
     }
 }
