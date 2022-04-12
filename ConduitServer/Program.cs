@@ -19,7 +19,6 @@ namespace ConduitServer
             
             server.Start();
             Console.WriteLine("Started");
-            server.TickLoop();
             Console.ReadKey(true);
             Console.WriteLine("Stop...");
             server.Stop();

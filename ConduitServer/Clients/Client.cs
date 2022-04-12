@@ -6,6 +6,7 @@ using ConduitServer.Clients;
 using ConduitServer.Net.Packets;
 using ConduitServer.Net.Packets.Handshake;
 using ConduitServer.Net.Packets.Login;
+using ConduitServer.Net.Packets.Play;
 using ConduitServer.Net.Packets.Status;
 
 using LoginDisconnect = ConduitServer.Net.Packets.Login.Disconnect;
@@ -38,7 +39,7 @@ namespace ConduitServer
                         case ClientState.Handshaking: HandshakingState(); break;
                         case ClientState.Status: StatusState(); break;
                         case ClientState.Login: LoginState(); break;
-                        case ClientState.Play: 
+                        case ClientState.Play: PlayState(); break;
                         default:
                         case ClientState.Disconnected: Disconnect(); return;
                     }
@@ -102,22 +103,45 @@ namespace ConduitServer
             Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
             Console.WriteLine("Username=" + loginStart.Username);
 
-            //var loginSuccess = new Success
-            //{
-            //    Guid = Guid.NewGuid(),
-            //    Username = loginStart.Username
-            //};
-            //_packetSender.Send(loginSuccess);
-
-            var disconnect = new LoginDisconnect
+            var loginSuccess = new Success
             {
-                Reason = new Chat { Text  = "ABOBUS!" }
+                Guid = Guid.NewGuid(),
+                Username = loginStart.Username
             };
-            _packetSender.Send(disconnect);
+            _packetSender.Send(loginSuccess);
+
+            // If login failed - disconnect
+            //var disconnect = new LoginDisconnect
+            //{
+            //    Reason = new Chat { Text  = "ABOBUS!" }
+            //};
+            //_packetSender.Send(disconnect);
 
             _state = ClientState.Play;
         }
-        
+
+        private void PlayState()
+        {
+            var joinGame = new JoinGame()
+            {
+                EntityId = 0,
+                IsHardcore = false,
+                Gamemode = Gamemode.Adventure,
+                PreviousGamemode = -1,
+                WorldCount = 1,
+                DimensionNames = new [] { "minecraft:overworld" },
+                // DimCodec
+                // Dim
+                HashedSeed = 0,
+                MaxPlayers = 100,
+                ViewDistance = 2,
+                SimulationDistance = 2,
+                EnableRespawnScreen = true,
+                IsDebug = true,
+                IsFlat = true
+            };
+        }
+
         protected abstract void Disconnect();
     }
 }

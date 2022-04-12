@@ -6,14 +6,14 @@ namespace ConduitServer.Net.Packets.Play
     {
         public int EntityId;
         public bool IsHardcore;
-        public byte Gamemode;
+        public Gamemode Gamemode;
         public sbyte PreviousGamemode;
         [VarInt]
         public int WorldCount;
-        public ushort[] DimensionNames;
+        public string[] DimensionNames;
         public string DimensionCodec;
         public string Dimension;
-        public ushort DimensionName;
+        public string DimensionName;
         public long HashedSeed;
         [VarInt]
         public int MaxPlayers;
@@ -21,7 +21,6 @@ namespace ConduitServer.Net.Packets.Play
         public int ViewDistance;
         [VarInt]
         public int SimulationDistance;
-        public bool ReducedDebugInfo;
         public bool EnableRespawnScreen;
         public bool IsDebug;
         public bool IsFlat;
