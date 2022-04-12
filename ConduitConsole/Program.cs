@@ -3,5 +3,11 @@ using Conduit;
 using Conduit.Configurable;
 
 var entry = new Entry();
-entry.Server.Setup(new ServerOptions() { Port = 25565 });
+entry.Server.Setup(new ServerOptions()
+{
+    Port = 25565,
+    TimePerConnect = 500,
+});
 entry.Server.Start();
+
+Console.ReadLine();

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Conduit.Types
+namespace Conduit.Typing
 {
     public enum ActionID : int
     {

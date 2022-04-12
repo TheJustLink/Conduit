@@ -1,10 +1,11 @@
-﻿using FastMember;
-using Sigil;
+﻿using Conduit.Utilities;
+using GrEmit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace Conduit.Network.Serialization
         public bool HasBD;
         public bool IsArray;
 
-        public PropertyInfo PropertyInfo;
+        public PropertyInfo Property;
 
         private Type BaseClass;
 
@@ -35,21 +36,69 @@ namespace Conduit.Network.Serialization
             bool isarray)
         {
             BaseClass = baseclass;
-            PropertyInfo = pinfo;
+            Property = pinfo;
             HasVIA = hvia;
             HasVLA = hvla;
             HasBD = hbd;
             IsArray = isarray;
 
-            Emit<Func<object, object>> gem = Emit<Func<object, object>>.NewDynamicMethod("GetTestClassDataProperty");
-            gem = gem.LoadArgument(0);
-            gem = gem.CastClass(BaseClass);
-            gem = gem.Call(pinfo.GetGetMethod());
-            if (pinfo.PropertyType != typeof(string) && !pinfo.PropertyType.IsArray)
-                gem = gem.Box(pinfo.PropertyType);
-            gem = gem.Return();
+            CompileGet();
+            CompileSet();
+        }
 
-            Getter = gem.CreateDelegate();
+        private void CompileGet()
+        {
+            var method = new DynamicMethod(Guid.NewGuid().ToString(), // имя метода
+                                  typeof(object), // возвращаемый тип
+                                  new[] { typeof(object) }, // принимаемые параметры
+                                  BaseClass, // к какому типу привязать метод, можно указывать, например, string
+                                  true); // просим доступ к приватным полям
+
+            using (var il = new GroboIL(method))
+            {
+                il.Ldarg(0);
+                il.Castclass(BaseClass);
+                il.Call(Property.GetGetMethod());
+
+                bool istruenumber = (MathUtils.IsNumber(Property.PropertyType) || !Property.PropertyType.IsClass) && !Property.PropertyType.IsArray;
+
+                if (istruenumber)
+                    il.Box(Property.PropertyType);
+                //il.Castclass(Property.PropertyType);
+
+                il.Ret();
+            }
+
+            Getter = method.CreateDelegate<Func<object, object>>();
+        }
+
+        
+        private void CompileSet()
+        {
+            var method = new DynamicMethod(Guid.NewGuid().ToString(), // имя метода
+                                  typeof(void), // возвращаемый тип
+                                  new[] { typeof(object), typeof(object) }, // принимаемые параметры
+                                  BaseClass, // к какому типу привязать метод, можно указывать, например, string
+                                  true); // просим доступ к приватным полям
+
+            using (var il = new GroboIL(method))
+            {
+                bool istruenumber = (MathUtils.IsNumber(Property.PropertyType) || !Property.PropertyType.IsClass) && !Property.PropertyType.IsArray;
+
+                il.Ldarg(0);
+                il.Castclass(BaseClass);
+                il.Ldarg(1);
+
+                if (istruenumber)
+                    il.Unbox_Any(Property.PropertyType);
+                else
+                    il.Castclass(Property.PropertyType);
+
+                il.Call(Property.GetSetMethod());
+                il.Ret();     
+            }
+
+            Setter = method.CreateDelegate<Action<object, object>>();
         }
     }
 }

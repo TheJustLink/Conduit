@@ -58,7 +58,7 @@ namespace Conduit.Hosting.ClientWorkers
             var loginstart = new LoginStart();
             ClientMaintainer.Protocol.SLoginStart.Serializator.DeserializeLess(ms, loginstart);
             ms.Close();
-            Console.WriteLine("Username=" + loginstart.Username);
+            //Console.WriteLine("Username=" + loginstart.Username);
 
             if (!ClientMaintainer.VClient.ServerInstance.ServerIntergrate.HandleState(out string mes))
             {

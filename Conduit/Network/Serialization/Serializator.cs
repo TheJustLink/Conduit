@@ -2,7 +2,6 @@
 using Conduit.Network.Protocol.Serializable;
 using Conduit.Network.Serialization.Attributes;
 using Conduit.Utilities;
-using FastMember;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,8 +18,6 @@ namespace Conduit.Network.Serialization
         private List<DataContain> DeclaredLessFields; // without packet fields
         private Dictionary<ulong, (PropertyInfo, BigDataOffsetAttribute)> BigDataFields;
 
-        private TypeAccessor TypeA;
-
         private static Type VIA = typeof(VarIntAttribute);
         private static Type VLA = typeof(VarLongAttribute);
         private static Type BD = typeof(BigDataAttribute);
@@ -31,7 +28,6 @@ namespace Conduit.Network.Serialization
         public Serializator(bool withbigdata = false)
         {
             TType = typeof(TPacket);
-            TypeA = TypeAccessor.Create(TType);
             DeclaredFields = new List<DataContain>();
             DeclaredLessFields = new List<DataContain>();
 
@@ -106,16 +102,16 @@ namespace Conduit.Network.Serialization
             {
                 if (dc.HasVIA) 
                 {
-                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    dc.Setter(obj, bread.Read7BitEncodedInt());
                     return;
                 }
                 if (dc.HasVLA)
                 {
-                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    dc.Setter(obj, bread.Read7BitEncodedInt64());
                     return;
                 }
 
-                dc.PropertyInfo.SetValue(obj, bread.ReadObject(dc.PropertyInfo.PropertyType));
+                dc.Setter(obj, bread.ReadObject(dc.Property.PropertyType));
             });
         }
         public void DeserializeBigDataOffset(Stream stream, TPacket obj)
@@ -123,26 +119,26 @@ namespace Conduit.Network.Serialization
             using var bread = new PBinaryReader(stream, Encoding.UTF8, true);
             For.ForFixedListIncrease(DeclaredFields, (dc) =>
             {
-                if (dc.PropertyInfo.GetCustomAttribute(BD) is BigDataAttribute bd)
+                if (dc.Property.GetCustomAttribute(BD) is BigDataAttribute bd)
                 {
                     if (!BigDataFields.TryGetValue(bd.Id, out (PropertyInfo, BigDataOffsetAttribute) _out))
                         throw new Exception("ты сначало атрибут с длиной поставь, ок?");
                     var len = (int)_out.Item1.GetValue(obj) + _out.Item2.Offset;
-                    dc.PropertyInfo.SetValue(obj, bread.ReadBytes(len));
+                    dc.Setter(obj, bread.ReadBytes(len));
                     return;
                 }
                 if (dc.HasVIA)
                 {
-                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    dc.Setter(obj, bread.Read7BitEncodedInt());
                     return;
                 }
                 if (dc.HasVLA)
                 {
-                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    dc.Setter(obj, bread.Read7BitEncodedInt64());
                     return;
                 }
 
-                dc.PropertyInfo.SetValue(obj, bread.ReadObject(dc.PropertyInfo.PropertyType));
+                dc.Setter(obj, bread.ReadObject(dc.Property.PropertyType));
             });
         }
 
@@ -245,16 +241,16 @@ namespace Conduit.Network.Serialization
             {
                 if (dc.HasVIA)
                 {
-                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt());
+                    dc.Setter(obj, bread.Read7BitEncodedInt());
                     return;
                 }
                 if (dc.HasVLA)
                 {
-                    dc.PropertyInfo.SetValue(obj, bread.Read7BitEncodedInt64());
+                    dc.Setter(obj, bread.Read7BitEncodedInt64());
                     return;
                 }
 
-                dc.PropertyInfo.SetValue(obj, bread.ReadObject(dc.PropertyInfo.PropertyType));
+                dc.Setter(obj, bread.ReadObject(dc.Property.PropertyType));
             });
         }
         public void Serialize(Stream stream, TPacket data)
@@ -277,7 +273,7 @@ namespace Conduit.Network.Serialization
                 dynamic obj = dc.Getter(data); //dc.PropertyInfo.GetValue(data);
                 //var obj = dc.PropertyInfo.GetValue(data);
                 if (obj is null)
-                    throw new Exception($"{dc.PropertyInfo.Name} value null");
+                    throw new Exception($"{dc.Property.Name} value null");
 
                 if (dc.HasVIA)
                     bwrite.Write7BitEncodedInt(obj);

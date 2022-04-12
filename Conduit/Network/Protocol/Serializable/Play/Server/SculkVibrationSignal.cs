@@ -1,4 +1,4 @@
-﻿using Conduit.Types;
+﻿using Conduit.Typing;
 using System;
 using System.Collections.Generic;
 using System.Linq;

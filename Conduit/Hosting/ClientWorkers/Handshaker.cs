@@ -18,14 +18,14 @@ namespace Conduit.Hosting.ClientWorkers
         {
             WaitToAvailable();
 
-            Console.WriteLine("Handshaking...");
+            //Console.WriteLine("Handshaking...");
 
             var handshake = ClientMaintainer.Protocol.SHandshake.PacketPool.Get();
             ClientMaintainer.Protocol.SHandshake.Serializator.Deserialize(ClientMaintainer.VClient.RemoteStream, handshake);
             //if (!handshake.IsValidLength)
             //    return;
 
-            Console.WriteLine("Handshaked!");
+            //Console.WriteLine("Handshaked!");
 
             switch (handshake.NextStateEnum)
             {

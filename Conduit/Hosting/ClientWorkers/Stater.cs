@@ -50,7 +50,7 @@ namespace Conduit.Hosting.ClientWorkers
 
         private void OnStatus()
         {
-            Console.WriteLine("Requested status");
+            //Console.WriteLine("Requested status");
 
             var response = ClientMaintainer.Protocol.SResponse.PacketPool.Get();
             response.Json = ClientMaintainer.VClient.ServerInstance.Status.LastStatus;
@@ -61,7 +61,7 @@ namespace Conduit.Hosting.ClientWorkers
 
             ClientMaintainer.Protocol.SResponse.PacketPool.Return(response);
 
-            Console.WriteLine($"Serialized response for {sw.Elapsed.TotalMilliseconds}ms");
+            //Console.WriteLine($"Serialized response for {sw.Elapsed.TotalMilliseconds}ms");
         }
         private void OnPing(byte[] data)
         {
@@ -69,7 +69,7 @@ namespace Conduit.Hosting.ClientWorkers
 
             var ping = new Ping();
             ClientMaintainer.Protocol.SPing.Serializator.DeserializeLess(ms, ping);
-            Console.WriteLine("Requested ping");
+            //Console.WriteLine("Requested ping");
             ClientMaintainer.Protocol.SPing.Serializator.Serialize(ClientMaintainer.VClient.RemoteStream, ping);
             ms.Close();
             Pinged = true;

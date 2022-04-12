@@ -35,9 +35,9 @@ namespace Conduit.Hosting
 
         public void Virtualize()
         {
-            ThreadPool.QueueUserWorkItem(Maintenance);
-            //DedicatedThread = new Thread(Maintenance);
-            //DedicatedThread.Start();
+            //ThreadPool.QueueUserWorkItem(Maintenance);
+            DedicatedThread = new Thread(Maintenance);
+            DedicatedThread.Start();
         }
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public void Maintenance(object state)

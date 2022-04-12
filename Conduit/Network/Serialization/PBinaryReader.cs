@@ -11,19 +11,7 @@ namespace Conduit.Network.Serialization
 {
     public class PBinaryReader : BinaryReader
     {
-        #region Guids
-        private GuidUnsafe BoolGuid = typeof(bool).GUID;
-        private GuidUnsafe SByteGuid = typeof(sbyte).GUID;
-        private GuidUnsafe ByteGuid = typeof(byte).GUID;
-        private GuidUnsafe ShortGuid = typeof(short).GUID;
-        private GuidUnsafe UShortGuid = typeof(ushort).GUID;
-        private GuidUnsafe IntGuid = typeof(int).GUID;
-        private GuidUnsafe LongGuid = typeof(long).GUID;
-        private GuidUnsafe FloatGuid = typeof(float).GUID;
-        private GuidUnsafe DoubleGuid = typeof(double).GUID;
-        private GuidUnsafe StringGuid = typeof(string).GUID;
-        private GuidUnsafe GuidGuid = typeof(Guid).GUID;
-        #endregion
+        
         private Encoding Encoding;
 
         public PBinaryReader(Stream input) : base(input)
@@ -43,27 +31,27 @@ namespace Conduit.Network.Serialization
         public virtual object ReadObject(Type ftype)
         {
             GuidUnsafe guid = ftype.GUID;
-            if (guid == BoolGuid)
+            if (guid == Types.BoolGuid)
                 return ReadBoolean();
-            else if (guid == SByteGuid)
+            else if (guid == Types.SByteGuid)
                 return ReadSByte();
-            else if (guid == ByteGuid)
+            else if (guid == Types.ByteGuid)
                 return ReadByte();
-            else if (guid == ShortGuid)
+            else if (guid == Types.ShortGuid)
                 return ReadInt16();
-            else if (guid == UShortGuid)
+            else if (guid == Types.UShortGuid)
                 return ReadUInt16();
-            else if (guid == IntGuid)
+            else if (guid == Types.IntGuid)
                 return ReadInt32();
-            else if (guid == LongGuid)
+            else if (guid == Types.LongGuid)
                 return ReadInt64();
-            else if (guid == FloatGuid)
+            else if (guid == Types.FloatGuid)
                 return ReadSingle();
-            else if (guid == DoubleGuid)
+            else if (guid == Types.DoubleGuid)
                 return ReadDouble();
-            else if (guid == StringGuid)
+            else if (guid == Types.StringGuid)
                 return ReadString();
-            else if (guid == GuidGuid)
+            else if (guid == Types.GuidGuid)
                 return ReadGuid();
             else 
                 throw new NotImplementedException();

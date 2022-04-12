@@ -28,9 +28,9 @@ namespace Conduit.Hosting
             if (!IsWorking)
             {
                 IsWorking = true;
-                ThreadPool.QueueUserWorkItem(AcceptWaiter);
-                //NativeThread = new Thread(AcceptWaiter);
-                //NativeThread.Start();
+                //ThreadPool.QueueUserWorkItem(AcceptWaiter);
+                NativeThread = new Thread(AcceptWaiter);
+                NativeThread.Start();
             }
         }
         public void Stop()
@@ -41,10 +41,13 @@ namespace Conduit.Hosting
         private void AcceptWaiter(object obj)
         {
             TcpListener = new TcpListener(System.Net.IPAddress.Any, Server.ServerOptions.Port);
-            TcpListener.Start();
+            TcpListener.Start(3);
 
             while (IsWorking)
             {
+                Thread.Sleep(Server.ServerOptions.TimePerConnect);
+                if (!TcpListener.Pending()) continue;
+
                 var cl = TcpListener.AcceptTcpClient();
                 var vclient = new VClient(Guid.NewGuid(), cl, Server);
 
