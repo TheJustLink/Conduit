@@ -1,4 +1,5 @@
-﻿using ConduitServer.Serialization.Attributes;
+﻿using ConduitServer.Clients;
+using ConduitServer.Serialization.Attributes;
 
 namespace ConduitServer.Net.Packets.Handshake
 {
@@ -9,6 +10,6 @@ namespace ConduitServer.Net.Packets.Handshake
         public string ServerAddress;
         public ushort ServerPort;
         [VarInt]
-        public int NextState;
+        public ClientState NextState;
     }
 }

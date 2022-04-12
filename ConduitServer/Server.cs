@@ -1,74 +1,54 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Net;
-using System.Net.Sockets;
+﻿using System.Collections.Generic;
 using System.Threading;
+using ConduitServer.Clients;
+using ConduitServer.Services.Listeners;
 
 namespace ConduitServer
 {
     class Server
     {
-        private TcpListener _listener;
         private bool _isRunning;
-        private ConcurrentDictionary<Client, Client> _clients;
 
-        public Server(int port)
+        private readonly List<IClient> _clients;
+        private readonly IClientListener _listener;
+
+        public Server(IClientListener listener)
         {
-            _listener = new TcpListener(IPAddress.Any, port);
-            _clients = new ConcurrentDictionary<Client, Client>();
+            _clients = new List<IClient>();
+
+            _listener = listener;
+            _listener.Connected += OnClientConnected;
+        }
+
+        private void OnClientConnected(IClient client)
+        {
+            _clients.Add(client);
+        }
+
+        public void TickLoop()
+        {
+            while (_isRunning)
+            {
+                for (int i = 0; i < _clients.Count; i++)
+                {
+                    _clients[i].Tick();
+                }
+
+                Thread.Sleep(1);
+            }
         }
 
         public void Start()
         {
             _isRunning = true;
 
-            Thread acceptThread = new Thread(AcceptLoop);
-            Thread processThread = new Thread(ProcessingLoop);
-
-            acceptThread.Start();
-            processThread.Start();
+            _listener.Start();
         }
         public void Stop()
         {
             _isRunning = false;
-        }
 
-        private void AcceptLoop()
-        {
-            _listener.Start();
-
-            while (_isRunning)
-            {
-                if (_listener.Pending())
-                {
-                    Console.WriteLine("Someone connected");
-
-                    var tcpClient = _listener.AcceptTcpClient();
-                    var client = new Client(tcpClient);
-
-                    client.Disconnected = OnDisconnected;
-                    _clients.TryAdd(client, client);
-                }
-                else
-                    Thread.Sleep(1);
-            }
-        }
-        private void ProcessingLoop()
-        {
-            while(_isRunning)
-            {
-                if (_clients.Count <= 0) continue;
-
-                foreach (var client in _clients)
-                {
-                    client.Value.ReadPacket();
-                }
-            }
-        }
-
-        private void OnDisconnected(Client client)
-        {
-            _clients.TryRemove(client, out Client value);
+            _listener.Stop();
         }
     }
 }

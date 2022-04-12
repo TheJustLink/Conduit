@@ -12,14 +12,6 @@ namespace ConduitServer.Serialization.Packets
 {
     class PacketSerializer : IPacketSerializer
     {
-        public byte[] Serialize<T>(T packet) where T : Packet
-        {
-            using var memory = new MemoryStream();
-
-            Serialize(memory, packet);
-
-            return memory.ToArray();
-        }
         public void Serialize<T>(Stream output, T packet) where T : Packet
         {
             using var writer = new BinaryWriter(output, Encoding.UTF8, true);
@@ -49,15 +41,15 @@ namespace ConduitServer.Serialization.Packets
         }
         private static void SerializeField(BinaryWriter writer, object @object, FieldInfo field)
         {
-            var value = field.GetValue(@object);
+            dynamic value = field.GetValue(@object);
             if (value is null)
                 throw new SerializationException($"Value of field {field.Name} empty");
             
             if (field.GetCustomAttribute(typeof(VarIntAttribute), true) is not null)
-                writer.Write7BitEncodedInt((int)value);
+                writer.Write7BitEncodedInt(value);
             else if (field.GetCustomAttribute(typeof(VarLongAttribute), true) is not null)
-                writer.Write7BitEncodedInt64((long)value);
-            else writer.WriteObject(value);
+                writer.Write7BitEncodedInt64(value);
+            else writer.Write(value);
         }
     }
 }

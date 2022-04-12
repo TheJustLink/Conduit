@@ -2,22 +2,17 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+
 using ConduitServer.Extensions;
 using ConduitServer.Net.Packets;
 using ConduitServer.Serialization.Attributes;
+
 using BinaryReader = ConduitServer.Net.BinaryReader;
 
 namespace ConduitServer.Serialization.Packets
 {
     class PacketDeserializer : IPacketDeserializer
     {
-        public T Deserialize<T>(RawPacket rawPacket) where T : Packet
-        {
-            var type = typeof(T);
-
-            throw new NotImplementedException();
-        }
-
         public T Deserialize<T>(Stream input) where T : Packet, new()
         {
             using var reader = new BinaryReader(input, Encoding.UTF8, true);

@@ -2,17 +2,30 @@
 using System.Net;
 using System.Net.Sockets;
 
+using ConduitServer.Clients;
+using ConduitServer.Net.Packets;
+using ConduitServer.Serialization.Packets;
+
+using TcpClient = ConduitServer.Clients.TcpClient;
+using RawTcpClient = System.Net.Sockets.TcpClient;
+
 namespace ConduitServer.Services.Listeners
 {
-    class TCPClientListener : Service, IClientListener
+    class TcpClientListener : Service, IClientListener
     {
-        public event Action<Client>? Connected;
+        public event Action<IClient>? Connected;
 
-        private TcpListener _listener;
+        private readonly TcpListener _listener;
+        private readonly IPacketDeserializer _deserializer;
+        private readonly IPacketSerializer _serializer;
 
-        public TCPClientListener(int tickRate, int listenPort):base(tickRate)
+        public TcpClientListener(int tickRate, int port, IPacketDeserializer deserializer, IPacketSerializer serializer)
+            : base(tickRate)
         {
-            _listener = new TcpListener(IPAddress.Any, listenPort);
+            _listener = new TcpListener(IPAddress.Any, port);
+
+            _deserializer = deserializer;
+            _serializer = serializer;
         }
 
         public override void Start()
@@ -22,12 +35,21 @@ namespace ConduitServer.Services.Listeners
         }
         protected override void Tick()
         {
-            if (_listener.Pending())
-            {
-                var tcpClient = _listener.AcceptTcpClient();
-                var client = new Client(tcpClient);
-                Connected?.Invoke(client);
-            }
+            if (!_listener.Pending()) return;
+
+            var rawTcpClient = _listener.AcceptTcpClient();
+            var client = CreateClient(rawTcpClient);
+
+            Connected?.Invoke(client);
+        }
+
+        private IClient CreateClient(RawTcpClient rawTcpClient)
+        {
+            var stream = rawTcpClient.GetStream();
+            var packetProvider = new NetworkPacketProvider(stream, _deserializer);
+            var packetSender = new NetworkPacketSender(stream, _serializer);
+
+            return new TcpClient(rawTcpClient, packetProvider, packetSender);
         }
     }
 }

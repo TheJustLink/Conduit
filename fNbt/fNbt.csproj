@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<LangVersion>7.3</LangVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<OutputPath>..\bin\Debug\</OutputPath>
+		<ConsolePause>false</ConsolePause>
+		<DocumentationFile>..\bin\Debug\fNbt.xml</DocumentationFile>
+		<RunCodeAnalysis>false</RunCodeAnalysis>
+		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<OutputPath>..\bin\Release\</OutputPath>
+		<ConsolePause>false</ConsolePause>
+		<RunCodeAnalysis>false</RunCodeAnalysis>
+		<DocumentationFile>..\bin\Release\fNbt.xml</DocumentationFile>
+		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+		<DebugSymbols>true</DebugSymbols>
+		<DefineConstants>
+		</DefineConstants>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+</Project>

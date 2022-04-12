@@ -1,21 +1,28 @@
 ﻿using System;
 
+using ConduitServer.Serialization.Packets;
 using ConduitServer.Services.Listeners;
 
 namespace ConduitServer
 {
     static class Program
     {
-        static IClientListener listener;
         private static void Main(string[] args)
         {
             InitializeConsole();
 
-            listener.Start();
-            //listener.Connected += InitializeConsole;
+            var deserializer = new PacketDeserializer();
+            var serializer = new PacketSerializer();
+
+            var listener = new TcpClientListener(1, 666, deserializer, serializer);
+            var server = new Server(listener);
             
-            var server = new Server(666);
             server.Start();
+            Console.WriteLine("Started");
+            server.TickLoop();
+            Console.ReadKey(true);
+            Console.WriteLine("Stop...");
+            server.Stop();
         }
         private static void InitializeConsole()
         {
