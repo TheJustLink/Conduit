@@ -1,5 +1,4 @@
 ﻿using ConduitServer.Serialization.Attributes;
-using ConduitServer.Nbt;
 
 namespace ConduitServer.Net.Packets.Play
 {
@@ -11,9 +10,9 @@ namespace ConduitServer.Net.Packets.Play
         public sbyte PreviousGamemode;
         [VarInt]
         public int WorldCount;
-        public long[] DimensionNames;
-        public MixedCodec DimensionCodec;
-        public DimensionCodec Dimension;
+        public string[] DimensionNames;
+        public byte[] DimensionCodec;
+        public byte[] Dimension;
         public string DimensionName;
         public long HashedSeed;
         [VarInt]

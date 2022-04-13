@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 
 using ConduitServer.Clients;
@@ -9,7 +10,7 @@ using ConduitServer.Net.Packets.Login;
 using ConduitServer.Net.Packets.Play;
 using ConduitServer.Net.Packets.Status;
 using ConduitServer.Nbt;
-
+using fNbt;
 using LoginDisconnect = ConduitServer.Net.Packets.Login.Disconnect;
 
 namespace ConduitServer
@@ -131,23 +132,151 @@ namespace ConduitServer
                 DimensionCodec = new CodecCollection<int, DimensionCodec>("minecraft:dimension_type"),
                 BiomeCodec = new CodecCollection<int, BiomeCodec>("minecraft:worldgen/biome")
             };
-            var dimensionCodec = new DimensionCodec()
-            {
-                Id = 12121,
-                Name = "idk"
-            };
+            //var dimensionCodec = new DimensionCodec()
+            //{
+            //    Id = 12121,
+            //    Name = "idk"
+            //};
 
-            var joinGame = new JoinGame()
+            var dimensionCodec = new NbtCompound("dimension_codec", new NbtCompound[]
+            {
+                new("minecraft:dimension_type", new NbtTag[]
+                {
+                    new NbtString("type", "minecraft:dimension_type"),
+                    new NbtList("value", new NbtTag[]
+                    {
+                        new NbtCompound(new NbtTag[]
+                        {
+                            new NbtString("name", "minecraft:overworld"),
+                            new NbtInt("id", 0),
+                            new NbtCompound("element", new NbtTag[]
+                            {
+                                new NbtByte("piglin_safe", 0),
+                                new NbtByte("natural", 1),
+                                new NbtFloat("ambient_light", 1),
+                                new NbtLong("fixed_time", 1000),
+                                new NbtString("infiniburn", ""),
+                                new NbtByte("respawn_anchor_works", 0),
+                                new NbtByte("has_skylight", 1),
+                                new NbtByte("bed_works", 1),
+                                new NbtString("effects", "minecraft:overworld"),
+                                new NbtByte("has_raids", 1),
+                                new NbtInt("min_y", 0),
+                                new NbtInt("height", 255),
+                                new NbtInt("logical_height", 255),
+                                new NbtDouble("coordinate_scale", 1),
+                                new NbtByte("ultrawarm", 0),
+                                new NbtByte("has_ceiling", 0)
+                            })
+                        })
+                    })
+                }),
+                new("minecraft:worldgen/biome", new NbtTag[]
+                {
+                    new NbtString("type", "minecraft:worldgen/biome"),
+                    new NbtList("value", new NbtTag[]
+                    {
+                        new NbtCompound(new NbtTag[]
+                        {
+                            new NbtString("name", "minecraft:void"),
+                            new NbtInt("id", 0),
+                            new NbtCompound("element", new NbtTag[]
+                            {
+                                new NbtString("precipitation", "none"),
+                                new NbtFloat("depth", 1.5f),
+                                new NbtFloat("temperature", 1f),
+                                new NbtFloat("scale", 1f),
+                                new NbtFloat("downfall", 1f),
+                                new NbtString("category", "none"),
+                                // new NbtString("temperature_modifier", "frozen"),
+                                new NbtCompound("effects", new NbtTag[]
+                                {
+                                    new NbtInt("sky_color", 8364543),
+                                    new NbtInt("water_fog_color", 8364543),
+                                    new NbtInt("fog_color", 8364543),
+                                    new NbtInt("water_color", 8364543),
+                                    // new NbtInt("foliage_color", 8364543),
+                                    // new NbtInt("grass_color", 8364543),
+                                    // new NbtString("grass_color_modifier", "swamp"),
+                                    //new NbtCompound("music", new NbtTag[]
+                                    //{
+                                    //    new NbtByte("replace_current_music", 0),
+                                    //    new NbtString("sound", ""),
+                                    //    new NbtInt("max_delay", 10),
+                                    //    new NbtInt("min_delay", 1)
+                                    //})
+                                    //new NbtString("ambient_sound", "minecraft:ambient.basalt_deltas.loop"),
+                                    //new NbtCompound("additions_sound", new NbtTag[]
+                                    //{
+                                    //    new NbtString("sound", ""),
+                                    //    new NbtDouble("tick_chance", 1)
+                                    //})
+                                    //new NbtCompound("mood_sound", new NbtTag[]
+                                    //{
+                                    //    new NbtString("sound", ""),
+                                    //    new NbtInt("tick_delay", 1),
+                                    //    new NbtDouble("offset", 0),
+                                    //    new NbtInt("block_search_extent", 0)
+                                    //})
+                                    //new NbtCompound("particle", new NbtTag[]
+                                    //{
+                                    //    new NbtFloat("probability", 1),
+                                    //    new NbtCompound("options", new NbtTag[]
+                                    //    {
+                                    //        new NbtString("type", "")
+                                    //    })
+                                    //})
+                                })
+                            })
+                        })
+                    })
+                })
+            });
+            var dimension = new NbtCompound("dimension", new NbtTag[]
+            {
+                new NbtByte("piglin_safe", 0),
+                new NbtByte("natural", 1),
+                new NbtFloat("ambient_light", 1),
+                new NbtLong("fixed_time", 1000),
+                new NbtString("infiniburn", ""),
+                new NbtByte("respawn_anchor_works", 0),
+                new NbtByte("has_skylight", 1),
+                new NbtByte("bed_works", 1),
+                new NbtString("effects", "minecraft:overworld"),
+                new NbtByte("has_raids", 1),
+                new NbtInt("min_y", 0),
+                new NbtInt("height", 255),
+                new NbtInt("logical_height", 255),
+                new NbtDouble("coordinate_scale", 1),
+                new NbtByte("ultrawarm", 0),
+                new NbtByte("has_ceiling", 0)
+            });
+
+            var test1 = new NbtCompound("dimension_codec");
+            var test2 = new NbtCompound("dimension");
+
+            var memory1 = new MemoryStream();
+            var writer1 = new NbtWriter(memory1, "dimension_codec");
+            writer1.WriteTag(test1);
+
+            var memory2 = new MemoryStream();
+            var writer2 = new NbtWriter(memory2, "dimension_codec");
+            writer2.WriteTag(test2);
+
+            var dimensionCodecData = memory1.ToArray();
+            var dimensionData = memory2.ToArray();
+
+            var joinGame = new JoinGame
             {
                 EntityId = 0,
                 IsHardcore = false,
                 Gamemode = Gamemode.Adventure,
                 PreviousGamemode = -1,
                 WorldCount = 1,
-                DimensionNames = new[] { 255l },
-                DimensionCodec = mixedCodec,
-                Dimension = dimensionCodec,
-                DimensionName = dimensionCodec.Name,
+                DimensionNames = new[] { "minecraft:overworld" },
+                DimensionCodec = dimensionCodecData,
+                Dimension = dimensionData,
+                DimensionName = "minecraft:overworld",
                 HashedSeed = 0,
                 MaxPlayers = 100,
                 ViewDistance = 2,
@@ -157,7 +286,7 @@ namespace ConduitServer
                 IsFlat = true
             };
             _packetSender.Send(joinGame);
-
+            Console.WriteLine("Join game sended");
         }
 
         protected abstract void Disconnect();
