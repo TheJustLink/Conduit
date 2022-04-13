@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Conduit.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -40,16 +41,21 @@ namespace Conduit.Hosting
 
         private void AcceptWaiter(object obj)
         {
-            TcpListener = new TcpListener(System.Net.IPAddress.Any, Server.ServerOptions.Port);
+            TcpListener = new TcpListener(System.Net.IPAddress.Any, Server.ServerOptions.NetworkOptions.Port);
             TcpListener.Start(3);
 
             while (IsWorking)
             {
-                Thread.Sleep(Server.ServerOptions.TimePerConnect);
+                Thread.Sleep(Server.ServerOptions.NetworkOptions.TimePerConnect);
                 if (!TcpListener.Pending()) continue;
 
+                GuidUnsafe guid = Guid.NewGuid();
+
                 var cl = TcpListener.AcceptTcpClient();
-                var vclient = new VClient(Guid.NewGuid(), cl, Server);
+                var vclient = new VClient();
+                vclient.Setup(guid, cl, Server);
+
+                Server.ClientsManager.Add(guid, vclient);
 
                 vclient.Virtualize();
                 //MRES.Reset();

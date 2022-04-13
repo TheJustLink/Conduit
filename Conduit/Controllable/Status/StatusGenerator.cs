@@ -1,4 +1,5 @@
-﻿using Conduit.Network.JSON.Status;
+﻿using Conduit.Intergration;
+using Conduit.Network.JSON.Status;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,12 @@ namespace Conduit.Controllable.Status
     /// </summary>
     public sealed class StatusGenerator : StatusCacher
     {
+        private ServerIntergrate ServerIntergrate;
+        public StatusGenerator(ServerIntergrate server)
+        {
+            ServerIntergrate = server;
+        }
+
         protected override StatusBase Maintain()
         {
             return new StatusBase()

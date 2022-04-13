@@ -11,6 +11,7 @@ namespace Conduit.Hosting
     public sealed class ClientsManager
     {
         private Dictionary<GuidUnsafe, VClient> Clients;
+        public int Count => Clients.Count;
         private Stack<GuidUnsafe> RemoveStack;
         private Stack<(GuidUnsafe, VClient)> AddStack;
 

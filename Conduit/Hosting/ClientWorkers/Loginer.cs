@@ -21,10 +21,11 @@ namespace Conduit.Hosting.ClientWorkers
 
         public override void Handling()
         {
-            WaitToAvailable();
+            if (!ClientHandler.VClient.RemoteStream.DataAvailable)
+                return;
 
-            RawPacket raw = ClientMaintainer.Protocol.SRawPacket.PacketPool.Get();
-            ClientMaintainer.Protocol.SRawPacket.Serializator.DeserializeBigDataOffset(ClientMaintainer.VClient.RemoteStream, raw);
+            RawPacket raw = ClientHandler.Protocol.SRawPacket.PacketPool.Get();
+            ClientHandler.Protocol.SRawPacket.Serializator.DeserializeBigDataOffset(ClientHandler.VClient.RemoteStream, raw);
 
             switch (raw.Id)
             {
@@ -40,7 +41,7 @@ namespace Conduit.Hosting.ClientWorkers
                     }
             }
 
-            ClientMaintainer.Protocol.SRawPacket.PacketPool.Return(raw);
+            ClientHandler.Protocol.SRawPacket.PacketPool.Return(raw);
         }
 
         private void OnEncryptionResponse(byte[] data)
@@ -48,7 +49,7 @@ namespace Conduit.Hosting.ClientWorkers
             MemoryStream ms = new(data);
 
             var lea = new LoginEncryptionResponse();
-            ClientMaintainer.Protocol.SLoginEncryptionResponse.Serializator.DeserializeLess(ms, lea);
+            ClientHandler.Protocol.SLoginEncryptionResponse.Serializator.DeserializeLess(ms, lea);
             ms.Close();
         }
 
@@ -56,17 +57,17 @@ namespace Conduit.Hosting.ClientWorkers
         {
             MemoryStream ms = new(data);
             var loginstart = new LoginStart();
-            ClientMaintainer.Protocol.SLoginStart.Serializator.DeserializeLess(ms, loginstart);
+            ClientHandler.Protocol.SLoginStart.Serializator.DeserializeLess(ms, loginstart);
             ms.Close();
             //Console.WriteLine("Username=" + loginstart.Username);
 
-            if (!ClientMaintainer.VClient.ServerInstance.ServerIntergrate.HandleState(out string mes))
+            if (!ClientHandler.VClient.ServerInstance.ServerIntergrate.HandleState(out string mes))
             {
                 var response = new Response()
                 {
                     Json = mes,
                 };
-                ClientMaintainer.Protocol.SResponse.Serializator.Serialize(ClientMaintainer.VClient.RemoteStream, response);
+                ClientHandler.Protocol.SResponse.Serializator.Serialize(ClientHandler.VClient.RemoteStream, response);
 
                 ShutdownClient();
                 return;
@@ -78,9 +79,9 @@ namespace Conduit.Hosting.ClientWorkers
                 Username = loginstart.Username
             };
 
-            ClientMaintainer.Protocol.SLoginSuccess.Serializator.Serialize(ClientMaintainer.VClient.RemoteStream, loginSuccess);
+            ClientHandler.Protocol.SLoginSuccess.Serializator.Serialize(ClientHandler.VClient.RemoteStream, loginSuccess);
 
-            ClientMaintainer.ChangeState(NetworkState.Play); // тут кароч рано писать пероход на игру но можно и так а так надо понять как робит шифрование
+            ClientHandler.ChangeState(NetworkState.Play); // тут кароч рано писать пероход на игру но можно и так а так надо понять как робит шифрование
         }
     }
 }

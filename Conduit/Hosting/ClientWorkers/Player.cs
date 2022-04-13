@@ -15,10 +15,10 @@ namespace Conduit.Hosting.ClientWorkers
 
         public override void Handling()
         {
-            var ptools = ClientMaintainer.Protocol;
+            var ptools = ClientHandler.Protocol;
 
             RawPacket raw = ptools.SRawPacket.PacketPool.Get();
-            ptools.SRawPacket.Serializator.Deserialize(ClientMaintainer.VClient.RemoteStream, raw);
+            ptools.SRawPacket.Serializator.Deserialize(ClientHandler.VClient.RemoteStream, raw);
 
             switch (raw.Id)
             {

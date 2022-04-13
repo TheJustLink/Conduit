@@ -16,7 +16,7 @@ namespace Conduit.Network.JSON.Serialization
         public JsonObject()
         {
             TType = typeof(T);
-            Properties = TType.GetProperties(BindingFlags.Public);
+            Properties = TType.GetProperties(BindingFlags.DeclaredOnly);
         }
 
         public string Serialize()
@@ -24,14 +24,19 @@ namespace Conduit.Network.JSON.Serialization
             var th = (T)this;
             return JsonSerializer.Serialize(th);
         }
-        public void Deserialize(string json)
+        public static bool Deserialize(string json, out T obj)
         {
-            var th = JsonSerializer.Deserialize<T>(json);
-
-            For.ForFixedArrayIncrease(Properties, (finfo) =>
+            try
             {
-                finfo.SetValue(this, finfo.GetValue(th));
-            });
+                obj = JsonSerializer.Deserialize<T>(json);
+
+                return true;
+            }
+            catch
+            {
+                obj = null;
+                return false;
+            }
         }
     }
 }

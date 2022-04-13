@@ -22,7 +22,6 @@ namespace Conduit.Network.Protocol.Serializable
         public void Clear()
         {
             Length = 0;
-            Id = 0;
             OnClear();
         }
 

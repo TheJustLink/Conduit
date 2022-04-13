@@ -267,20 +267,21 @@ namespace Conduit.Network.Serialization
         }
         public void SerializeObject(Stream stream, TPacket data)
         {
-            var bwrite = new PBinaryWriter(stream, Encoding.UTF8, true);
+            using var bwrite = new PBinaryWriter(stream, Encoding.UTF8, true);
             For.ForFixedListIncrease(DeclaredFields, (dc) =>
             {
-                dynamic obj = dc.Getter(data); //dc.PropertyInfo.GetValue(data);
+                object obj = dc.Getter(data); //dc.PropertyInfo.GetValue(data);
                 //var obj = dc.PropertyInfo.GetValue(data);
                 if (obj is null)
                     throw new Exception($"{dc.Property.Name} value null");
 
-                if (dc.HasVIA)
-                    bwrite.Write7BitEncodedInt(obj);
-                else if (dc.HasVLA)
-                    bwrite.Write7BitEncodedInt64(obj);
-                else
-                    bwrite.Write(obj);
+                dc.Writer(bwrite, obj);
+                //if (dc.HasVIA)
+                //    bwrite.Write7BitEncodedInt(obj);
+                //else if (dc.HasVLA)
+                //    bwrite.Write7BitEncodedInt64(obj);
+                //else
+                //    bwrite.Write(obj);
             });
         }
 

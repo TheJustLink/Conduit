@@ -61,8 +61,7 @@ namespace Conduit.Hosting
                     }
             }
         }
-
-        public void MaintaintClient()
+        public void HandleClient()
         {
             CurrentWorker.Handling();
         }

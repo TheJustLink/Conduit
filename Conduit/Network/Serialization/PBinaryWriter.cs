@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Conduit.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,7 +29,11 @@ namespace Conduit.Network.Serialization
         {
             base.Write(guid.ToByteArray());
         }
-        
+        public virtual void Write(GuidUnsafe guid)
+        {
+            base.Write(guid.Guid.ToByteArray());
+        }
+
         /*
         public virtual void WriteObject(object @object)
         {

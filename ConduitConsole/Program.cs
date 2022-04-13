@@ -1,13 +1,16 @@
-﻿// See https://aka.ms/new-console-template for more information
-using Conduit;
+﻿using Conduit;
 using Conduit.Configurable;
 
-var entry = new Entry();
-entry.Server.Setup(new ServerOptions()
+namespace ConduitConsole
 {
-    Port = 25565,
-    TimePerConnect = 500,
-});
-entry.Server.Start();
+    public class Program
+    {
+        static void Main(string[] args)
+        {
+            var entry = new Entry();
 
-Console.ReadLine();
+            entry.Setup(args);
+            Console.ReadLine();
+        }
+    }
+}

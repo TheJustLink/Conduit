@@ -16,7 +16,7 @@ namespace Conduit.Hosting
         public ServerOptions ServerOptions { get; private set; }
         public Protocol Protocol { get; private set; }
         public ClientAccepter ClientAccepter { get; private set; }
-        public IStatus Status { get; set; }
+        public StatusGenerator Status { get; set; }
         public ServerIntergrate ServerIntergrate { get; private set; }
         public Server()
         {
@@ -24,6 +24,9 @@ namespace Conduit.Hosting
             ClientAccepter = new ClientAccepter(this);
             Protocol = new Protocol();
             ServerIntergrate = new ServerIntergrate();
+
+            Status = new StatusGenerator(ServerIntergrate);
+            Status.Invoke();
         }
 
         public void Setup(ServerOptions so)
@@ -42,18 +45,13 @@ namespace Conduit.Hosting
             ClientsManager.Stop();
         }
 
-        public bool DisconnectManaged(ulong id)
-        {
-            
-            throw new NotImplementedException();
-            //return true;
-        }
         public bool ShutdownClient(GuidUnsafe id)
         {
             if (!ClientsManager.ContainsClient(id))
                 return false;
 
             ClientsManager.Remove(id);
+            Console.WriteLine("Clients: " + ClientsManager.Count);
             return true;
         }
         public bool DisconnectUnmanaged(GuidUnsafe id)
@@ -65,7 +63,7 @@ namespace Conduit.Hosting
             vClient.Disconnect();
 
             ClientsManager.Remove(id);
-
+            Console.WriteLine("Clients: " + ClientsManager.Count);
             return true;
         }
     }

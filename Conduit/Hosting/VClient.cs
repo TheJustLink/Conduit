@@ -2,11 +2,13 @@
 using Conduit.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Conduit.Hosting
 {
@@ -19,11 +21,16 @@ namespace Conduit.Hosting
         private NetworkStream NetworkStream;
         public RemoteStream RemoteStream { get; private set; }
         public Server ServerInstance { get; private set; }
-
-        public bool IsConnected { get; private set; }
+        public Stopwatch Mesure { get; private set; }
+        public bool IsConnected { get; set; }
         public Thread DedicatedThread { get; private set; } // replace for pool implementation in future (big mistake without pool for downgrade performance)
 
-        public VClient(GuidUnsafe id, TcpClient tcpClient, Server server)
+        public VClient()
+        {
+            
+        }
+
+        public void Setup(GuidUnsafe id, TcpClient tcpClient, Server server)
         {
             Id = id;
             TcpClient = tcpClient;
@@ -31,6 +38,7 @@ namespace Conduit.Hosting
             NetworkStream = tcpClient.GetStream();
             RemoteStream = new RemoteStream(NetworkStream);
             ClientMaintainer = new ClientHandler(this);
+            Mesure = new Stopwatch();
         }
 
         public void Virtualize()
@@ -39,26 +47,40 @@ namespace Conduit.Hosting
             DedicatedThread = new Thread(Maintenance);
             DedicatedThread.Start();
         }
-        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public void Maintenance(object state)
         {
             IsConnected = true;
             //try
             //{
+            CheckConnection();
             while (IsConnected)
             {
-                ClientMaintainer.MaintaintClient();
-                Thread.Sleep(1);
+                ClientMaintainer.HandleClient();
+                Mesure.Restart();
             }
             //}
             //catch (Exception ex)
             //{
-                //Console.WriteLine(ex.Message);
+            //Console.WriteLine(ex.Message);
             //}
             //finally
             //{
+                Shutdown();
                 IsConnected = false;
             //}
+        }
+
+        private async void CheckConnection()
+        {
+            while (IsConnected)
+            {
+                if (Mesure.ElapsedMilliseconds > ServerInstance.ServerOptions.NetworkOptions.TimeLimitConnection)
+                {
+                    IsConnected = false;
+                    break;
+                }
+                await Task.Delay(1);
+            }
         }
 
         public void Shutdown()

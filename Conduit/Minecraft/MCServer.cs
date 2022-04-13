@@ -1,6 +1,7 @@
 ﻿using Conduit.Minecraft.Resources;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,14 @@ namespace Conduit.Minecraft
             ResourceManager = new ResourceManager();
             WorldManager = new WorldManager();
             PlayersManager = new PlayersManager();
+        }
+
+        public bool SetupResourcesFromFiles(string wpath)
+        {
+            if (!Directory.Exists(wpath))
+                return false;
+
+            return ResourceManager.AllocateResources(wpath);
         }
 
         public void Start()
