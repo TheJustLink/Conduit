@@ -30,18 +30,25 @@ namespace ConduitServer
         
         public void Tick()
         {
-            while (true)
+            try
             {
-                switch (_state)
+                while (true)
                 {
-                    case ClientState.Handshaking: HandshakingState(); break;
-                    case ClientState.Status: StatusState(); break;
-                    case ClientState.Login: LoginState(); break;
-                    case ClientState.Play: PlayState(); break;
-                    default:
-                    case ClientState.Disconnected: Disconnect(); return;
+                    switch (_state)
+                    {
+                        case ClientState.Handshaking: HandshakingState(); break;
+                        case ClientState.Status: StatusState(); break;
+                        case ClientState.Login: LoginState(); break;
+                        case ClientState.Play: PlayState(); break;
+                        default:
+                        case ClientState.Disconnected: Disconnect(); return;
+                    }
+                    Thread.Sleep(1);
                 }
-                Thread.Sleep(1);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.ToString());
             }
         }
 

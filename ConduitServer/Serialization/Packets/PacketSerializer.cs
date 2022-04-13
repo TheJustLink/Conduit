@@ -42,45 +42,45 @@ namespace ConduitServer.Serialization.Packets
             writer.Write(buffer);
         }
 
-        private static void SerializeObject(BinaryWriter writer, Type type, dynamic @object)
+        private static void SerializeObject(BinaryWriter writer, Type type, object @object)
         {
             if (type.BaseType != typeof(Packet) && type.BaseType != typeof(object))
                 SerializeObject(writer, type.BaseType, @object);
             SerializeFields(writer, @object, type.GetDeclaredPublicFields());
         }
-        private static void SerializeFields(BinaryWriter writer, dynamic @object, FieldInfo[] fields)
+        private static void SerializeFields(BinaryWriter writer, object @object, FieldInfo[] fields)
         {
             foreach (var field in fields)
                 SerializeField(writer, @object, field);
         }
-        private static void SerializeField(BinaryWriter writer, dynamic @object, FieldInfo field)
+        private static void SerializeField(BinaryWriter writer, object @object, FieldInfo field)
         {
             var value = field.GetValue(@object);
             if (value is null)
                 throw new SerializationException($"Value of field {field.Name} empty");
             
             if (field.GetCustomAttribute<VarIntAttribute>(true) is not null)
-                writer.Write7BitEncodedInt(value);
+                writer.Write7BitEncodedInt((int)value);
             else if (field.GetCustomAttribute<VarLongAttribute>(true) is not null)
-                writer.Write7BitEncodedInt64(value);
+                writer.Write7BitEncodedInt64((long)value);
             else SerializeValue(writer, value, field.FieldType);
         }
-        private static void SerializeValue(BinaryWriter writer, dynamic value, Type type)
+        private static void SerializeValue(BinaryWriter writer, object value, Type type)
         {
             if (type.IsArray)
-                SerializeArray(writer, value, type.GetElementType());
+                SerializeArray(writer, (Array)value, type.GetElementType());
             else if (type.IsEnum)
-                writer.Write(Convert.ChangeType(value, Enum.GetUnderlyingType(type)));
+                writer.WriteObject(Convert.ChangeType(value, Enum.GetUnderlyingType(type)));
             else if (type.IsStandartValueType())
-                writer.Write(value);
+                writer.WriteObject(value);
             else writer.Write(JsonSerializer.Serialize(value, s_jsonOptions));
         }
-        private static void SerializeArray(BinaryWriter writer, dynamic array, Type valueType)
+        private static void SerializeArray(BinaryWriter writer, Array array, Type valueType)
         {
             if (valueType.IsStandartValueType())
             {
                 foreach (var item in array)
-                    writer.Write(item);
+                    writer.WriteObject(item);
             }
             else
             {

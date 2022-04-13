@@ -25,22 +25,22 @@ namespace ConduitServer.Serialization.Packets
             return @object;
         }
 
-        private static void PopulateObject(BinaryReader input, Type type, dynamic @object)
+        private static void PopulateObject(BinaryReader input, Type type, object @object)
         {
             if (type.BaseType != typeof(object))
                 PopulateObject(input, type.BaseType, @object);
             PopulateFields(input, type.GetDeclaredPublicFields(), @object);
         }
-        private static void PopulateFields(BinaryReader input, FieldInfo[] fields, dynamic @object)
+        private static void PopulateFields(BinaryReader input, FieldInfo[] fields, object @object)
         {
             foreach (var field in fields)
                 PopulateField(input, field, @object);
         }
-        private static void PopulateField(BinaryReader input, FieldInfo field, dynamic @object)
+        private static void PopulateField(BinaryReader input, FieldInfo field, object @object)
         {
             field.SetValue(@object, GetObjectValue(input, field));
         }
-        private static dynamic GetObjectValue(BinaryReader input, FieldInfo field)
+        private static object GetObjectValue(BinaryReader input, FieldInfo field)
         {
             return field.GetCustomAttribute(typeof(VarIntAttribute)) is not null
                 ? input.Read7BitEncodedInt()
