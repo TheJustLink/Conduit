@@ -8,7 +8,7 @@ using System.Text.Json;
 using ConduitServer.Extensions;
 using ConduitServer.Net.Packets;
 using ConduitServer.Serialization.Attributes;
-
+using fNbt;
 using BinaryWriter = ConduitServer.Net.BinaryWriter;
 
 namespace ConduitServer.Serialization.Packets
@@ -71,6 +71,8 @@ namespace ConduitServer.Serialization.Packets
                 SerializeArray(writer, (Array)value, type.GetElementType());
             else if (type.IsEnum)
                 writer.WriteObject(Convert.ChangeType(value, Enum.GetUnderlyingType(type)));
+            else if (value is NbtTag tag)
+                new NbtWriter(writer.BaseStream, "Data").WriteTag(tag);
             else if (type.IsStandartValueType())
                 writer.WriteObject(value);
             else writer.Write(JsonSerializer.Serialize(value, s_jsonOptions));

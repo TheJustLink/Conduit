@@ -137,8 +137,8 @@ namespace ConduitServer
             //    Id = 12121,
             //    Name = "idk"
             //};
-
-            var dimensionCodec = new NbtCompound("dimension_codec", new NbtCompound[]
+            
+            var dimensionCodec = new NbtCompound("", new NbtCompound[]
             {
                 new("minecraft:dimension_type", new NbtTag[]
                 {
@@ -178,7 +178,7 @@ namespace ConduitServer
                     {
                         new NbtCompound(new NbtTag[]
                         {
-                            new NbtString("name", "minecraft:void"),
+                            new NbtString("name", "minecraft:the_void"),
                             new NbtInt("id", 0),
                             new NbtCompound("element", new NbtTag[]
                             {
@@ -232,7 +232,7 @@ namespace ConduitServer
                     })
                 })
             });
-            var dimension = new NbtCompound("dimension", new NbtTag[]
+            var dimension = new NbtCompound("", new NbtTag[]
             {
                 new NbtByte("piglin_safe", 0),
                 new NbtByte("natural", 1),
@@ -252,20 +252,6 @@ namespace ConduitServer
                 new NbtByte("has_ceiling", 0)
             });
 
-            var test1 = new NbtCompound("dimension_codec");
-            var test2 = new NbtCompound("dimension");
-
-            var memory1 = new MemoryStream();
-            var writer1 = new NbtWriter(memory1, "dimension_codec");
-            writer1.WriteTag(test1);
-
-            var memory2 = new MemoryStream();
-            var writer2 = new NbtWriter(memory2, "dimension_codec");
-            writer2.WriteTag(test2);
-
-            var dimensionCodecData = memory1.ToArray();
-            var dimensionData = memory2.ToArray();
-
             var joinGame = new JoinGame
             {
                 EntityId = 0,
@@ -274,19 +260,22 @@ namespace ConduitServer
                 PreviousGamemode = -1,
                 WorldCount = 1,
                 DimensionNames = new[] { "minecraft:overworld" },
-                DimensionCodec = dimensionCodecData,
-                Dimension = dimensionData,
+                DimensionCodec = dimensionCodec,
+                Dimension = dimension,
                 DimensionName = "minecraft:overworld",
                 HashedSeed = 0,
                 MaxPlayers = 100,
                 ViewDistance = 2,
                 SimulationDistance = 2,
+                ReducedDebugInfo = false,
                 EnableRespawnScreen = true,
                 IsDebug = true,
                 IsFlat = true
             };
             _packetSender.Send(joinGame);
             Console.WriteLine("Join game sended");
+
+            _state = ClientState.Disconnected;
         }
 
         protected abstract void Disconnect();
