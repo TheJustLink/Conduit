@@ -1,14 +1,16 @@
-﻿namespace ConduitServer.Nbt
+﻿using fNbt;
+
+namespace ConduitServer.Nbt
 {
     class Biome
     {
-        public string Precipitation;
-        public float Depth;
-        public float Temperature;
-        public float Scale;
-        public float Downfall;
-        public string Category;
-        public string TemperatureModifier;
+        public NbtString Precipitation;
+        public NbtFloat Depth;
+        public NbtFloat Temperature;
+        public NbtFloat Scale;
+        public NbtFloat Downfall;
+        public NbtString Category;
+        public NbtString TemperatureModifier;
         public BiomeEffect Effects;
     }
 }

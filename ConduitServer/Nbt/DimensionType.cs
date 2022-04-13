@@ -1,22 +1,24 @@
-﻿namespace ConduitServer.Nbt
+﻿using fNbt;
+
+namespace ConduitServer.Nbt
 {
     class DimensionType
     {
-        public byte PiglinSafe;
-        public byte Natural;
-        public float AmbientLight = 0.0f;
-        public long FixedTime;
-        public string Infiniburn = "minecraft:infiniburn_overworld";
-        public byte RespawnAnchorWorks;
-        public byte HasSkylight;
-        public byte BedWorks;
-        public string Effects = "minecraft:overworld";
-        public byte HasRaids;
-        public int MinY = -64;
-        public int Height = 384;
-        public int LogicalHeight = 384;
-        public double CoordinateScale = 1.0f;
-        public byte UltraWarm;
-        public byte HasCailing;
+        public NbtByte PiglinSafe;
+        public NbtByte Natural;
+        public NbtFloat AmbientLight = new NbtFloat(0.0f);
+        public NbtLong FixedTime;
+        public NbtString Infiniburn = new NbtString("minecraft:infiniburn_overworld");
+        public NbtByte RespawnAnchorWorks;
+        public NbtByte HasSkylight;
+        public NbtByte BedWorks;
+        public NbtString Effects = new NbtString("minecraft:overworld");
+        public NbtByte HasRaids;
+        public NbtInt MinY = new NbtInt(-64);
+        public NbtInt Height = new NbtInt(384);
+        public NbtInt LogicalHeight = new NbtInt(384);
+        public NbtDouble CoordinateScale = new NbtDouble(1.0f);
+        public NbtByte UltraWarm;
+        public NbtByte HasCailing;
     }
 }

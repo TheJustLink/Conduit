@@ -8,6 +8,7 @@ using ConduitServer.Net.Packets.Handshake;
 using ConduitServer.Net.Packets.Login;
 using ConduitServer.Net.Packets.Play;
 using ConduitServer.Net.Packets.Status;
+using ConduitServer.Nbt;
 
 using LoginDisconnect = ConduitServer.Net.Packets.Login.Disconnect;
 
@@ -125,6 +126,17 @@ namespace ConduitServer
 
         private void PlayState()
         {
+            var mixedCodec = new MixedCodec
+            {
+                DimensionCodec = new CodecCollection<int, DimensionCodec>("minecraft:dimension_type"),
+                BiomeCodec = new CodecCollection<int, BiomeCodec>("minecraft:worldgen/biome")
+            };
+            var dimensionCodec = new DimensionCodec()
+            {
+                Id = 12121,
+                Name = "idk"
+            };
+
             var joinGame = new JoinGame()
             {
                 EntityId = 0,
@@ -132,9 +144,10 @@ namespace ConduitServer
                 Gamemode = Gamemode.Adventure,
                 PreviousGamemode = -1,
                 WorldCount = 1,
-                DimensionNames = new [] { "minecraft:overworld" },
-                // DimCodec
-                // Dim
+                DimensionNames = new[] { 255l },
+                DimensionCodec = mixedCodec,
+                Dimension = dimensionCodec,
+                DimensionName = dimensionCodec.Name,
                 HashedSeed = 0,
                 MaxPlayers = 100,
                 ViewDistance = 2,
@@ -144,6 +157,7 @@ namespace ConduitServer
                 IsFlat = true
             };
             _packetSender.Send(joinGame);
+
         }
 
         protected abstract void Disconnect();

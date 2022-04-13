@@ -4,15 +4,15 @@ namespace ConduitServer.Nbt
 {
     class BiomeEffect
     {
-        public int SkyColor;
-        public int WaterFogColor;
-        public int FogColor;
-        public int WaterColor;
-        public int FoliageColor;
-        public int GrassColor;
-        public string GrassColorModifier;
+        public NbtInt SkyColor;
+        public NbtInt WaterFogColor;
+        public NbtInt FogColor;
+        public NbtInt WaterColor;
+        public NbtInt FoliageColor;
+        public NbtInt GrassColor;
+        public NbtString GrassColorModifier;
         public NbtCompound Music;
-        public string AmbientSound;
+        public NbtString AmbientSound;
         public NbtCompound AdditionsSound;
         public NbtCompound MoodSound;
     }
