@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConduitServer", "ConduitSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fNbt", "fNbt\fNbt.csproj", "{CA9CFE08-37B6-4D18-AB44-415D69A4A480}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConduitNet", "ConduitNet\ConduitNet.csproj", "{3DFF806E-B5BD-4163-B0A8-DB41FEBE24A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConduitClient", "ConduitClient\ConduitClient.csproj", "{D48C8719-5AEE-4729-8BEE-8A003609A542}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{CA9CFE08-37B6-4D18-AB44-415D69A4A480}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA9CFE08-37B6-4D18-AB44-415D69A4A480}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA9CFE08-37B6-4D18-AB44-415D69A4A480}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DFF806E-B5BD-4163-B0A8-DB41FEBE24A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DFF806E-B5BD-4163-B0A8-DB41FEBE24A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DFF806E-B5BD-4163-B0A8-DB41FEBE24A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DFF806E-B5BD-4163-B0A8-DB41FEBE24A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D48C8719-5AEE-4729-8BEE-8A003609A542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D48C8719-5AEE-4729-8BEE-8A003609A542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D48C8719-5AEE-4729-8BEE-8A003609A542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D48C8719-5AEE-4729-8BEE-8A003609A542}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

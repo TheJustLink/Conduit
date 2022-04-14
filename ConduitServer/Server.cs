@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 
-using ConduitServer.Clients;
-using ConduitServer.Services.Listeners;
+using Conduit.Server.Clients;
+using Conduit.Server.Services.Listeners;
 
-namespace ConduitServer
+namespace Conduit.Server
 {
     class Server
     {

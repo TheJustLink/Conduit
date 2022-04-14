@@ -1,13 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>warnings</Nullable>
-    <StartupObject>Conduit.Server.Program</StartupObject>
-    <AssemblyName>Conduit.Server</AssemblyName>
-    <RootNamespace>Conduit.Server</RootNamespace>
+    <AssemblyName>Conduit.Client</AssemblyName>
+    <RootNamespace>Conduit.Client</RootNamespace>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

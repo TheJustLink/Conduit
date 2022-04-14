@@ -1,4 +1,4 @@
-﻿namespace ConduitServer.Clients
+﻿namespace Conduit.Server.Clients
 {
     interface IClient
     {

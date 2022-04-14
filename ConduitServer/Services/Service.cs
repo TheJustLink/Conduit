@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace ConduitServer.Services
+namespace Conduit.Server.Services
 {
     abstract class Service : IService
     {

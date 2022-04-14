@@ -1,0 +1,45 @@
+﻿using System;
+
+using Conduit.Client.Clients;
+using Conduit.Net.IO.Packet;
+using Conduit.Net.Serialization;
+
+using RawTcpClient = System.Net.Sockets.TcpClient;
+
+namespace Conduit.Client
+{
+    static class Program
+    {
+        private static void Main(string[] args)
+        {
+            InitializeConsole();
+
+            var host = "95.216.93.67";
+            var port = 9999;
+
+            var client = CreateClient(host, port);
+            client.CheckServerState();
+
+            client = CreateClient(host, port);
+            client.JoinGame("PogiloyChlen");
+        }
+        private static void InitializeConsole()
+        {
+            Console.Title = "Conduit Minecraft Client";
+        }
+
+        private static IClient CreateClient(string host, int port = 25565)
+        {
+            var deserializer = new PacketDeserializer();
+            var serializer = new PacketSerializer();
+            
+            var rawClient = new RawTcpClient(host, port);
+            var networkStream = rawClient.GetStream();
+            
+            var packetProvider = new NetworkPacketProvider(networkStream, deserializer);
+            var packetSender = new NetworkPacketSender(networkStream, serializer);
+
+            return new TcpClient(rawClient, packetProvider, packetSender);
+        }
+    }
+}

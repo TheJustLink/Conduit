@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
-
-using ConduitServer.Clients;
-using ConduitServer.Net.Packets;
-using ConduitServer.Net.Packets.Handshake;
-using ConduitServer.Net.Packets.Login;
-using ConduitServer.Net.Packets.Play;
-using ConduitServer.Net.Packets.Status;
-using ConduitServer.Nbt;
+using Conduit.Net.Data;
+using Conduit.Net.Data.Status;
+using Conduit.Net.IO.Packet;
 using fNbt;
-using LoginDisconnect = ConduitServer.Net.Packets.Login.Disconnect;
 
-namespace ConduitServer
+using Conduit.Net.Packets;
+using Conduit.Net.Packets.Handshake;
+using Conduit.Net.Packets.Login;
+using Conduit.Net.Packets.Play;
+using Conduit.Net.Packets.Status;
+using Version = Conduit.Net.Data.Status.Version;
+
+namespace Conduit.Server.Clients
 {
     abstract class Client : IClient
     {
@@ -77,17 +76,15 @@ namespace ConduitServer
             Console.WriteLine("Get packet:");
             Console.WriteLine("Request");
 
-            var statusText = @"{""version"": {""name"": ""Hell server 1.18"",""protocol"": " + _protocolVersion + @"},""players"": {""max"": 666,""online"": 99}}";
-            var response = new Response
+            // var statusText = @"{""version"": {""name"": ""Hell server 1.18"",""protocol"": " + _protocolVersion + @"},""players"": {""max"": 666,""online"": 99}}";
+            var server = new Net.Data.Status.Server
             {
-                Json = statusText
+                Version = new Version { Name = "1.18", Protocol = _protocolVersion },
+                Description = new Message { Text = "Minecraft hell server" },
+                Players = new Players { Max = 666, Online = 66 }
             };
-
-            var sw = Stopwatch.StartNew();
+            var response = new Response { Server = server };
             _packetSender.Send(response);
-            sw.Stop();
-
-            Console.WriteLine("Serialization Time: " + sw.Elapsed.TotalMilliseconds);
 
             var ping = _packetProvider.Read<Ping>();
             _packetSender.Send(ping);
@@ -118,7 +115,7 @@ namespace ConduitServer
             // If login failed - disconnect
             //var disconnect = new LoginDisconnect
             //{
-            //    Reason = new Chat { Text  = "ABOBUS!" }
+            //    Reason = new Message { Text  = "ABOBUS!" }
             //};
             //_packetSender.Send(disconnect);
 
@@ -126,18 +123,7 @@ namespace ConduitServer
         }
 
         private void PlayState()
-        {
-            var mixedCodec = new MixedCodec
-            {
-                DimensionCodec = new CodecCollection<int, DimensionCodec>("minecraft:dimension_type"),
-                BiomeCodec = new CodecCollection<int, BiomeCodec>("minecraft:worldgen/biome")
-            };
-            //var dimensionCodec = new DimensionCodec()
-            //{
-            //    Id = 12121,
-            //    Name = "idk"
-            //};
-            
+        {   
             var dimensionCodec = new NbtCompound("", new NbtCompound[]
             {
                 new("minecraft:dimension_type", new NbtTag[]

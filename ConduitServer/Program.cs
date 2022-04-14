@@ -1,8 +1,9 @@
 ﻿using System;
-using ConduitServer.Serialization.Packets;
-using ConduitServer.Services.Listeners;
 
-namespace ConduitServer
+using Conduit.Net.Serialization;
+using Conduit.Server.Services.Listeners;
+
+namespace Conduit.Server
 {
     static class Program
     {

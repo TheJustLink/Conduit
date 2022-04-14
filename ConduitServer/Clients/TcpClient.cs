@@ -1,6 +1,7 @@
-﻿using ConduitServer.Net.Packets;
+﻿using Conduit.Net.IO.Packet;
+using Conduit.Net.Packets;
 
-namespace ConduitServer.Clients
+namespace Conduit.Server.Clients
 {
     class TcpClient : Client
     {

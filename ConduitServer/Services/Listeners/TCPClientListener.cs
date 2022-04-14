@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using Conduit.Net.IO.Packet;
+using Conduit.Net.Packets;
+using Conduit.Net.Serialization;
+using Conduit.Server.Clients;
 
-using ConduitServer.Clients;
-using ConduitServer.Net.Packets;
-using ConduitServer.Serialization.Packets;
-
-using TcpClient = ConduitServer.Clients.TcpClient;
+using TcpClient = Conduit.Server.Clients.TcpClient;
 using RawTcpClient = System.Net.Sockets.TcpClient;
 
-namespace ConduitServer.Services.Listeners
+namespace Conduit.Server.Services.Listeners
 {
     class TcpClientListener : Service, IClientListener
     {

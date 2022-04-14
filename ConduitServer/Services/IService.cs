@@ -1,4 +1,4 @@
-﻿namespace ConduitServer.Services
+﻿namespace Conduit.Server.Services
 {
     interface IService
     {

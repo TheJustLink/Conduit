@@ -1,8 +1,8 @@
 ﻿using System;
 
-using ConduitServer.Clients;
+using Conduit.Server.Clients;
 
-namespace ConduitServer.Services.Listeners
+namespace Conduit.Server.Services.Listeners
 {
     interface IClientListener : IService
     {
