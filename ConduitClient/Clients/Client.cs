@@ -1,12 +1,15 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.Json;
 
 using Conduit.Net.Data;
-using Conduit.Net.IO.Packet;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Status;
+
+using IPacketReader = Conduit.Net.IO.Packet.IReader;
+using IPacketWriter = Conduit.Net.IO.Packet.IWriter;
 
 namespace Conduit.Client.Clients
 {
@@ -16,21 +19,21 @@ namespace Conduit.Client.Clients
         public abstract int Port { get; }
         public abstract bool IsConnected { get; }
 
-        private readonly IPacketProvider _packetProvider;
-        private readonly IPacketSender _packetSender;
+        private readonly IPacketReader _packetReader;
+        private readonly IPacketWriter _packetWriter;
         
-        protected Client(IPacketProvider packetProvider, IPacketSender packetSender)
+        protected Client(IPacketReader packetReader, IPacketWriter packetWriter)
         {
-            _packetProvider = packetProvider;
-            _packetSender = packetSender;
+            _packetReader = packetReader;
+            _packetWriter = packetWriter;
         }
 
         public void CheckServerState()
         {
             SendHandshake(ClientState.Status);
-            _packetSender.Send(new Request());
+            _packetWriter.Write(new Request());
 
-            var server = _packetProvider.Read<Response>().Server;
+            var server = _packetReader.Read<Response>().Server;
             var ping = GetPing();
 
             Console.WriteLine("Server info:\n" + JsonSerializer.Serialize(server, new JsonSerializerOptions { IncludeFields = true }));
@@ -42,6 +45,8 @@ namespace Conduit.Client.Clients
         {
             SendHandshake(ClientState.Login);
             Login(username);
+
+            Disconnect();
         }
         public void Disconnect()
         {
@@ -51,20 +56,38 @@ namespace Conduit.Client.Clients
 
         private void Login(string username)
         {
-            _packetSender.Send(new Start { Username = username });
-            var compression = _packetProvider.Read<SetCompression>();
-            Console.WriteLine("Compression - " + compression.Treshold);
+            _packetWriter.Write(new Start { Username = username });
 
-            var success = _packetProvider.Read<Success>();
-            Console.WriteLine($"Login success, username - [{success.Username}], guid - [{success.Guid}]");
+            while (true)
+            {
+                var packet = _packetReader.Read();
+                switch (packet.Id)
+                {
+                    case 0:
+                        Console.WriteLine("DISCONNECTED");
+                        var disconnect = _packetReader.Read<Disconnect>(packet);
+                        Console.WriteLine("Disconnected, reason - " + disconnect);
+                        return;
+                    case 2:
+                        Console.WriteLine("SUCCESS");
+                        var success = _packetReader.Read<Success>(packet);
+                        Console.WriteLine($"Login success, username - [{success.Username}], guid - [{success.Guid}]");
+                        return;
+                    case 3:
+                        Console.WriteLine("COMPRESSION");
+                        var compression = _packetReader.Read<SetCompression>(packet);
+                        Console.WriteLine("Compression - " + compression.Treshold);
+                        break;
+                }
+            }
         }
         private TimeSpan GetPing()
         {
             var payload = Random.Shared.NextInt64(long.MinValue, long.MaxValue);
-            _packetSender.Send(new Ping { Payload = payload });
+            _packetWriter.Write(new Ping { Payload = payload });
 
             var stopwatch = Stopwatch.StartNew();
-            var ping = _packetProvider.Read<Ping>();
+            var ping = _packetReader.Read<Ping>();
             stopwatch.Stop();
 
             if (ping.Payload != payload)
@@ -81,7 +104,7 @@ namespace Conduit.Client.Clients
                 ServerPort = (ushort)Port,
                 NextState = nextState
             };
-            _packetSender.Send(handshake);
+            _packetWriter.Write(handshake);
         }
 
         protected abstract void DisconnectInternal();

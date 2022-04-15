@@ -1,5 +1,5 @@
-﻿using Conduit.Net.Data;
-using Conduit.Net.Serialization.Attributes;
+﻿using Conduit.Net.Attributes;
+using Conduit.Net.Data;
 
 namespace Conduit.Net.Packets.Handshake
 {

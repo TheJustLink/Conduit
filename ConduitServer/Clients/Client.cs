@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Threading;
-using Conduit.Net.Data;
-using Conduit.Net.Data.Status;
-using Conduit.Net.IO.Packet;
+
 using fNbt;
 
-using Conduit.Net.Packets;
+using Conduit.Net.Data;
+using Conduit.Net.Data.Status;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
+
+using IPacketReader = Conduit.Net.IO.Packet.IReader;
+using IPacketWriter = Conduit.Net.IO.Packet.IWriter;
 using Version = Conduit.Net.Data.Status.Version;
 
 namespace Conduit.Server.Clients
@@ -18,34 +20,36 @@ namespace Conduit.Server.Clients
     {
         private ClientState _state;
 
-        private readonly IPacketProvider _packetProvider;
-        private readonly IPacketSender _packetSender;
+        private readonly IPacketReader _packetReader;
+        private readonly IPacketWriter _packetWriter;
 
         private int _protocolVersion;
 
-        protected Client(IPacketProvider packetProvider, IPacketSender packetSender)
+        protected Client(IPacketReader packetReader, IPacketWriter packetWriter)
         {
-            _packetProvider = packetProvider;
-            _packetSender = packetSender;
+            _packetReader = packetReader;
+            _packetWriter = packetWriter;
         }
         
         public void Tick()
         {
+            while (true)
+            {
+                switch (_state)
+                {
+                    case ClientState.Handshaking: HandshakingState(); break;
+                    case ClientState.Status: StatusState(); break;
+                    case ClientState.Login: LoginState(); break;
+                    case ClientState.Play: PlayState(); break;
+                    default:
+                    case ClientState.Disconnected: Disconnect(); return;
+                }
+                Thread.Sleep(1);
+            }
+
             try
             {
-                while (true)
-                {
-                    switch (_state)
-                    {
-                        case ClientState.Handshaking: HandshakingState(); break;
-                        case ClientState.Status: StatusState(); break;
-                        case ClientState.Login: LoginState(); break;
-                        case ClientState.Play: PlayState(); break;
-                        default:
-                        case ClientState.Disconnected: Disconnect(); return;
-                    }
-                    Thread.Sleep(1);
-                }
+                
             }
             catch (Exception exception)
             {
@@ -55,7 +59,7 @@ namespace Conduit.Server.Clients
 
         private void HandshakingState()
         {
-            var handshake = _packetProvider.Read<Handshake>();
+            var handshake = _packetReader.Read<Handshake>();
 
             Console.WriteLine("Get packet:");
             Console.WriteLine($"[{handshake.Id}](length={handshake.Length})");
@@ -70,7 +74,7 @@ namespace Conduit.Server.Clients
         }
         private void StatusState()
         {
-            _packetProvider.Read<Request>();
+            _packetReader.Read<Request>();
 
             Console.WriteLine();
             Console.WriteLine("Get packet:");
@@ -84,10 +88,10 @@ namespace Conduit.Server.Clients
                 Players = new Players { Max = 666, Online = 66 }
             };
             var response = new Response { Server = server };
-            _packetSender.Send(response);
+            _packetWriter.Write(response);
 
-            var ping = _packetProvider.Read<Ping>();
-            _packetSender.Send(ping);
+            var ping = _packetReader.Read<Ping>();
+            _packetWriter.Write(ping);
 
             Console.WriteLine();
             Console.WriteLine("Get packet:");
@@ -99,7 +103,7 @@ namespace Conduit.Server.Clients
         }
         private void LoginState()
         {
-            var loginStart = _packetProvider.Read<Start>();
+            var loginStart = _packetReader.Read<Start>();
 
             Console.WriteLine("Get packet:");
             Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
@@ -110,14 +114,14 @@ namespace Conduit.Server.Clients
                 Guid = Guid.NewGuid(),
                 Username = loginStart.Username
             };
-            _packetSender.Send(loginSuccess);
+            _packetWriter.Write(loginSuccess);
 
             // If login failed - disconnect
             //var disconnect = new LoginDisconnect
             //{
             //    Reason = new Message { Text  = "ABOBUS!" }
             //};
-            //_packetSender.Send(disconnect);
+            //_packetWriter.Send(disconnect);
 
             _state = ClientState.Play;
         }
@@ -258,7 +262,7 @@ namespace Conduit.Server.Clients
                 IsDebug = true,
                 IsFlat = true
             };
-            _packetSender.Send(joinGame);
+            _packetWriter.Write(joinGame);
             Console.WriteLine("Join game sended");
 
             _state = ClientState.Disconnected;

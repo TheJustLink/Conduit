@@ -8,29 +8,27 @@ namespace Conduit.Net.IO.Binary
 {
     public class Reader : BinaryReader
     {
-        private readonly Dictionary<Type, Func<object>> _typeTable;
-
-        public Reader(Stream input, Encoding encoding, bool leaveOpen) : base(input, encoding, leaveOpen)
+        private static readonly Dictionary<Type, Func<Reader, object>> s_typeTable = new()
         {
-            _typeTable = new Dictionary<Type, Func<object>>
-            {
-                { typeof(bool), () => ReadBoolean },
-                { typeof(sbyte), () => ReadSByte },
-                { typeof(byte), () => ReadByte },
-                { typeof(short), () => ReadInt16 },
-                { typeof(ushort), () => ReadUInt16 },
-                { typeof(int), () => ReadInt32 },
-                { typeof(long), () => ReadInt64 },
-                { typeof(float), () => ReadSingle },
-                { typeof(double), () => ReadDouble },
-                { typeof(string), () => ReadString },
-                { typeof(Guid), () => ReadGuid }
-            };
-        }
+            { typeof(bool), r => r.ReadBoolean() },
+            { typeof(sbyte), r => r.ReadSByte() },
+            { typeof(byte), r => r.ReadByte() },
+            { typeof(short), r => r.ReadInt16() },
+            { typeof(ushort), r => r.ReadUInt16() },
+            { typeof(int), r => r.ReadInt32() },
+            { typeof(long), r => r.ReadInt64() },
+            { typeof(float), r => r.ReadSingle() },
+            { typeof(double), r => r.ReadDouble() },
+            { typeof(string), r => r.ReadString() },
+            { typeof(Guid), r => r.ReadGuid() }
+        };
+
+        public Reader(byte[] data) : this(new MemoryStream(data, false), Encoding.UTF8, true) { }
+        public Reader(Stream input, Encoding encoding, bool leaveOpen = false) : base(input, encoding, leaveOpen) { }
 
         public virtual object ReadObject(Type type)
         {
-            return _typeTable[type]();
+            return s_typeTable[type](this);
         }
 
         public override ushort ReadUInt16()

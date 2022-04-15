@@ -1,4 +1,4 @@
-﻿using Conduit.Net.Serialization.Attributes;
+﻿using Conduit.Net.Attributes;
 
 namespace Conduit.Net.Packets.Play
 {

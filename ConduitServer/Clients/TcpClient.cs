@@ -1,14 +1,16 @@
-﻿using Conduit.Net.IO.Packet;
-using Conduit.Net.Packets;
+﻿using RawTcpClient = System.Net.Sockets.TcpClient;
+
+using IPacketReader = Conduit.Net.IO.Packet.IReader;
+using IPacketWriter = Conduit.Net.IO.Packet.IWriter;
 
 namespace Conduit.Server.Clients
 {
     class TcpClient : Client
     {
-        private readonly System.Net.Sockets.TcpClient _client;
+        private readonly RawTcpClient _client;
 
-        public TcpClient(System.Net.Sockets.TcpClient client, IPacketProvider packetProvider, IPacketSender packetSender)
-            : base(packetProvider, packetSender)
+        public TcpClient(RawTcpClient client, IPacketReader packetReader, IPacketWriter packetWriter)
+            : base(packetReader, packetWriter)
         {
             _client = client;
         }

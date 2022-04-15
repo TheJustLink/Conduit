@@ -1,24 +1,22 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
+using Conduit.Net.Attributes;
 using Conduit.Net.Extensions;
-using Conduit.Net.Packets;
-using Conduit.Net.Serialization.Attributes;
 
 using BinaryReader = Conduit.Net.IO.Binary.Reader;
 using RawPacketReader = Conduit.Net.IO.RawPacket.Reader;
 
-namespace Conduit.Net.Serialization
+namespace Conduit.Net.IO.Packet
 {
-    public class PacketDeserializer
+    public static class Deserializer
     {
         private static readonly JsonSerializerOptions s_jsonOptions;
 
-        static PacketDeserializer()
+        static Deserializer()
         {
             s_jsonOptions = new JsonSerializerOptions
             {
@@ -28,14 +26,13 @@ namespace Conduit.Net.Serialization
             };
         }
         
-        public static T Deserialize<T>(Stream input) where T : Packet, new()
+        public static T Deserialize<T>(Stream input) where T : Packets.Packet, new()
         {
-            using var binaryReader = new BinaryReader(input, Encoding.UTF8, true);
-            using var rawPacketReader = new RawPacketReader(binaryReader);
+            using var rawPacketReader = new RawPacketReader(input, true);
 
             return Deserialize<T>(rawPacketReader.Read());
         }
-        public static T Deserialize<T>(RawPacket rawPacket) where T : Packet, new()
+        public static T Deserialize<T>(Packets.RawPacket rawPacket) where T : Packets.Packet, new()
         {
             var type = typeof(T);
             var @object = new T
@@ -43,10 +40,8 @@ namespace Conduit.Net.Serialization
                 Length = rawPacket.Length,
                 Id = rawPacket.Id
             };
-
-            using var dataStream = new MemoryStream(rawPacket.Data, false);
-            using var binaryReader = new BinaryReader(dataStream, Encoding.UTF8, false);
-
+            
+            using var binaryReader = new BinaryReader(rawPacket.Data);
             PopulateObject(binaryReader, type, @object);
 
             return @object;
@@ -54,7 +49,7 @@ namespace Conduit.Net.Serialization
 
         private static void PopulateObject(BinaryReader reader, Type type, object @object)
         {
-            if (type.BaseType != typeof(Packet))
+            if (type.BaseType != typeof(Packets.Packet))
                 PopulateObject(reader, type.BaseType, @object);
             PopulateFields(reader, type.GetDeclaredPublicFields(), @object);
         }
@@ -75,7 +70,11 @@ namespace Conduit.Net.Serialization
                 ? input.Read7BitEncodedInt64()
                 : field.FieldType.IsStandartValueType()
                 ? input.ReadObject(field.FieldType)
-                : JsonSerializer.Deserialize(input.ReadString(), field.FieldType, s_jsonOptions);
+                : DeserializeJson(input.ReadString(), field.FieldType);
+        }
+        private static object DeserializeJson(string json, Type type)
+        {
+            return JsonSerializer.Deserialize(json, type, s_jsonOptions);
         }
     }
 }

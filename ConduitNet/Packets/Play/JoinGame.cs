@@ -1,6 +1,6 @@
-﻿using fNbt;
+﻿using Conduit.Net.Attributes;
+using fNbt;
 using Conduit.Net.Data;
-using Conduit.Net.Serialization.Attributes;
 
 namespace Conduit.Net.Packets.Play
 {

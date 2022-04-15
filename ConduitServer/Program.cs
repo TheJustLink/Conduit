@@ -1,6 +1,5 @@
 ﻿using System;
 
-using Conduit.Net.Serialization;
 using Conduit.Server.Services.Listeners;
 
 namespace Conduit.Server
@@ -11,10 +10,7 @@ namespace Conduit.Server
         {
             InitializeConsole();
 
-            var deserializer = new PacketDeserializer();
-            var serializer = new PacketSerializer();
-
-            var listener = new TcpClientListener(100, 666, deserializer, serializer);
+            var listener = new TcpClientListener(100, 666);
             var server = new Server(listener);
             
             server.Start();

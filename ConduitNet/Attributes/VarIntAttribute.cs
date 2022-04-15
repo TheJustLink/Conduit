@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Conduit.Net.Serialization.Attributes
+namespace Conduit.Net.Attributes
 {
     [AttributeUsage(AttributeTargets.Field)]
     class VarIntAttribute : Attribute { }

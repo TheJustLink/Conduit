@@ -14,8 +14,8 @@ namespace Conduit.Client.Clients
 
         private readonly RawTcpClient _rawClient;
 
-        public TcpClient(RawTcpClient rawClient, IPacketProvider packetProvider, IPacketSender packetSender)
-            : base(packetProvider, packetSender)
+        public TcpClient(RawTcpClient rawClient, IReader packetReader, IWriter packetWriter)
+            : base(packetReader, packetWriter)
         {
             _rawClient = rawClient;
         }

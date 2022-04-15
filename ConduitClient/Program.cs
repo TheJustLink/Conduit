@@ -2,7 +2,6 @@
 
 using Conduit.Client.Clients;
 using Conduit.Net.IO.Packet;
-using Conduit.Net.Serialization;
 
 using RawTcpClient = System.Net.Sockets.TcpClient;
 
@@ -21,7 +20,7 @@ namespace Conduit.Client
             client.CheckServerState();
 
             client = CreateClient(host, port);
-            client.JoinGame("PogiloyChlen");
+            client.JoinGame("Popa");
         }
         private static void InitializeConsole()
         {
@@ -30,16 +29,13 @@ namespace Conduit.Client
 
         private static IClient CreateClient(string host, int port = 25565)
         {
-            var deserializer = new PacketDeserializer();
-            var serializer = new PacketSerializer();
-            
             var rawClient = new RawTcpClient(host, port);
-            var networkStream = rawClient.GetStream();
-            
-            var packetProvider = new NetworkPacketProvider(networkStream, deserializer);
-            var packetSender = new NetworkPacketSender(networkStream, serializer);
+            var stream = rawClient.GetStream();
 
-            return new TcpClient(rawClient, packetProvider, packetSender);
+            var packetReader = new Reader(stream);
+            var packetWriter = new Writer(stream);
+
+            return new TcpClient(rawClient, packetReader, packetWriter);
         }
     }
 }

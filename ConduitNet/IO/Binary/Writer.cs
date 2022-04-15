@@ -6,7 +6,7 @@ namespace Conduit.Net.IO.Binary
 {
     public class Writer : BinaryWriter
     {
-        public Writer() : base() { }
+        public Writer() : this(new MemoryStream(), Encoding.UTF8, false) { }
         public Writer(Stream output) : base(output) { }
         public Writer(Stream output, Encoding encoding) : base(output, encoding) { }
         public Writer(Stream output, Encoding encoding, bool leaveOpen) : base(output, encoding, leaveOpen) { }

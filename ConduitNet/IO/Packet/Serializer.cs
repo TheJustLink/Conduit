@@ -5,22 +5,21 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Conduit.Net.Attributes;
+using Conduit.Net.Extensions;
 
 using fNbt;
 
-using Conduit.Net.Extensions;
-using Conduit.Net.Packets;
-using Conduit.Net.Serialization.Attributes;
-
 using BinaryWriter = Conduit.Net.IO.Binary.Writer;
+using RawPacketWriter = Conduit.Net.IO.RawPacket.Writer;
 
-namespace Conduit.Net.Serialization
+namespace Conduit.Net.IO.Packet
 {
-    public class PacketSerializer
+    public static class Serializer
     {
         private static readonly JsonSerializerOptions s_jsonOptions;
 
-        static PacketSerializer()
+        static Serializer()
         {
             s_jsonOptions = new JsonSerializerOptions
             {
@@ -30,22 +29,24 @@ namespace Conduit.Net.Serialization
             };
         }
         
-        public static void Serialize<T>(T packet, Stream output) where T : Packet
+        public static void Serialize<T>(T packet, Stream output) where T : Packets.Packet
         {
             var rawPacket = Serialize(packet);
 
-            // TODO!
+            using var rawPacketWriter = new RawPacketWriter(output, true);
+            rawPacketWriter.Write(rawPacket);
         }
-        public static RawPacket Serialize<T>(T packet) where T : Packet
+        public static Packets.RawPacket Serialize<T>(T packet) where T : Packets.Packet
         {
             using var dataStream = new MemoryStream();
-            using var binaryWriter = new BinaryWriter(dataStream, Encoding.UTF8, false);
+            using var binaryWriter = new BinaryWriter(dataStream, Encoding.UTF8);
 
-            var rawPacket = new RawPacket { Id = packet.Id };
-            var type = typeof(T);
+            var type = packet.GetType();
             
             SerializeObject(binaryWriter, type, packet);
-            rawPacket.Data = dataStream.GetBuffer();
+
+            var rawPacket = new Packets.RawPacket { Id = packet.Id };
+            rawPacket.Data = dataStream.ToArray();
             rawPacket.Length = rawPacket.Data.Length + 1;
 
             return rawPacket;
@@ -53,7 +54,7 @@ namespace Conduit.Net.Serialization
 
         private static void SerializeObject(BinaryWriter writer, Type type, object @object)
         {
-            if (type.BaseType != typeof(Packet))
+            if (type.BaseType != typeof(Packets.Packet))
                 SerializeObject(writer, type.BaseType, @object);
             SerializeFields(writer, @object, type.GetDeclaredPublicFields());
         }
