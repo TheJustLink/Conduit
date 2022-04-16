@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConduitServer", "ConduitSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "fNbt", "fNbt\fNbt.csproj", "{CA9CFE08-37B6-4D18-AB44-415D69A4A480}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConduitNet", "ConduitNet\ConduitNet.csproj", "{3DFF806E-B5BD-4163-B0A8-DB41FEBE24A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConduitNet", "ConduitNet\ConduitNet.csproj", "{3DFF806E-B5BD-4163-B0A8-DB41FEBE24A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConduitClient", "ConduitClient\ConduitClient.csproj", "{D48C8719-5AEE-4729-8BEE-8A003609A542}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConduitClient", "ConduitClient\ConduitClient.csproj", "{D48C8719-5AEE-4729-8BEE-8A003609A542}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

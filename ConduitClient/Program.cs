@@ -13,8 +13,11 @@ namespace Conduit.Client
         {
             InitializeConsole();
 
-            var host = "95.216.93.67";
-            var port = 9999;
+            //var host = "95.216.93.67";
+            //var port = 9999;
+
+            var host = "127.0.0.1";
+            var port = 666;
 
             var client = CreateClient(host, port);
             client.CheckServerState();

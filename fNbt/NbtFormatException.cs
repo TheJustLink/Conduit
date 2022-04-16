@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 
 namespace fNbt {
     /// <summary> Exception thrown when a format violation is detected while

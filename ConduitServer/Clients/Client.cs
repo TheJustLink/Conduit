@@ -10,7 +10,7 @@ using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
-
+using fNbt.Tags;
 using Version = Conduit.Net.Data.Status.Version;
 
 namespace Conduit.Server.Clients
@@ -114,6 +114,9 @@ namespace Conduit.Server.Clients
             Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
             Console.WriteLine("Username=" + loginStart.Username);
 
+            //var compression = new SetCompression { Treshold = 64 };
+            //_packetWriter.Write();
+
             var loginSuccess = new Success
             {
                 Guid = Guid.NewGuid(),
@@ -148,18 +151,19 @@ namespace Conduit.Server.Clients
                             {
                                 new NbtByte("piglin_safe", 0),
                                 new NbtByte("natural", 1),
-                                new NbtFloat("ambient_light", 1),
-                                new NbtLong("fixed_time", 1000),
-                                new NbtString("infiniburn", ""),
+                                new NbtFloat("ambient_light", 0),
+                                //new NbtLong("fixed_time", 1000),
+                                new NbtString("infiniburn", "minecraft:infiniburn_overworld"),
                                 new NbtByte("respawn_anchor_works", 0),
                                 new NbtByte("has_skylight", 1),
                                 new NbtByte("bed_works", 1),
                                 new NbtString("effects", "minecraft:overworld"),
                                 new NbtByte("has_raids", 1),
                                 new NbtInt("min_y", 0),
-                                new NbtInt("height", 255),
-                                new NbtInt("logical_height", 255),
+                                new NbtInt("height", 256),
+                                new NbtInt("logical_height", 256),
                                 new NbtDouble("coordinate_scale", 1),
+                                new NbtByte("shrunk", 0),
                                 new NbtByte("ultrawarm", 0),
                                 new NbtByte("has_ceiling", 0)
                             })
@@ -173,16 +177,16 @@ namespace Conduit.Server.Clients
                     {
                         new NbtCompound(new NbtTag[]
                         {
-                            new NbtString("name", "minecraft:the_void"),
+                            new NbtString("name", "minecraft:ocean"),
                             new NbtInt("id", 0),
                             new NbtCompound("element", new NbtTag[]
                             {
-                                new NbtString("precipitation", "none"),
+                                new NbtString("precipitation", "rain"),
                                 new NbtFloat("depth", 1.5f),
                                 new NbtFloat("temperature", 1f),
-                                new NbtFloat("scale", 1f),
+                                new NbtFloat("scale", 0.1f),
                                 new NbtFloat("downfall", 1f),
-                                new NbtString("category", "none"),
+                                new NbtString("category", "ocean"),
                                 // new NbtString("temperature_modifier", "frozen"),
                                 new NbtCompound("effects", new NbtTag[]
                                 {
@@ -206,13 +210,13 @@ namespace Conduit.Server.Clients
                                     //    new NbtString("sound", ""),
                                     //    new NbtDouble("tick_chance", 1)
                                     //})
-                                    //new NbtCompound("mood_sound", new NbtTag[]
-                                    //{
-                                    //    new NbtString("sound", ""),
-                                    //    new NbtInt("tick_delay", 1),
-                                    //    new NbtDouble("offset", 0),
-                                    //    new NbtInt("block_search_extent", 0)
-                                    //})
+                                    new NbtCompound("mood_sound", new NbtTag[]
+                                    {
+                                        new NbtString("sound", "minecraft:ambient.cave"),
+                                        new NbtInt("tick_delay", 6000),
+                                        new NbtDouble("offset", 2),
+                                        new NbtInt("block_search_extent", 8)
+                                    })
                                     //new NbtCompound("particle", new NbtTag[]
                                     //{
                                     //    new NbtFloat("probability", 1),
@@ -232,39 +236,43 @@ namespace Conduit.Server.Clients
                 new NbtByte("piglin_safe", 0),
                 new NbtByte("natural", 1),
                 new NbtFloat("ambient_light", 1),
-                new NbtLong("fixed_time", 1000),
-                new NbtString("infiniburn", ""),
+                //new NbtLong("fixed_time", 1000),
+                new NbtString("infiniburn", "minecraft:infiniburn_overworld"),
                 new NbtByte("respawn_anchor_works", 0),
                 new NbtByte("has_skylight", 1),
                 new NbtByte("bed_works", 1),
                 new NbtString("effects", "minecraft:overworld"),
                 new NbtByte("has_raids", 1),
                 new NbtInt("min_y", 0),
-                new NbtInt("height", 255),
-                new NbtInt("logical_height", 255),
+                new NbtInt("height", 256),
+                new NbtInt("logical_height", 256),
                 new NbtDouble("coordinate_scale", 1),
+                new NbtByte("shrunk", 0),
                 new NbtByte("ultrawarm", 0),
                 new NbtByte("has_ceiling", 0)
             });
+
+            //var file = new NbtFile(dimensionCodec);
+            //file.SaveToFile("DimensionCodec.nbt", NbtCompression.None);
 
             var joinGame = new JoinGame
             {
                 EntityId = 0,
                 IsHardcore = false,
-                Gamemode = Gamemode.Adventure,
+                Gamemode = Gamemode.Survival,
                 PreviousGamemode = -1,
-                WorldCount = 1,
+                // WorldCount = 1, (count dimension names)
                 DimensionNames = new[] { "minecraft:overworld" },
                 DimensionCodec = dimensionCodec,
                 Dimension = dimension,
                 DimensionName = "minecraft:overworld",
                 HashedSeed = 0,
                 MaxPlayers = 100,
-                ViewDistance = 2,
-                SimulationDistance = 2,
+                ViewDistance = 7,
+                SimulationDistance = 7,
                 ReducedDebugInfo = false,
                 EnableRespawnScreen = true,
-                IsDebug = true,
+                IsDebug = false,
                 IsFlat = true
             };
             _packetWriter.Write(joinGame);

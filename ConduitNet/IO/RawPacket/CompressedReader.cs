@@ -11,7 +11,7 @@ namespace Conduit.Net.IO.RawPacket
 
         public CompressedReader(Stream stream, bool leaveOpen = false)
             : this(new Binary.Reader(stream, Encoding.UTF8, leaveOpen),
-                   new Binary.Reader(new GZipStream(stream, CompressionMode.Decompress, leaveOpen), Encoding.UTF8, leaveOpen)) { }
+                   new Binary.Reader(new ZLibStream(stream, CompressionMode.Decompress, leaveOpen), Encoding.UTF8, leaveOpen)) { }
         public CompressedReader(Binary.Reader binaryReader, Binary.Reader compressedBinaryReader)
         {
             _binaryReader = binaryReader;
@@ -35,7 +35,10 @@ namespace Conduit.Net.IO.RawPacket
             {
                 var compressedData = _binaryReader.ReadBytes(length - 1);
                 using var memoryStream = new MemoryStream(compressedData);
-                using var compressedBinaryReader = new Binary.Reader(new GZipStream(memoryStream, CompressionMode.Decompress), Encoding.UTF8);
+                using var compressedBinaryReader = new Binary.Reader(new ZLibStream(memoryStream, CompressionMode.Decompress), Encoding.UTF8);
+                //SharpZipLib.GZip.GZip.Decompress(memoryStream, decompressedMemory, true);
+
+                //using var compressedBinaryReader = new Binary.Reader(decompressedMemory, Encoding.UTF8);
 
                 id = compressedBinaryReader.Read7BitEncodedInt();
                 data = compressedBinaryReader.ReadBytes(dataLength - 1);

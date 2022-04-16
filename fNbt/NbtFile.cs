@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using JetBrains.Annotations;
+using fNbt.Tags;
 
 namespace fNbt {
     /// <summary> Represents a complete NBT file. </summary>

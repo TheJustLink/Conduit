@@ -25,7 +25,7 @@ namespace Conduit.Net.IO.RawPacket
             if (rawPacket.Data.Length + 2 >= _compressionTreshold)
             {
                 using var compressedMemory = new MemoryStream();
-                using var compressedBinaryWriter = new Binary.Writer(new GZipStream(compressedMemory, _compressionLevel, false), Encoding.UTF8, false);
+                using var compressedBinaryWriter = new Binary.Writer(new ZLibStream(compressedMemory, _compressionLevel, false), Encoding.UTF8, false);
 
                 compressedBinaryWriter.Write7BitEncodedInt(rawPacket.Id);
                 compressedBinaryWriter.Write(rawPacket.Data);

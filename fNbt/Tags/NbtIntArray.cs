@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace fNbt {
+namespace fNbt.Tags {
     /// <summary> A tag containing an array of signed 32-bit integers. </summary>
     public sealed class NbtIntArray : NbtTag {
         /// <summary> Type of this tag (ByteArray). </summary>

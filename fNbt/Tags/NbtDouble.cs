@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace fNbt {
+namespace fNbt.Tags {
     /// <summary> A tag containing a double-precision floating point number. </summary>
     public sealed class NbtDouble : NbtTag {
         /// <summary> Type of this tag (Double). </summary>

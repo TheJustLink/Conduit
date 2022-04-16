@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using JetBrains.Annotations;
 
 namespace fNbt {
     /// <summary> DeflateStream wrapper that calculates Adler32 checksum of the written data,

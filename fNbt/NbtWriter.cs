@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using JetBrains.Annotations;
+using fNbt.Tags;
 
 namespace fNbt {
     /// <summary> An efficient writer for writing NBT data directly to streams.

@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+using fNbt.Tags;
 
 namespace fNbt {
     /// <summary> Delegate used to skip loading certain tags of an NBT stream/file. 

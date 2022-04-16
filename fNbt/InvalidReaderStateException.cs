@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 
 namespace fNbt {
     /// <summary> Exception thrown when an operation is attempted on an NbtReader that

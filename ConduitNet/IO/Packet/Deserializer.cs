@@ -6,7 +6,8 @@ using System.Text.Json.Serialization;
 
 using Conduit.Net.Attributes;
 using Conduit.Net.Extensions;
-
+using fNbt;
+using fNbt.Tags;
 using BinaryReader = Conduit.Net.IO.Binary.Reader;
 using RawPacketReader = Conduit.Net.IO.RawPacket.Reader;
 
@@ -68,13 +69,38 @@ namespace Conduit.Net.IO.Packet
                 ? input.Read7BitEncodedInt()
                 : field.GetCustomAttribute(typeof(VarLongAttribute)) is not null
                 ? input.Read7BitEncodedInt64()
-                : field.FieldType.IsStandartValueType()
-                ? input.ReadObject(field.FieldType)
-                : DeserializeJson(input.ReadString(), field.FieldType);
+                : GetStandartObjectValue(input, field.FieldType);
+        }
+        private static object GetStandartObjectValue(BinaryReader input, Type type)
+        {
+            return type.IsEnum
+                ? input.ReadObject(Enum.GetUnderlyingType(type))
+                : type.IsArray
+                ? DeserializeArray(input, type.GetElementType())
+                : type.IsStandartValueType()
+                ? input.ReadObject(type)
+                : type == typeof(NbtCompound)
+                ? DeserializeNbt(input)
+                : DeserializeJson(input.ReadString(), type);
+        }
+        private static object DeserializeNbt(BinaryReader input)
+        {
+            var nbtReader = new NbtReader(input.BaseStream);
+            return nbtReader.ReadAsTag();
         }
         private static object DeserializeJson(string json, Type type)
         {
             return JsonSerializer.Deserialize(json, type, s_jsonOptions);
+        }
+        private static Array DeserializeArray(BinaryReader input, Type elementType)
+        {
+            var count = input.Read7BitEncodedInt();
+            var array = Array.CreateInstance(elementType, count);
+
+            for (int i = 0; i < count; i++)
+                array.SetValue(input.ReadObject(elementType), i);
+
+            return array;
         }
     }
 }

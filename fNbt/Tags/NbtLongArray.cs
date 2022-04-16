@@ -1,8 +1,7 @@
 using System;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace fNbt {
+namespace fNbt.Tags {
     /// <summary> A tag containing an array of signed 64-bit integers. </summary>
     public sealed class NbtLongArray : NbtTag {
         /// <summary> Type of this tag (LongArray). </summary>

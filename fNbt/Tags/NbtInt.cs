@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace fNbt {
+namespace fNbt.Tags {
     /// <summary> A tag containing a single signed 32-bit integer. </summary>
     public sealed class NbtInt : NbtTag {
         /// <summary> Type of this tag (Int). </summary>

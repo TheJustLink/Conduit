@@ -9,7 +9,7 @@ using Conduit.Net.Attributes;
 using Conduit.Net.Extensions;
 
 using fNbt;
-
+using fNbt.Tags;
 using BinaryWriter = Conduit.Net.IO.Binary.Writer;
 using RawPacketWriter = Conduit.Net.IO.RawPacket.Writer;
 
@@ -81,14 +81,16 @@ namespace Conduit.Net.IO.Packet
                 SerializeArray(writer, (Array)value, type.GetElementType());
             else if (type.IsEnum)
                 writer.WriteObject(Convert.ChangeType(value, Enum.GetUnderlyingType(type)));
-            else if (value is NbtTag tag)
-                new NbtWriter(writer.BaseStream, "Data").WriteTag(tag);
+            else if (value is NbtCompound tag)
+                SerializeNbt(writer, tag);
             else if (type.IsStandartValueType())
                 writer.WriteObject(value);
             else writer.Write(JsonSerializer.Serialize(value, s_jsonOptions));
         }
         private static void SerializeArray(BinaryWriter writer, Array array, Type valueType)
         {
+            writer.Write7BitEncodedInt(array.Length);
+
             if (valueType.IsStandartValueType())
             {
                 foreach (var item in array)
@@ -99,6 +101,11 @@ namespace Conduit.Net.IO.Packet
                 foreach (var item in array)
                     writer.Write(JsonSerializer.Serialize(item, s_jsonOptions));
             }
+        }
+        private static void SerializeNbt(BinaryWriter writer, NbtCompound tag)
+        {
+            var nbtFile = new NbtFile(tag);
+            nbtFile.SaveToStream(writer.BaseStream, NbtCompression.None);
         }
     }
 }

@@ -16,7 +16,7 @@
 
 using System;
 
-namespace JetBrains.Annotations {
+namespace fNbt {
     /// <summary> Indicates that the value of marked element could be <c>null</c> sometimes,
     /// so the check for <c>null</c> is necessary before its usage. </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter |

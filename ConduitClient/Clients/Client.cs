@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -9,6 +8,7 @@ using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
+using fNbt;
 using Disconnect = Conduit.Net.Packets.Login.Disconnect;
 
 namespace Conduit.Client.Clients
@@ -53,7 +53,11 @@ namespace Conduit.Client.Clients
             Login(username);
 
             var joinGame = _packetReader.Read<JoinGame>();
+            var dimensionCodecFile = new NbtFile(joinGame.DimensionCodec);
+            var dimensionFile = new NbtFile(joinGame.Dimension);
 
+            dimensionCodecFile.SaveToFile("DimensionCodec.nbt", NbtCompression.None);
+            dimensionFile.SaveToFile("Dimension.nbt", NbtCompression.None);
 
             Disconnect();
         }

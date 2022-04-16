@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace fNbt {
+namespace fNbt.Tags {
     /// <summary> A tag containing a single byte. </summary>
     public sealed class NbtByte : NbtTag {
         /// <summary> Type of this tag (Byte). </summary>

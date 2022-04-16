@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
+using fNbt.Tags;
 
 namespace fNbt {
     /// <summary> Represents a reader that provides fast, non-cached, forward-only access to NBT data.

@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace fNbt {
     /// <summary> BinaryReader wrapper that takes care of reading primitives from an NBT stream,

@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace fNbt {
     /// <summary> BinaryWriter wrapper that writes NBT primitives to a stream,

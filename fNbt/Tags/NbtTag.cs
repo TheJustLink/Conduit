@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace fNbt {
+namespace fNbt.Tags {
     /// <summary> Base class for different kinds of named binary tags. </summary>
     public abstract class NbtTag : ICloneable {
         /// <summary> Parent compound tag, either NbtList or NbtCompound, if any.
