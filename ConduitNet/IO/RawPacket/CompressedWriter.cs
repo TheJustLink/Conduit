@@ -31,9 +31,23 @@ namespace Conduit.Net.IO.RawPacket
                 compressedBinaryWriter.Write(rawPacket.Data);
 
                 var compressedData = compressedMemory.ToArray();
+                
+                using var rawPacketLengthMemory = new MemoryStream();
+                using var rawPacketLengthWriter = new Binary.Writer(rawPacketLengthMemory, Encoding.UTF8, false);
+                rawPacketLengthWriter.Write7BitEncodedInt(rawPacket.Length);
 
-                _binaryWriter.Write7BitEncodedInt(compressedData.Length + 1);
-                _binaryWriter.Write7BitEncodedInt(rawPacket.Length);
+                var rawPacketLengthData = rawPacketLengthMemory.ToArray();
+
+                using var memory = new MemoryStream();
+                using var memoryWriter = new Binary.Writer(memory, Encoding.UTF8, false);
+
+                memoryWriter.Write7BitEncodedInt(compressedData.Length + rawPacket.Length);// rawPacketLengthData.Length);
+                memoryWriter.Write(rawPacketLengthData);
+                memoryWriter.Write(compressedData);
+
+                var data = memory.ToArray();
+
+                _binaryWriter.BaseStream.Write(data);
             }
             else
             {

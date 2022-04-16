@@ -11,6 +11,7 @@ using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
 using fNbt.Tags;
+using Disconnect = Conduit.Net.Packets.Login.Disconnect;
 using Version = Conduit.Net.Data.Status.Version;
 
 namespace Conduit.Server.Clients
@@ -19,11 +20,11 @@ namespace Conduit.Server.Clients
     {
         private ClientState _state;
 
-        private readonly IReader _packetReader;
-        private readonly IWriter _packetWriter;
+        private IReader _packetReader;
+        private IWriter _packetWriter;
 
-        private IReaderFactory _packetReaderFactory;
-        private IWriterFactory _packetWriterFactory;
+        private readonly IReaderFactory _packetReaderFactory;
+        private readonly IWriterFactory _packetWriterFactory;
 
         private int _protocolVersion;
 
@@ -114,8 +115,12 @@ namespace Conduit.Server.Clients
             Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
             Console.WriteLine("Username=" + loginStart.Username);
 
-            //var compression = new SetCompression { Treshold = 64 };
-            //_packetWriter.Write();
+            var treshold = 16;
+            var compression = new SetCompression { Treshold = treshold };
+            _packetWriter.Write(compression);
+            
+            _packetReader = _packetReaderFactory.CreateWithCompression();
+            _packetWriter = _packetWriterFactory.CreateWithCompression(treshold);
 
             var loginSuccess = new Success
             {
@@ -124,14 +129,22 @@ namespace Conduit.Server.Clients
             };
             _packetWriter.Write(loginSuccess);
 
-            // If login failed - disconnect
-            //var disconnect = new LoginDisconnect
-            //{
-            //    Reason = new Message { Text  = "ABOBUS!" }
-            //};
-            //_packetWriter.Send(disconnect);
+            //If login failed - disconnect
+            var disconnect = new Disconnect
+            {
+                Reason = new Message { Text  = "ABOBUS!" }
+            };
+            _packetWriter.Write(disconnect);
 
-            _state = ClientState.Play;
+            while (true)
+            {
+                var packet = _packetReader.Read();
+                Console.WriteLine("Received packet " + packet.Id);
+            }
+
+            _state = ClientState.Disconnected;
+
+            //_state = ClientState.Play;
         }
 
         private void PlayState()
@@ -277,6 +290,13 @@ namespace Conduit.Server.Clients
             };
             _packetWriter.Write(joinGame);
             Console.WriteLine("Join game sended");
+
+            while (true)
+            {
+                var packet = _packetReader.Read();
+                Console.WriteLine("Received packet id = " + packet.Id);
+                Thread.Sleep(100);
+            }
 
             _state = ClientState.Disconnected;
         }
