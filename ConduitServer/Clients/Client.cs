@@ -5,13 +5,12 @@ using fNbt;
 
 using Conduit.Net.Data;
 using Conduit.Net.Data.Status;
+using Conduit.Net.IO.Packet;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
 
-using IPacketReader = Conduit.Net.IO.Packet.IReader;
-using IPacketWriter = Conduit.Net.IO.Packet.IWriter;
 using Version = Conduit.Net.Data.Status.Version;
 
 namespace Conduit.Server.Clients
@@ -20,15 +19,21 @@ namespace Conduit.Server.Clients
     {
         private ClientState _state;
 
-        private readonly IPacketReader _packetReader;
-        private readonly IPacketWriter _packetWriter;
+        private readonly IReader _packetReader;
+        private readonly IWriter _packetWriter;
+
+        private IReaderFactory _packetReaderFactory;
+        private IWriterFactory _packetWriterFactory;
 
         private int _protocolVersion;
 
-        protected Client(IPacketReader packetReader, IPacketWriter packetWriter)
+        protected Client(IReaderFactory packetReaderFactory, IWriterFactory packetWriterFactory)
         {
-            _packetReader = packetReader;
-            _packetWriter = packetWriter;
+            _packetReaderFactory = packetReaderFactory;
+            _packetWriterFactory = packetWriterFactory;
+
+            _packetReader = packetReaderFactory.Create();
+            _packetWriter = packetWriterFactory.Create();
         }
         
         public void Tick()

@@ -32,8 +32,8 @@ namespace Conduit.Client
             var rawClient = new RawTcpClient(host, port);
             var stream = rawClient.GetStream();
 
-            var packetReader = new Reader(stream);
-            var packetWriter = new Writer(stream);
+            var packetReader = new ReaderFactory(stream);
+            var packetWriter = new WriterFactory(stream);
 
             return new TcpClient(rawClient, packetReader, packetWriter);
         }

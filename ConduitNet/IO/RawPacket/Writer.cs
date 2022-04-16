@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Conduit.Net.IO.RawPacket
 {
-    public class Writer : IDisposable
+    public class Writer : IWriter
     {
         private readonly Binary.Writer _binaryWriter;
 

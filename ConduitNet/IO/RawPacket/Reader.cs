@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Conduit.Net.IO.RawPacket
 {
-    public class Reader : IDisposable
+    public class Reader : IReader
     {
         private readonly Binary.Reader _binaryReader;
 

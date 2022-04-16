@@ -51,10 +51,10 @@ namespace Conduit.Server.Services.Listeners
         {
             var stream = rawTcpClient.GetStream();
 
-            var packetReader = new Net.IO.Packet.Reader(stream);
-            var packetWriter = new Net.IO.Packet.Writer(stream);
+            var packetReaderFactory = new Net.IO.Packet.ReaderFactory(stream);
+            var packetWriterFactory = new Net.IO.Packet.WriterFactory(stream);
 
-            return new TcpClient(rawTcpClient, packetReader, packetWriter);
+            return new TcpClient(rawTcpClient, packetReaderFactory, packetWriterFactory);
         }
     }
 }

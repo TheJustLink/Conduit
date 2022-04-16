@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Text.Json;
 
 using Conduit.Net.Data;
+using Conduit.Net.IO.Packet;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
+using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
-
-using IPacketReader = Conduit.Net.IO.Packet.IReader;
-using IPacketWriter = Conduit.Net.IO.Packet.IWriter;
+using Disconnect = Conduit.Net.Packets.Login.Disconnect;
 
 namespace Conduit.Client.Clients
 {
@@ -19,13 +19,19 @@ namespace Conduit.Client.Clients
         public abstract int Port { get; }
         public abstract bool IsConnected { get; }
 
-        private readonly IPacketReader _packetReader;
-        private readonly IPacketWriter _packetWriter;
+        private IReader _packetReader;
+        private IWriter _packetWriter;
+
+        private readonly IReaderFactory _packetReaderFactory;
+        private readonly IWriterFactory _packetWriterFactory;
         
-        protected Client(IPacketReader packetReader, IPacketWriter packetWriter)
+        protected Client(IReaderFactory packetReaderFactory, IWriterFactory packetWriterFactory)
         {
-            _packetReader = packetReader;
-            _packetWriter = packetWriter;
+            _packetReaderFactory = packetReaderFactory;
+            _packetWriterFactory = packetWriterFactory;
+
+            _packetReader = packetReaderFactory.Create();
+            _packetWriter = packetWriterFactory.Create();
         }
 
         public void CheckServerState()
@@ -45,6 +51,9 @@ namespace Conduit.Client.Clients
         {
             SendHandshake(ClientState.Login);
             Login(username);
+
+            var joinGame = _packetReader.Read<JoinGame>();
+
 
             Disconnect();
         }
@@ -77,6 +86,9 @@ namespace Conduit.Client.Clients
                         Console.WriteLine("COMPRESSION");
                         var compression = _packetReader.Read<SetCompression>(packet);
                         Console.WriteLine("Compression - " + compression.Treshold);
+
+                        _packetReader = _packetReaderFactory.CreateWithCompression();
+                        _packetWriter = _packetWriterFactory.CreateWithCompression(compression.Treshold);
                         break;
                 }
             }

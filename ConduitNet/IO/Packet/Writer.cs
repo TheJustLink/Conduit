@@ -6,11 +6,11 @@ namespace Conduit.Net.IO.Packet
 {
     public class Writer : IDisposable, IWriter
     {
-        private readonly RawPacket.Writer _rawPacketWriter;
+        private readonly RawPacket.IWriter _rawPacketWriter;
 
         public Writer(Stream stream, bool leaveOpen = false) : this(new Binary.Writer(stream, Encoding.UTF8, leaveOpen)) { }
         public Writer(Binary.Writer binaryWriter) : this(new RawPacket.Writer(binaryWriter)) { }
-        public Writer(RawPacket.Writer rawPacketWriter)
+        public Writer(RawPacket.IWriter rawPacketWriter)
         {
             _rawPacketWriter = rawPacketWriter;
         }
