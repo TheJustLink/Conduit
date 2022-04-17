@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using Conduit.Net.Packets;
+
+using System.IO;
 using System.IO.Compression;
 using System.Text;
 
@@ -22,43 +24,38 @@ namespace Conduit.Net.IO.RawPacket
 
         public void Write(Packets.RawPacket rawPacket)
         {
-            if (rawPacket.Data.Length + 2 >= _compressionTreshold)
-            {
-                using var compressedMemory = new MemoryStream();
-                using var compressedBinaryWriter = new Binary.Writer(new ZLibStream(compressedMemory, _compressionLevel, false), Encoding.UTF8, false);
-                
-                compressedBinaryWriter.Write7BitEncodedInt(rawPacket.Id);
-                compressedBinaryWriter.Write(rawPacket.Data);
-                compressedBinaryWriter.Flush();
-                var compressedData = compressedMemory.ToArray();
+            if (rawPacket.Length < _compressionTreshold)
+                WriteUncompressed(rawPacket);
+            else WriteCompressed(rawPacket);
+        }
 
-                using var memory = new MemoryStream();
-                using var binaryWriter = new Binary.Writer(memory);
+        private void WriteUncompressed(Packets.RawPacket rawPacket)
+        {
+            _binaryWriter.Write7BitEncodedInt(rawPacket.Length + 1);
+            _binaryWriter.Write7BitEncodedInt(0);
+            _binaryWriter.Write7BitEncodedInt(rawPacket.Id);
+            _binaryWriter.Write(rawPacket.Data);
+        }
+        private void WriteCompressed(Packets.RawPacket rawPacket)
+        {
+            var compressedMemory = new MemoryStream();
+            using var compressedDataWriter = new Binary.Writer(new ZLibStream(compressedMemory, CompressionLevel.Optimal));
 
-                binaryWriter.Write7BitEncodedInt(rawPacket.Length);
-                var memoryData = memory.ToArray();
+            compressedDataWriter.Write7BitEncodedInt(rawPacket.Id);
+            compressedDataWriter.Write(rawPacket.Data);
+            compressedDataWriter.Flush();
 
-                //using var resultMemory = new MemoryStream();
-                //using var resultWriter = new Binary.Writer(resultMemory, Encoding.UTF8, false);
+            var compressedData = compressedMemory.ToArray();
 
-                _binaryWriter.Write7BitEncodedInt(memoryData.Length + compressedData.Length); // length (uncompressed length length, compressed length (id, data))
-                _binaryWriter.Write(memoryData); // length uncompressed id, data
-                _binaryWriter.Write(compressedData); // compressed id, data
-                
-                //// Reading //
+            var uncompressedLengthMemory = new MemoryStream(4);
+            using var uncompressedLengthWriter = new Binary.Writer(uncompressedLengthMemory);
 
-                //resultMemory.Position = 0;
+            uncompressedLengthWriter.Write7BitEncodedInt(rawPacket.Length);
+            var uncompressedLengthData = uncompressedLengthMemory.ToArray();
 
-                //var compressedReader = new CompressedReader(resultMemory, true);
-                //var uncompressedRawPacket = compressedReader.Read();
-            }
-            else
-            {
-                _binaryWriter.Write7BitEncodedInt(rawPacket.Length + 1);
-                _binaryWriter.Write7BitEncodedInt(0);
-                _binaryWriter.Write7BitEncodedInt(rawPacket.Id);
-                _binaryWriter.Write(rawPacket.Data);
-            }
+            _binaryWriter.Write7BitEncodedInt(uncompressedLengthData.Length + compressedData.Length);
+            _binaryWriter.Write(uncompressedLengthData);
+            _binaryWriter.Write(compressedData);
         }
 
         public void Dispose()

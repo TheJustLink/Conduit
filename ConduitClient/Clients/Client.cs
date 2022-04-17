@@ -49,16 +49,30 @@ namespace Conduit.Client.Clients
         }
         public void JoinGame(string username)
         {
+            Console.WriteLine("Start join game");
+
+            SendHandshake(ClientState.Login);
+            Login(username);
+
+            var joinGame = _packetReader.Read<JoinGame>();
+
+            Disconnect();
+            return;
+
             try
             {
+                Console.WriteLine("Start join game");
+
                 SendHandshake(ClientState.Login);
                 Login(username);
 
-                //var joinGame = _packetReader.Read<JoinGame>();
+                joinGame = _packetReader.Read<JoinGame>();
                 // var dimensionCodecFile = new NbtFile(joinGame.DimensionCodec);
                 // var dimensionFile = new NbtFile(joinGame.Dimension);
                 //Disconnect();
                 ThreadLoop();
+
+                Console.WriteLine("End join game");
             }
             catch
             {
@@ -73,12 +87,72 @@ namespace Conduit.Client.Clients
                 //var message = new ChatMessage { Message = "/server Lobby" };
                 //_packetWriter.Write(message);
 
-                var message = new ChatMessage { Message = "ABOBUS в массы!" };
+                var messages = new string[]
+                {
+                    "ABOBUS в массы?",
+                    "Что такое ABOBUS?",
+                    "Где живёт ABOBUS?",
+                    "Я знаю кто ABOBUS!",
+                    "ABOBUS это законно?",
+                    "Привет, я новичок, из клана ABOBUS",
+                    "Кто-то хочет ABOBUS?",
+                    "Да -_-",
+                    "Да",
+                    "Да!",
+                    "Нет",
+                    "Нет)",
+                    "Да кто пишет этих ABOBUSов?!",
+                    "Я гей",
+                    "Я не гей",
+                    "Я люблю Сеперу!!!!",
+                    "Качанов мой качан!",
+                    "Я люблю члены, а вы?",
+                    "Привет!",
+                    "Как у кого дела, ребятки?",
+                    "Как у кого дела, ребята?",
+                    "ABOBUS - ВЕЛИКАЯ НАЦИЯ!!!",
+                    "ABOBUS - НАЦИЯ ДЕБИЛОВ!",
+                    "Ты быкуешь?",
+                    "Я люблю ABOBUS",
+                    "Мой повелитель ABOB-ии!",
+                    "У нас страна возможностей, ABOBUS Лэндия!",
+                    "Пахнет жаренным...",
+                    "Ща всё починим",
+                    "Я не виноват",
+                    "Здесь дурно пахнет",
+                    "-_-",
+                    "0_0",
+                    "Кто это?",
+                    "Да ты соска",
+                    "Где мои консервы?",
+                    "Скоро я попаду в ABOBA land?",
+                    "Где качан, хочу есть",
+                    "Наливай",
+                    "Ну что, поехали)",
+                    "Я уважаю всех, но ты лох",
+                    "Где-то я потерялся..",
+                    "Кто-то их знает?",
+                    "Я хочу ABOBUS",
+                    "abobus",
+                    "AbObUs",
+                    "4B0B4S",
+                    "Я за абобусов",
+                    "Свободу абобо-головым!",
+                    "Abobus-ы тоже люди!!!",
+                    "КОГДА ВЫ ПРИЗНАЕТЕ КЛАН АБОБУСОВ?",
+                    "АБОБУСЫ - ЛЮДИ!",
+                    "Кто-то здесь ABOBUS?",
+                    "Как достали эти абобусы",
+                    "Я уважаю абобусов... Всегда...",
+                    "ABOBUS FOREVER"
+                };
 
                 while (true)
                 {
-                    Thread.Sleep(5000);
+                    var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
                     _packetWriter.Write(message);
+
+                    Thread.Sleep(4000);
                 }
             }
             catch

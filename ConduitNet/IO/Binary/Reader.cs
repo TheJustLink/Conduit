@@ -24,6 +24,7 @@ namespace Conduit.Net.IO.Binary
         };
 
         public Reader(byte[] data) : this(new MemoryStream(data, false), Encoding.UTF8, true) { }
+        public Reader(Stream input) : base(input) { }
         public Reader(Stream input, Encoding encoding, bool leaveOpen = false) : base(input, encoding, leaveOpen) { }
 
         public virtual object ReadObject(Type type)

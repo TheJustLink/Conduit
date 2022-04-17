@@ -16,22 +16,28 @@ namespace Conduit.Client
         {
             InitializeConsole();
 
-            //var host = "127.0.0.1";
-            //var port = 666;
+            var host = "95.216.93.67";
+            var port = 9999;
 
             //var client = CreateClient(host, port);
             //client.CheckServerState();
 
-            for (int i = 0; i < 100; i++)
-            {
-                s_lastId = "0x" + i.ToString();
+            //var client = CreateClient("127.0.0.1", 62570);
+            //client.JoinGame("Steve");
 
-                var thread = new Thread(ClientThreadLoop);
-                thread.IsBackground = true;
-                thread.Start();
+            var client = CreateClient(host, port);
+            client.JoinGame("Steve");
 
-                Thread.Sleep(5000);
-            }
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    //s_lastId = "0x" + i.ToString();
+
+            //    var thread = new Thread(ClientThreadLoop);
+            //    thread.IsBackground = true;
+            //    thread.Start();
+
+            //    Thread.Sleep(2000);
+            //}
 
             Console.ReadKey(true);
             Console.ReadKey(true);
@@ -44,8 +50,10 @@ namespace Conduit.Client
 
         private static void ClientThreadLoop()
         {
-            var host = "95.216.93.67";
-            var port = 9999;
+            //var host = "95.216.93.67";
+            //var port = 9999;
+            var host = "127.0.0.1";
+            var port = 62570;
 
             var randomPrefixes = new string[]
             {
@@ -68,11 +76,18 @@ namespace Conduit.Client
                 "Super",
                 "Duper",
                 "Puper",
-                "Piper"
+                "Piper",
+                "SEPERRA",
+                "Seperra",
+                "KACHANOV",
+                "D_U_X_A",
+                "D_U_D_K_A",
+                "Joper",
+                "Player"
             };
 
             var client = CreateClient(host, port);
-            client.JoinGame(randomPrefixes[Random.Shared.Next(0, randomPrefixes.Length)] + s_lastId);
+            client.JoinGame(randomPrefixes[Random.Shared.Next(0, randomPrefixes.Length)] + Random.Shared.Next(0, 10000));
         }
 
         private static IClient CreateClient(string host, int port = 25565)

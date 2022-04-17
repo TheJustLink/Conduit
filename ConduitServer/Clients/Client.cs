@@ -115,7 +115,7 @@ namespace Conduit.Server.Clients
             Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
             Console.WriteLine("Username=" + loginStart.Username);
 
-            var treshold = 2;
+            var treshold = 256;
             var compression = new SetCompression { Treshold = treshold };
             _packetWriter.Write(compression);
             
@@ -274,7 +274,6 @@ namespace Conduit.Server.Clients
                 IsHardcore = false,
                 Gamemode = Gamemode.Survival,
                 PreviousGamemode = -1,
-                // WorldCount = 1, (count dimension names)
                 DimensionNames = new[] { "minecraft:overworld" },
                 DimensionCodec = dimensionCodec,
                 Dimension = dimension,

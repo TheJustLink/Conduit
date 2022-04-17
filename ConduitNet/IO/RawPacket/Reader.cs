@@ -16,8 +16,13 @@ namespace Conduit.Net.IO.RawPacket
         public Packets.RawPacket Read()
         {
             var length = _binaryReader.Read7BitEncodedInt();
-            var id = _binaryReader.Read7BitEncodedInt();
-            var data = _binaryReader.ReadBytes(length - 1);
+            var packet = _binaryReader.ReadBytes(length);
+
+            using var packetReader = new Binary.Reader(packet);
+            var id = packetReader.Read7BitEncodedInt();
+
+            var dataLength = length - (int)packetReader.BaseStream.Position;
+            var data = packetReader.ReadBytes(dataLength);
 
             return new Packets.RawPacket { Length = length, Id = id, Data = data };
         }
