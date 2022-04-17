@@ -21,29 +21,35 @@ namespace Conduit.Net.IO.RawPacket
         public Packets.RawPacket Read()
         {
             var length = _binaryReader.Read7BitEncodedInt();
-            var dataLength = _binaryReader.Read7BitEncodedInt();
+            var packetData = _binaryReader.ReadBytes(length);
+
+            using var packetReader = new Binary.Reader(packetData);
+
+            var pos1 = (int)packetReader.BaseStream.Position;
+            var uncompressedDataLength = packetReader.Read7BitEncodedInt();
+            var uncompressedDataBytes = (int)packetReader.BaseStream.Position - pos1;
+
+            var compressedDataLength = length - uncompressedDataBytes;
 
             int id;
             byte[] data;
 
-            if (dataLength == 0)
+            if (uncompressedDataLength == 0)
             {
-                id = _binaryReader.Read7BitEncodedInt();
-                data = _binaryReader.ReadBytes(length - 2);
+                id = packetReader.Read7BitEncodedInt();
+                var uncompressedAndIdBytesCount = (int)packetReader.BaseStream.Position - pos1;
+
+                data = packetReader.ReadBytes(length - uncompressedAndIdBytesCount);
             }
             else
             {
-                var compressedData = _binaryReader.ReadBytes(length - 1);
+                var compressedData = packetReader.ReadBytes(compressedDataLength);
                 using var memoryStream = new MemoryStream(compressedData);
                 using var compressedBinaryReader = new Binary.Reader(new ZLibStream(memoryStream, CompressionMode.Decompress), Encoding.UTF8);
-                //SharpZipLib.GZip.GZip.Decompress(memoryStream, decompressedMemory, true);
-
-                //using var compressedBinaryReader = new Binary.Reader(decompressedMemory, Encoding.UTF8);
-
+                
                 id = compressedBinaryReader.Read7BitEncodedInt();
-                data = compressedBinaryReader.ReadBytes(dataLength - 1);
-                //id = _compressedBinaryReader.Read7BitEncodedInt();
-                //data = _compressedBinaryReader.ReadBytes(dataLength - 1);
+                data = compressedBinaryReader.ReadBytes(uncompressedDataLength - 1);
+                length = uncompressedDataLength;
             }
 
             return new Packets.RawPacket { Length = length, Id = id, Data = data };

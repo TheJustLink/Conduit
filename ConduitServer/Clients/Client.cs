@@ -115,7 +115,7 @@ namespace Conduit.Server.Clients
             Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
             Console.WriteLine("Username=" + loginStart.Username);
 
-            var treshold = 16;
+            var treshold = 2;
             var compression = new SetCompression { Treshold = treshold };
             _packetWriter.Write(compression);
             
@@ -130,21 +130,21 @@ namespace Conduit.Server.Clients
             _packetWriter.Write(loginSuccess);
 
             //If login failed - disconnect
-            var disconnect = new Disconnect
-            {
-                Reason = new Message { Text  = "ABOBUS!" }
-            };
-            _packetWriter.Write(disconnect);
+            //var disconnect = new Disconnect
+            //{
+            //    Reason = new Message { Text  = "ABOBUS!" }
+            //};
+            //_packetWriter.Write(disconnect);
 
-            while (true)
-            {
-                var packet = _packetReader.Read();
-                Console.WriteLine("Received packet " + packet.Id);
-            }
+            //while (true)
+            //{
+            //    var packet = _packetReader.Read();
+            //    Console.WriteLine("Received packet " + packet.Id);
+            //}
 
-            _state = ClientState.Disconnected;
+            //_state = ClientState.Disconnected;
 
-            //_state = ClientState.Play;
+            _state = ClientState.Play;
         }
 
         private void PlayState()
@@ -291,12 +291,12 @@ namespace Conduit.Server.Clients
             _packetWriter.Write(joinGame);
             Console.WriteLine("Join game sended");
 
-            while (true)
-            {
-                var packet = _packetReader.Read();
-                Console.WriteLine("Received packet id = " + packet.Id);
-                Thread.Sleep(100);
-            }
+            //while (true)
+            //{
+            //    var packet = _packetReader.Read();
+            //    Console.WriteLine("Received packet id = " + packet.Id);
+            //    Thread.Sleep(100);
+            //}
 
             _state = ClientState.Disconnected;
         }

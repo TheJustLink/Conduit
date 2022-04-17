@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text.Json;
-
+using System.Threading;
 using Conduit.Net.Data;
 using Conduit.Net.IO.Packet;
 using Conduit.Net.Packets.Handshake;
@@ -49,18 +49,44 @@ namespace Conduit.Client.Clients
         }
         public void JoinGame(string username)
         {
-            SendHandshake(ClientState.Login);
-            Login(username);
+            try
+            {
+                SendHandshake(ClientState.Login);
+                Login(username);
 
-            var joinGame = _packetReader.Read<JoinGame>();
-            var dimensionCodecFile = new NbtFile(joinGame.DimensionCodec);
-            var dimensionFile = new NbtFile(joinGame.Dimension);
+                //var joinGame = _packetReader.Read<JoinGame>();
+                // var dimensionCodecFile = new NbtFile(joinGame.DimensionCodec);
+                // var dimensionFile = new NbtFile(joinGame.Dimension);
+                //Disconnect();
+                ThreadLoop();
+            }
+            catch
+            {
 
-            dimensionCodecFile.SaveToFile("DimensionCodec.nbt", NbtCompression.None);
-            dimensionFile.SaveToFile("Dimension.nbt", NbtCompression.None);
-
-            Disconnect();
+            }
         }
+        private void ThreadLoop()
+        {
+            try
+            {
+                //var message = new ChatMessage { Message = "/reg 1234 1234" };
+                //var message = new ChatMessage { Message = "/server Lobby" };
+                //_packetWriter.Write(message);
+
+                var message = new ChatMessage { Message = "ABOBUS в массы!" };
+
+                while (true)
+                {
+                    Thread.Sleep(5000);
+                    _packetWriter.Write(message);
+                }
+            }
+            catch
+            {
+                
+            }
+        }
+
         public void Disconnect()
         {
             if (IsConnected)
@@ -79,7 +105,7 @@ namespace Conduit.Client.Clients
                     case 0:
                         Console.WriteLine("DISCONNECTED");
                         var disconnect = _packetReader.Read<Disconnect>(packet);
-                        Console.WriteLine("Disconnected, reason - " + disconnect);
+                        Console.WriteLine("Disconnected, reason - " + disconnect.Reason.Text);
                         return;
                     case 2:
                         Console.WriteLine("SUCCESS");

@@ -26,28 +26,31 @@ namespace Conduit.Net.IO.RawPacket
             {
                 using var compressedMemory = new MemoryStream();
                 using var compressedBinaryWriter = new Binary.Writer(new ZLibStream(compressedMemory, _compressionLevel, false), Encoding.UTF8, false);
-
+                
                 compressedBinaryWriter.Write7BitEncodedInt(rawPacket.Id);
                 compressedBinaryWriter.Write(rawPacket.Data);
-
+                compressedBinaryWriter.Flush();
                 var compressedData = compressedMemory.ToArray();
-                
-                using var rawPacketLengthMemory = new MemoryStream();
-                using var rawPacketLengthWriter = new Binary.Writer(rawPacketLengthMemory, Encoding.UTF8, false);
-                rawPacketLengthWriter.Write7BitEncodedInt(rawPacket.Length);
-
-                var rawPacketLengthData = rawPacketLengthMemory.ToArray();
 
                 using var memory = new MemoryStream();
-                using var memoryWriter = new Binary.Writer(memory, Encoding.UTF8, false);
+                using var binaryWriter = new Binary.Writer(memory);
 
-                memoryWriter.Write7BitEncodedInt(compressedData.Length + rawPacket.Length);// rawPacketLengthData.Length);
-                memoryWriter.Write(rawPacketLengthData);
-                memoryWriter.Write(compressedData);
+                binaryWriter.Write7BitEncodedInt(rawPacket.Length);
+                var memoryData = memory.ToArray();
 
-                var data = memory.ToArray();
+                //using var resultMemory = new MemoryStream();
+                //using var resultWriter = new Binary.Writer(resultMemory, Encoding.UTF8, false);
 
-                _binaryWriter.BaseStream.Write(data);
+                _binaryWriter.Write7BitEncodedInt(memoryData.Length + compressedData.Length); // length (uncompressed length length, compressed length (id, data))
+                _binaryWriter.Write(memoryData); // length uncompressed id, data
+                _binaryWriter.Write(compressedData); // compressed id, data
+                
+                //// Reading //
+
+                //resultMemory.Position = 0;
+
+                //var compressedReader = new CompressedReader(resultMemory, true);
+                //var uncompressedRawPacket = compressedReader.Read();
             }
             else
             {
