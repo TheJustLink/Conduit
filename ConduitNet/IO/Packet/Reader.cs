@@ -1,18 +1,23 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Conduit.Net.IO.Packet
 {
-    public class Reader : IDisposable, IReader
+    public class Reader : IReader
     {
-        private readonly RawPacket.IReader _rawPacketReader;
+        public RawPacket.IReader RawPacketReader { get; set; }
 
         public Reader(Stream stream, bool leaveOpen = false) : this(new Binary.Reader(stream, Encoding.UTF8, leaveOpen)) { }
         public Reader(Binary.Reader binaryReader) : this(new RawPacket.Reader(binaryReader)) { }
         public Reader(RawPacket.IReader rawPacketReader)
         {
-            _rawPacketReader = rawPacketReader;
+            RawPacketReader = rawPacketReader;
+        }
+        public Reader() { }
+
+        public void Dispose()
+        {
+            RawPacketReader?.Dispose();
         }
 
         public T Read<T>() where T : Packets.Packet, new()
@@ -25,12 +30,7 @@ namespace Conduit.Net.IO.Packet
         }
         public Packets.RawPacket Read()
         {
-            return _rawPacketReader.Read();
-        }
-
-        public void Dispose()
-        {
-            _rawPacketReader?.Dispose();
+            return RawPacketReader.Read();
         }
     }
 }

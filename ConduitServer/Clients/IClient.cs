@@ -2,6 +2,9 @@
 {
     interface IClient
     {
+        bool Connected { get; }
+        string UserAgent { get; }
+
         void Tick();
     }
 }

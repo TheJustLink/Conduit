@@ -1,9 +1,13 @@
-﻿using System.IO;
+﻿using Conduit.Net.IO.RawPacket;
+
+using System.IO;
 using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Conduit.Net.IO.Packet
 {
-    public class WriterFactory : IWriterFactory
+    public class WriterFactory
     {
         private readonly Stream _outputStream;
 
@@ -12,15 +16,30 @@ namespace Conduit.Net.IO.Packet
             _outputStream = outputStream;
         }
 
-        public IWriter Create()
+        public void AddCompression(IWriter writer, int treshold, CompressionLevel compressionLevel = CompressionLevel.Optimal)
         {
-            return new Writer(_outputStream, true);
+            var binaryWriter = writer.RawPacketWriter.BinaryWriter;
+            writer.RawPacketWriter = new CompressedWriter(binaryWriter, treshold, compressionLevel);
         }
-        public IWriter CreateWithCompression(int treshold, CompressionLevel compressionLevel = CompressionLevel.Optimal)
+        public void AddEncryption(IWriter writer, byte[] key)
         {
-            var rawPacketWriter = new RawPacket.CompressedWriter(_outputStream, treshold, compressionLevel, true);
+            var aes = Aes.Create();
 
-            return new Writer(rawPacketWriter);
+            aes.Mode = CipherMode.CFB;
+            aes.Padding = PaddingMode.None;
+
+            aes.FeedbackSize = 8;
+            aes.KeySize = 128;
+            aes.BlockSize = 128;
+
+            aes.Key = key;
+            aes.IV = key;
+
+            var encryptor = aes.CreateEncryptor();
+            var cryptoStream = new CryptoStream(_outputStream, encryptor, CryptoStreamMode.Write);
+            writer.RawPacketWriter.BinaryWriter = new Binary.Writer(cryptoStream, Encoding.UTF8, true);
         }
+
+        public IWriter Create() => new Writer(_outputStream);
     }
 }

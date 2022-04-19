@@ -10,23 +10,21 @@ namespace Conduit.Client
 {
     static class Program
     {
-        private static string s_lastId = "0";
-
         private static void Main(string[] args)
         {
             InitializeConsole();
 
-            var host = "95.216.93.67";
-            var port = 9999;
+            //var host = "95.216.93.67";
+            //var port = 9999;
 
             //var client = CreateClient(host, port);
             //client.CheckServerState();
 
-            //var client = CreateClient("127.0.0.1", 62570);
-            //client.JoinGame("Steve");
-
-            var client = CreateClient(host, port);
+            var client = CreateClient("127.0.0.1", 59541);
             client.JoinGame("Steve");
+
+            //var client = CreateClient(host, port);
+            //client.JoinGame("Steve");
 
             //for (int i = 0; i < 100; i++)
             //{

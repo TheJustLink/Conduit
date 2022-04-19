@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading;
 
 using Conduit.Server.Clients;
@@ -8,22 +8,17 @@ namespace Conduit.Server
 {
     class Server
     {
-        private bool _isRunning;
-
-        private readonly List<IClient> _clients;
         private readonly IClientListener _listener;
 
         public Server(IClientListener listener)
         {
-            _clients = new List<IClient>();
-
             _listener = listener;
             _listener.Connected += OnClientConnected;
         }
 
         private void OnClientConnected(IClient client)
         {
-            // _clients.Add(client);
+            Console.WriteLine($"{client.UserAgent} Connected");
 
             var thread = new Thread(client.Tick);
             thread.IsBackground = true;
@@ -32,14 +27,10 @@ namespace Conduit.Server
 
         public void Start()
         {
-            _isRunning = true;
-
             _listener.Start();
         }
         public void Stop()
         {
-            _isRunning = false;
-
             _listener.Stop();
         }
     }

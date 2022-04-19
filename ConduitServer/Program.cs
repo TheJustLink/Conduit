@@ -10,8 +10,8 @@ namespace Conduit.Server
         {
             InitializeConsole();
 
-            var listener = new TcpClientListener(100, 666);
-            var server = new Server(listener);
+            var clientListener = new TcpClientListener(0, 666);
+            var server = new Server(clientListener);
             
             server.Start();
             Console.WriteLine("Started");
@@ -19,6 +19,7 @@ namespace Conduit.Server
             Console.WriteLine("Stop...");
             server.Stop();
         }
+
         private static void InitializeConsole()
         {
             Console.Title = "Conduit Minecraft Server";

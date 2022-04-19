@@ -5,24 +5,25 @@ namespace Conduit.Net.IO.RawPacket
 {
     public class Writer : IWriter
     {
-        private readonly Binary.Writer _binaryWriter;
+        public Binary.Writer BinaryWriter { get; set; }
 
         public Writer(Stream stream, bool leaveOpen = false) : this(new Binary.Writer(stream, Encoding.UTF8, leaveOpen)) { }
         public Writer(Binary.Writer binaryWriter)
         {
-            _binaryWriter = binaryWriter;
+            BinaryWriter = binaryWriter;
+        }
+        public Writer() { }
+
+        public void Dispose()
+        {
+            BinaryWriter?.Dispose();
         }
 
         public void Write(Packets.RawPacket rawPacket)
         {
-            _binaryWriter.Write7BitEncodedInt(rawPacket.Length);
-            _binaryWriter.Write7BitEncodedInt(rawPacket.Id);
-            _binaryWriter.Write(rawPacket.Data);
-        }
-
-        public void Dispose()
-        {
-            _binaryWriter?.Dispose();
+            BinaryWriter.Write7BitEncodedInt(rawPacket.Length);
+            BinaryWriter.Write7BitEncodedInt(rawPacket.Id);
+            BinaryWriter.Write(rawPacket.Data);
         }
     }
 }

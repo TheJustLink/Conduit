@@ -5,18 +5,19 @@ namespace Conduit.Net.IO.RawPacket
 {
     public class Reader : IReader
     {
-        private readonly Binary.Reader _binaryReader;
+        public Binary.Reader BinaryReader { get; set; }
 
         public Reader(Stream stream, bool leaveOpen = false) : this(new Binary.Reader(stream, Encoding.UTF8, leaveOpen)) { }
         public Reader(Binary.Reader binaryReader)
         {
-            _binaryReader = binaryReader;
+            BinaryReader = binaryReader;
         }
+        public Reader() { }
 
         public Packets.RawPacket Read()
         {
-            var length = _binaryReader.Read7BitEncodedInt();
-            var packet = _binaryReader.ReadBytes(length);
+            var length = BinaryReader.Read7BitEncodedInt();
+            var packet = BinaryReader.ReadBytes(length);
 
             using var packetReader = new Binary.Reader(packet);
             var id = packetReader.Read7BitEncodedInt();
@@ -29,7 +30,7 @@ namespace Conduit.Net.IO.RawPacket
 
         public void Dispose()
         {
-            _binaryReader?.Dispose();
+            BinaryReader?.Dispose();
         }
     }
 }

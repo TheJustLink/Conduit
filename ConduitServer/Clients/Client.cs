@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-using fNbt;
+using fNbt.Tags;
 
 using Conduit.Net.Data;
 using Conduit.Net.Data.Status;
@@ -10,8 +10,7 @@ using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
-using fNbt.Tags;
-using Disconnect = Conduit.Net.Packets.Login.Disconnect;
+
 using Version = Conduit.Net.Data.Status.Version;
 
 namespace Conduit.Server.Clients
@@ -23,12 +22,13 @@ namespace Conduit.Server.Clients
         private IReader _packetReader;
         private IWriter _packetWriter;
 
-        private readonly IReaderFactory _packetReaderFactory;
-        private readonly IWriterFactory _packetWriterFactory;
+        private readonly ReaderFactory _packetReaderFactory;
+        private readonly WriterFactory _packetWriterFactory;
 
         private int _protocolVersion;
+        private string _username;
 
-        protected Client(IReaderFactory packetReaderFactory, IWriterFactory packetWriterFactory)
+        protected Client(ReaderFactory packetReaderFactory, WriterFactory packetWriterFactory)
         {
             _packetReaderFactory = packetReaderFactory;
             _packetWriterFactory = packetWriterFactory;
@@ -36,10 +36,15 @@ namespace Conduit.Server.Clients
             _packetReader = packetReaderFactory.Create();
             _packetWriter = packetWriterFactory.Create();
         }
-        
+
+        public string UserAgent => _username is not null
+            ? $"[{GetInternalUserAgent()}:{_username}]"
+            : $"[{GetInternalUserAgent()}]";
+        public abstract bool Connected { get; }
+
         public void Tick()
         {
-            while (true)
+            while (Connected)
             {
                 switch (_state)
                 {
@@ -48,45 +53,29 @@ namespace Conduit.Server.Clients
                     case ClientState.Login: LoginState(); break;
                     case ClientState.Play: PlayState(); break;
                     default:
-                    case ClientState.Disconnected: Disconnect(); return;
+                    case ClientState.Disconnected: Disconnect(); break;
                 }
+
                 Thread.Sleep(1);
             }
 
-            try
-            {
-                
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.ToString());
-            }
+            Console.WriteLine($"{UserAgent} Disconnected");
         }
+
+        protected abstract string GetInternalUserAgent();
+        protected abstract void Disconnect();
 
         private void HandshakingState()
         {
             var handshake = _packetReader.Read<Handshake>();
-
-            Console.WriteLine("Get packet:");
-            Console.WriteLine($"[{handshake.Id}](length={handshake.Length})");
-            Console.WriteLine("HandShake");
-            Console.WriteLine("ProtocolVerision=" + handshake.ProtocolVersion);
-            Console.WriteLine("ServerAddress=" + handshake.ServerAddress);
-            Console.WriteLine("ServerPort=" + handshake.ServerPort);
-            Console.WriteLine("NextState=" + handshake.NextState);
-
             _protocolVersion = handshake.ProtocolVersion;
+
             _state = handshake.NextState;
         }
         private void StatusState()
         {
             _packetReader.Read<Request>();
-
-            Console.WriteLine();
-            Console.WriteLine("Get packet:");
-            Console.WriteLine("Request");
-
-            // var statusText = @"{""version"": {""name"": ""Hell server 1.18"",""protocol"": " + _protocolVersion + @"},""players"": {""max"": 666,""online"": 99}}";
+            
             var server = new Net.Data.Status.Server
             {
                 Version = new Version { Name = "1.18", Protocol = _protocolVersion },
@@ -99,28 +88,18 @@ namespace Conduit.Server.Clients
             var ping = _packetReader.Read<Ping>();
             _packetWriter.Write(ping);
 
-            Console.WriteLine();
-            Console.WriteLine("Get packet:");
-            Console.WriteLine($"[{ping.Id}](length={ping.Length})");
-            Console.WriteLine("Ping");
-            Console.WriteLine("Payload=" + ping.Payload);
-
             _state = ClientState.Disconnected;
         }
         private void LoginState()
         {
             var loginStart = _packetReader.Read<Start>();
 
-            Console.WriteLine("Get packet:");
-            Console.WriteLine($"[{loginStart.Id}](length={loginStart.Length})");
-            Console.WriteLine("Username=" + loginStart.Username);
-
             var treshold = 256;
             var compression = new SetCompression { Treshold = treshold };
             _packetWriter.Write(compression);
             
-            _packetReader = _packetReaderFactory.CreateWithCompression();
-            _packetWriter = _packetWriterFactory.CreateWithCompression(treshold);
+            _packetReaderFactory.AddCompression(_packetReader);
+            _packetWriterFactory.AddCompression(_packetWriter, treshold);
 
             var loginSuccess = new Success
             {
@@ -129,20 +108,8 @@ namespace Conduit.Server.Clients
             };
             _packetWriter.Write(loginSuccess);
 
-            //If login failed - disconnect
-            //var disconnect = new Disconnect
-            //{
-            //    Reason = new Message { Text  = "ABOBUS!" }
-            //};
-            //_packetWriter.Write(disconnect);
-
-            //while (true)
-            //{
-            //    var packet = _packetReader.Read();
-            //    Console.WriteLine("Received packet " + packet.Id);
-            //}
-
-            //_state = ClientState.Disconnected;
+            _username = loginStart.Username;
+            Console.WriteLine($"{UserAgent} Logined");
 
             _state = ClientState.Play;
         }
@@ -265,9 +232,6 @@ namespace Conduit.Server.Clients
                 new NbtByte("has_ceiling", 0)
             });
 
-            //var file = new NbtFile(dimensionCodec);
-            //file.SaveToFile("DimensionCodec.nbt", NbtCompression.None);
-
             var joinGame = new JoinGame
             {
                 EntityId = 0,
@@ -288,18 +252,11 @@ namespace Conduit.Server.Clients
                 IsFlat = true
             };
             _packetWriter.Write(joinGame);
-            Console.WriteLine("Join game sended");
 
-            //while (true)
-            //{
-            //    var packet = _packetReader.Read();
-            //    Console.WriteLine("Received packet id = " + packet.Id);
-            //    Thread.Sleep(100);
-            //}
+            Console.WriteLine($"{UserAgent} Joined");
 
             _state = ClientState.Disconnected;
         }
 
-        protected abstract void Disconnect();
     }
 }

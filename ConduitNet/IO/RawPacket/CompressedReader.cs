@@ -6,27 +6,25 @@ namespace Conduit.Net.IO.RawPacket
 {
     public class CompressedReader : IReader
     {
-        private readonly Binary.Reader _binaryReader;
-        private readonly Binary.Reader _compressedBinaryReader;
+        public Binary.Reader BinaryReader { get; set; }
 
         public CompressedReader(Stream stream, bool leaveOpen = false)
-            : this(new Binary.Reader(stream, Encoding.UTF8, leaveOpen),
-                   new Binary.Reader(new ZLibStream(stream, CompressionMode.Decompress, leaveOpen), Encoding.UTF8, leaveOpen)) { }
-        public CompressedReader(Binary.Reader binaryReader, Binary.Reader compressedBinaryReader)
+            : this(new Binary.Reader(stream, Encoding.UTF8, leaveOpen)) { }
+        public CompressedReader(Binary.Reader binaryReader)
         {
-            _binaryReader = binaryReader;
-            _compressedBinaryReader = compressedBinaryReader;
+            BinaryReader = binaryReader;
         }
+        public CompressedReader() { }
+
         public void Dispose()
         {
-            _binaryReader?.Dispose();
-            _compressedBinaryReader?.Dispose();
+            BinaryReader?.Dispose();
         }
 
         public Packets.RawPacket Read()
         {
-            var length = _binaryReader.Read7BitEncodedInt();
-            var packetData = _binaryReader.ReadBytes(length);
+            var length = BinaryReader.Read7BitEncodedInt();
+            var packetData = BinaryReader.ReadBytes(length);
 
             using var packetReader = new Binary.Reader(packetData);
             var uncompressedLength = packetReader.Read7BitEncodedInt();

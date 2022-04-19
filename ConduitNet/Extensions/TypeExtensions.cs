@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Conduit.Net.Extensions
 {
-    static class TypeExtensions
+    public static class TypeExtensions
     {
         public static FieldInfo[] GetDeclaredPublicFields(this Type type)
         {

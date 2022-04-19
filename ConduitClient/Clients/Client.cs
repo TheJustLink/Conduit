@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using Conduit.Net.Data;
 using Conduit.Net.IO.Packet;
+using Conduit.Net.Packets;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
@@ -22,10 +25,10 @@ namespace Conduit.Client.Clients
         private IReader _packetReader;
         private IWriter _packetWriter;
 
-        private readonly IReaderFactory _packetReaderFactory;
-        private readonly IWriterFactory _packetWriterFactory;
+        private readonly ReaderFactory _packetReaderFactory;
+        private readonly WriterFactory _packetWriterFactory;
         
-        protected Client(IReaderFactory packetReaderFactory, IWriterFactory packetWriterFactory)
+        protected Client(ReaderFactory packetReaderFactory, WriterFactory packetWriterFactory)
         {
             _packetReaderFactory = packetReaderFactory;
             _packetWriterFactory = packetWriterFactory;
@@ -55,40 +58,18 @@ namespace Conduit.Client.Clients
             Login(username);
 
             var joinGame = _packetReader.Read<JoinGame>();
+            Console.WriteLine("End join game");
 
-            Disconnect();
-            return;
-
-            try
-            {
-                Console.WriteLine("Start join game");
-
-                SendHandshake(ClientState.Login);
-                Login(username);
-
-                joinGame = _packetReader.Read<JoinGame>();
-                // var dimensionCodecFile = new NbtFile(joinGame.DimensionCodec);
-                // var dimensionFile = new NbtFile(joinGame.Dimension);
-                //Disconnect();
-                ThreadLoop();
-
-                Console.WriteLine("End join game");
-            }
-            catch
-            {
-
-            }
+            ThreadLoop();
         }
         private void ThreadLoop()
         {
-            try
-            {
-                //var message = new ChatMessage { Message = "/reg 1234 1234" };
-                //var message = new ChatMessage { Message = "/server Lobby" };
-                //_packetWriter.Write(message);
+            //var message = new ChatMessage { Message = "/reg 1234 1234" };
+            //var message = new ChatMessage { Message = "/server Lobby" };
+            //_packetWriter.Write(message);
 
-                var messages = new string[]
-                {
+            var messages = new string[]
+            {
                     "ABOBUS в массы?",
                     "Что такое ABOBUS?",
                     "Где живёт ABOBUS?",
@@ -145,15 +126,25 @@ namespace Conduit.Client.Clients
                     "Как достали эти абобусы",
                     "Я уважаю абобусов... Всегда...",
                     "ABOBUS FOREVER"
-                };
+            };
 
-                while (true)
+            while (true)
+            {
+                var packet = _packetReader.Read();
+                switch (packet.Id)
                 {
-                    var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
-                    _packetWriter.Write(message);
-
-                    Thread.Sleep(4000);
+                    case 0x21:
+                        var keepAlive = _packetReader.Read<KeepAlive>(packet);
+                        _packetWriter.Write(new KeepAliveResponse { Payload = keepAlive.Payload });
+                        break;
                 }
+                var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
+                _packetWriter.Write(message);
+            }
+
+            try
+            {
+                
             }
             catch
             {
@@ -177,26 +168,67 @@ namespace Conduit.Client.Clients
                 switch (packet.Id)
                 {
                     case 0:
-                        Console.WriteLine("DISCONNECTED");
-                        var disconnect = _packetReader.Read<Disconnect>(packet);
-                        Console.WriteLine("Disconnected, reason - " + disconnect.Reason.Text);
+                        ReadLoginDisconnect(packet);
                         return;
+                    case 1:
+                        ReadEncryptionRequest(packet);
+                        break;
                     case 2:
-                        Console.WriteLine("SUCCESS");
-                        var success = _packetReader.Read<Success>(packet);
-                        Console.WriteLine($"Login success, username - [{success.Username}], guid - [{success.Guid}]");
+                        ReadLoginSuccess(packet);
                         return;
                     case 3:
-                        Console.WriteLine("COMPRESSION");
-                        var compression = _packetReader.Read<SetCompression>(packet);
-                        Console.WriteLine("Compression - " + compression.Treshold);
-
-                        _packetReader = _packetReaderFactory.CreateWithCompression();
-                        _packetWriter = _packetWriterFactory.CreateWithCompression(compression.Treshold);
+                        ReadSetCompression(packet);
                         break;
                 }
             }
         }
+        private void ReadLoginDisconnect(RawPacket packet)
+        {
+            Console.WriteLine("DISCONNECTED");
+            var disconnect = _packetReader.Read<Disconnect>(packet);
+            Console.WriteLine("Disconnected, reason - " + disconnect.Reason.Text);
+        }
+        private void ReadLoginSuccess(RawPacket packet)
+        {
+            Console.WriteLine("SUCCESS");
+            var success = _packetReader.Read<Success>(packet);
+            Console.WriteLine($"Login success, username - [{success.Username}], guid - [{success.Guid}]");
+        }
+        private void ReadSetCompression(RawPacket packet)
+        {
+            Console.WriteLine("COMPRESSION");
+            var compression = _packetReader.Read<SetCompression>(packet);
+            Console.WriteLine("Compression - " + compression.Treshold);
+
+            _packetReaderFactory.AddCompression(_packetReader);
+            _packetWriterFactory.AddCompression(_packetWriter, compression.Treshold);
+        }
+        private void ReadEncryptionRequest(RawPacket packet)
+        {
+            var encryption = _packetReader.Read<EncryptionRequest>(packet);
+
+            var sharedKey = new byte[16];
+            Random.Shared.NextBytes(sharedKey);
+
+            using var rsa = RSA.Create();
+            rsa.ImportSubjectPublicKeyInfo(encryption.PublicKey, out _);
+
+            var encryptedSharedKey = rsa.Encrypt(sharedKey, RSAEncryptionPadding.Pkcs1);
+            var encryptedVerifyToken = rsa.Encrypt(encryption.VerifyToken, RSAEncryptionPadding.Pkcs1);
+
+            var encryptionResponse = new EncryptionResponse
+            {
+                SharedSecret = encryptedSharedKey,
+                VerifyToken = encryptedVerifyToken
+            };
+            _packetWriter.Write(encryptionResponse);
+
+            _packetReaderFactory.AddEncryption(_packetReader, sharedKey);
+            _packetWriterFactory.AddEncryption(_packetWriter, sharedKey);
+
+            Console.WriteLine("Setup encryption");
+        }
+
         private TimeSpan GetPing()
         {
             var payload = Random.Shared.NextInt64(long.MinValue, long.MaxValue);
