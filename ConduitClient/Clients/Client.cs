@@ -131,15 +131,24 @@ namespace Conduit.Client.Clients
             while (true)
             {
                 var packet = _packetReader.Read();
+                Console.WriteLine($"[{packet.Id}]");
                 switch (packet.Id)
                 {
                     case 0x21:
                         var keepAlive = _packetReader.Read<KeepAlive>(packet);
                         _packetWriter.Write(new KeepAliveResponse { Payload = keepAlive.Payload });
                         break;
+                    case 0x38:
+                        var position = _packetReader.Read<PlayerPositionAndRotation>();
+                        Console.WriteLine($"X:{position.X} Y:{position.Y} Z:{position.Z} Yaw:{position.Yaw} Pitch:{position.Pitch} TeleportId:{position.TeleportId} DismountVehicle:{position.DismountVehicle}");
+                        break;
+                    case 0x1A: 
+                        var disconnected = _packetReader.Read<Disconnect>(packet);
+                        Console.WriteLine("Reason - " + disconnected.Reason.Text);
+                        break;
                 }
-                var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
-                _packetWriter.Write(message);
+                //var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
+                //_packetWriter.Write(message);
             }
 
             try
@@ -165,6 +174,7 @@ namespace Conduit.Client.Clients
             while (true)
             {
                 var packet = _packetReader.Read();
+                Console.WriteLine($"[{packet.Id}]");
                 switch (packet.Id)
                 {
                     case 0:
@@ -178,6 +188,9 @@ namespace Conduit.Client.Clients
                         return;
                     case 3:
                         ReadSetCompression(packet);
+                        break;
+                    case 4:
+                        ReadPluginRequest(packet);
                         break;
                 }
             }
@@ -227,6 +240,19 @@ namespace Conduit.Client.Clients
             _packetWriterFactory.AddEncryption(_packetWriter, sharedKey);
 
             Console.WriteLine("Setup encryption");
+        }
+        private void ReadPluginRequest(RawPacket packet)
+        {
+            Console.WriteLine("PLUGIN REQUEST");
+            var request = _packetReader.Read<PluginRequest>(packet);
+            var response = new PluginResponse()
+            {
+                MessageId = request.MessageId,
+                Successful = true,
+                Data = new byte[0]
+            };
+            _packetWriter.Write(response);
+            Console.WriteLine("Response sended");
         }
 
         private TimeSpan GetPing()

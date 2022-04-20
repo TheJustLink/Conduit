@@ -20,7 +20,7 @@ namespace Conduit.Client
             //var client = CreateClient(host, port);
             //client.CheckServerState();
 
-            var client = CreateClient("127.0.0.1", 59541);
+            var client = CreateClient("127.0.0.1", 50279);
             client.JoinGame("Steve");
 
             //var client = CreateClient(host, port);
