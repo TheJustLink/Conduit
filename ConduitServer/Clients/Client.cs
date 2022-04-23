@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 
 using fNbt.Tags;
@@ -11,6 +12,7 @@ using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
+using Conduit.Net.IO.Encryption;
 
 using Version = Conduit.Net.Data.Status.Version;
 
@@ -95,22 +97,8 @@ namespace Conduit.Server.Clients
         {
             var loginStart = _packetReader.Read<Start>();
 
-            //var publicKey = Random.Shared.NextBytes(1);
-            //var verifyToken = Random.Shared.NextBytes(4);
-
-            //var encryptionRequest = new EncryptionRequest
-            //{
-            //    ServerId = "",
-            //    PublicKey = null,
-            //    VerifyToken = verifyToken
-            //};
-
-            var treshold = 256;
-            var compression = new SetCompression { Treshold = treshold };
-            _packetWriter.Write(compression);
-            
-            _packetReaderFactory.AddCompression(_packetReader);
-            _packetWriterFactory.AddCompression(_packetWriter, treshold);
+            SendSetEncryption();
+            SendSetCompression();
 
             var loginSuccess = new Success
             {
@@ -123,6 +111,36 @@ namespace Conduit.Server.Clients
             Console.WriteLine($"{UserAgent} Logined");
 
             _state = ClientState.Play;
+        }
+        private void SendSetEncryption()
+        {
+            var verifyToken = Random.Shared.NextBytes(4);
+            var encryptionRequest = new EncryptionRequest
+            {
+                ServerId = "",
+                PublicKey = Rsa.PublicKey,
+                VerifyToken = Random.Shared.NextBytes(4)
+            };
+            _packetWriter.Write(encryptionRequest);
+
+            var encryptionResponse = _packetReader.Read<EncryptionResponse>();
+            var sharedSecret = Rsa.Decrypt(encryptionResponse.SharedSecret);
+            var verifyTokenResponse = Rsa.Decrypt(encryptionResponse.VerifyToken);
+
+            if (verifyToken.SequenceEqual(verifyTokenResponse) == false)
+                throw new ArgumentException("Invalid verify token");
+
+            _packetReaderFactory.AddEncryption(_packetReader, sharedSecret);
+            _packetWriterFactory.AddEncryption(_packetWriter, sharedSecret);
+        }
+        private void SendSetCompression()
+        {
+            var treshold = 256;
+            var compression = new SetCompression { Treshold = treshold };
+            _packetWriter.Write(compression);
+
+            _packetReaderFactory.AddCompression(_packetReader);
+            _packetWriterFactory.AddCompression(_packetWriter, treshold);
         }
 
         private void PlayState()
@@ -268,6 +286,5 @@ namespace Conduit.Server.Clients
 
             _state = ClientState.Disconnected;
         }
-
     }
 }
