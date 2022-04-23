@@ -1,9 +1,9 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
+
 using Conduit.Net.Data;
 using Conduit.Net.IO.Packet;
 using Conduit.Net.Packets;
@@ -11,7 +11,7 @@ using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
-using fNbt;
+
 using Disconnect = Conduit.Net.Packets.Login.Disconnect;
 
 namespace Conduit.Client.Clients
@@ -22,8 +22,8 @@ namespace Conduit.Client.Clients
         public abstract int Port { get; }
         public abstract bool IsConnected { get; }
 
-        private IReader _packetReader;
-        private IWriter _packetWriter;
+        private readonly IReader _packetReader;
+        private readonly IWriter _packetWriter;
 
         private readonly ReaderFactory _packetReaderFactory;
         private readonly WriterFactory _packetWriterFactory;
@@ -131,33 +131,31 @@ namespace Conduit.Client.Clients
             while (true)
             {
                 var packet = _packetReader.Read();
-                Console.WriteLine($"[{packet.Id}]");
+                Console.WriteLine($"IN [{packet.Id}]");
+
                 switch (packet.Id)
                 {
                     case 0x21:
                         var keepAlive = _packetReader.Read<KeepAlive>(packet);
-                        _packetWriter.Write(new KeepAliveResponse { Payload = keepAlive.Payload });
+                        _packetWriter.Write(keepAlive.ToResponse());
+                        break;
+                    case 0x18:
+                        var pluginMessage = _packetReader.Read<PluginMessage>(packet);
+                        Console.WriteLine($"Plugin message [{pluginMessage.Channel}]({pluginMessage.Data})");
                         break;
                     case 0x38:
-                        var position = _packetReader.Read<PlayerPositionAndRotation>();
-                        Console.WriteLine($"X:{position.X} Y:{position.Y} Z:{position.Z} Yaw:{position.Yaw} Pitch:{position.Pitch} TeleportId:{position.TeleportId} DismountVehicle:{position.DismountVehicle}");
+                        //var position = _packetReader.Read<PlayerPositionAndRotation>();
+                        //Console.WriteLine($"X:{position.X} Y:{position.Y} Z:{position.Z} Yaw:{position.Yaw} Pitch:{position.Pitch} TeleportId:{position.TeleportId} DismountVehicle:{position.DismountVehicle}");
                         break;
-                    case 0x1A: 
+                    case 0x1A:
                         var disconnected = _packetReader.Read<Disconnect>(packet);
                         Console.WriteLine("Reason - " + disconnected.Reason.Text);
                         break;
                 }
-                //var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
-                //_packetWriter.Write(message);
-            }
+                var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
+                _packetWriter.Write(message);
 
-            try
-            {
-                
-            }
-            catch
-            {
-                
+                Thread.Sleep(1);
             }
         }
 

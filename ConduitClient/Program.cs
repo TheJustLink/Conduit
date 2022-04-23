@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 using Conduit.Client.Clients;
 using Conduit.Net.IO.Packet;
@@ -20,7 +19,7 @@ namespace Conduit.Client
             //var client = CreateClient(host, port);
             //client.CheckServerState();
 
-            var client = CreateClient("127.0.0.1", 50279);
+            var client = CreateClient("127.0.0.1", 54567);
             client.JoinGame("Steve");
 
             //var client = CreateClient(host, port);

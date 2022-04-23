@@ -1,7 +1,7 @@
-﻿using Conduit.Net.Attributes;
-using fNbt;
+﻿using fNbt.Tags;
+
+using Conduit.Net.Attributes;
 using Conduit.Net.Data;
-using fNbt.Tags;
 
 namespace Conduit.Net.Packets.Play
 {
@@ -11,8 +11,6 @@ namespace Conduit.Net.Packets.Play
         public bool IsHardcore;
         public Gamemode Gamemode;
         public sbyte PreviousGamemode;
-        //[VarInt]
-        //public int WorldCount;
         public string[] DimensionNames;
         public NbtCompound DimensionCodec;
         public NbtCompound Dimension;

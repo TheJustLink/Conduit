@@ -5,6 +5,7 @@ using fNbt.Tags;
 
 using Conduit.Net.Data;
 using Conduit.Net.Data.Status;
+using Conduit.Net.Extensions;
 using Conduit.Net.IO.Packet;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
@@ -19,8 +20,8 @@ namespace Conduit.Server.Clients
     {
         private ClientState _state;
 
-        private IReader _packetReader;
-        private IWriter _packetWriter;
+        private readonly IReader _packetReader;
+        private readonly IWriter _packetWriter;
 
         private readonly ReaderFactory _packetReaderFactory;
         private readonly WriterFactory _packetWriterFactory;
@@ -93,6 +94,16 @@ namespace Conduit.Server.Clients
         private void LoginState()
         {
             var loginStart = _packetReader.Read<Start>();
+
+            //var publicKey = Random.Shared.NextBytes(1);
+            //var verifyToken = Random.Shared.NextBytes(4);
+
+            //var encryptionRequest = new EncryptionRequest
+            //{
+            //    ServerId = "",
+            //    PublicKey = null,
+            //    VerifyToken = verifyToken
+            //};
 
             var treshold = 256;
             var compression = new SetCompression { Treshold = treshold };
