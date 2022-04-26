@@ -151,10 +151,10 @@ namespace Conduit.Client.Clients
                         var status = _packetReader.Read<EntityStatus>(packet);
                         Console.WriteLine($"EntityId:{status.EntityId} | EntityStatus:{status.Status}");
                         break;
-                    case 0x39:
-                        var unlocked = _packetReader.Read<UnlockRecipes>(packet);
-                        Console.WriteLine($"Action:{unlocked.Action}");
-                        break;
+                    //case 0x39:
+                    //    var unlocked = _packetReader.Read<UnlockRecipes>(packet);
+                    //    Console.WriteLine($"Action:{unlocked.Action}");
+                    //    break;
                     case 0x18:
                         var pluginMessage = _packetReader.Read<PluginMessage>(packet);
                         Console.WriteLine($"Plugin message [{pluginMessage.Channel}]({pluginMessage.Data})");
@@ -164,7 +164,7 @@ namespace Conduit.Client.Clients
                         _packetWriter.Write(keepAlive.ToResponse());
                         break;
                     case 0x38:
-                        var position = _packetReader.Read<PlayerPositionAndRotation>();
+                        var position = _packetReader.Read<PlayerPositionAndRotation>(packet);
                         Console.WriteLine($"X:{position.X} Y:{position.Y} Z:{position.Z} Yaw:{position.Yaw} Pitch:{position.Pitch} TeleportId:{position.TeleportId} DismountVehicle:{position.DismountVehicle}");
                         break;
                     case 0x1A:
