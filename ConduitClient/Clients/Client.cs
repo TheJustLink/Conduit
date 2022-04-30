@@ -135,25 +135,45 @@ namespace Conduit.Client.Clients
 
                 switch (packet.Id)
                 {
-                    case 0x21:
-                        var keepAlive = _packetReader.Read<KeepAlive>(packet);
-                        _packetWriter.Write(keepAlive.ToResponse());
+                    case 0x0E:
+                        var difficulty = _packetReader.Read<ServerDifficulty>(packet);
+                        Console.WriteLine($"Difficulty:{difficulty.Difficulty} | IsLocked:{difficulty.IsLocked}");
                         break;
+                    case 0x32:
+                        var abilities = _packetReader.Read<PlayerAbilities>(packet);
+                        Console.WriteLine($"Flag:{abilities.Flags} | FlyingSpeed:{abilities.FlyingSpeed} | FOVModifier:{abilities.FieldOfViewModifier}");
+                        break;
+                    case 0x48:
+                        var heldItemChange = _packetReader.Read<HeldItemChange>(packet);
+                        Console.WriteLine($"Slot:{heldItemChange.Slot}");
+                        break;
+                    case 0x1B:
+                        var status = _packetReader.Read<EntityStatus>(packet);
+                        Console.WriteLine($"EntityId:{status.EntityId} | EntityStatus:{status.Status}");
+                        break;
+                    //case 0x39:
+                    //    var unlocked = _packetReader.Read<UnlockRecipes>(packet);
+                    //    Console.WriteLine($"Action:{unlocked.Action}");
+                    //    break;
                     case 0x18:
                         var pluginMessage = _packetReader.Read<PluginMessage>(packet);
                         Console.WriteLine($"Plugin message [{pluginMessage.Channel}]({pluginMessage.Data})");
                         break;
+                    case 0x21:
+                        var keepAlive = _packetReader.Read<KeepAlive>(packet);
+                        _packetWriter.Write(keepAlive.ToResponse());
+                        break;
                     case 0x38:
-                        //var position = _packetReader.Read<PlayerPositionAndRotation>();
-                        //Console.WriteLine($"X:{position.X} Y:{position.Y} Z:{position.Z} Yaw:{position.Yaw} Pitch:{position.Pitch} TeleportId:{position.TeleportId} DismountVehicle:{position.DismountVehicle}");
+                        var position = _packetReader.Read<PlayerPositionAndRotation>(packet);
+                        Console.WriteLine($"X:{position.X} Y:{position.Y} Z:{position.Z} Yaw:{position.Yaw} Pitch:{position.Pitch} TeleportId:{position.TeleportId} DismountVehicle:{position.DismountVehicle}");
                         break;
                     case 0x1A:
                         var disconnected = _packetReader.Read<Disconnect>(packet);
                         Console.WriteLine("Reason - " + disconnected.Reason.Text);
                         break;
                 }
-                var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
-                _packetWriter.Write(message);
+                //var message = new ChatMessage { Message = messages[Random.Shared.Next(0, messages.Length)] };
+                //_packetWriter.Write(message);
 
                 Thread.Sleep(1);
             }
