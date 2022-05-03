@@ -1,7 +1,4 @@
-﻿using System;
-
-namespace Conduit.Net.Attributes
+﻿namespace Conduit.Net.Attributes
 {
-    [AttributeUsage(AttributeTargets.Field)]
-    class VarIntAttribute : Attribute { }
+    public class VarIntAttribute : ConduitAttribute { }
 }

@@ -9,9 +9,5 @@ namespace Conduit.Net.Extensions
         {
             return type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
         }
-        public static bool IsStandartValueType(this Type type)
-        {
-            return type.IsValueType || type == typeof(string);
-        }
     }
 }

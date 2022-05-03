@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using Conduit.Net.IO.Packet.Serialization;
 
 namespace Conduit.Net.IO.Packet
 {

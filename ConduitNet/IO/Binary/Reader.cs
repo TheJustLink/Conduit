@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using fNbt;
+using fNbt.Tags;
+
+using Conduit.Net.Data;
+
 namespace Conduit.Net.IO.Binary
 {
     public class Reader : BinaryReader
@@ -20,18 +25,18 @@ namespace Conduit.Net.IO.Binary
             { typeof(float), r => r.ReadSingle() },
             { typeof(double), r => r.ReadDouble() },
             { typeof(string), r => r.ReadString() },
-            { typeof(Guid), r => r.ReadGuid() }
+            { typeof(Guid), r => r.ReadGuid() },
+            { typeof(VarInt), r => r.Read7BitEncodedInt() },
+            { typeof(VarLong), r => r.Read7BitEncodedInt64() },
+            { typeof(NbtCompound), r => r.ReadNbt() },
+            { typeof(NbtTag), r => r.ReadNbt() }
         };
+        public static bool CanReadType(Type type) => s_typeTable.ContainsKey(type);
 
         public Reader(byte[] data) : this(new MemoryStream(data, false), Encoding.UTF8, true) { }
         public Reader(Stream input) : base(input) { }
         public Reader(Stream input, Encoding encoding, bool leaveOpen = false) : base(input, encoding, leaveOpen) { }
-
-        public virtual object ReadObject(Type type)
-        {
-            return s_typeTable[type](this);
-        }
-
+        
         public override ushort ReadUInt16()
         {
             return BinaryPrimitives.ReadUInt16BigEndian(ReadBytes(2));
@@ -39,6 +44,10 @@ namespace Conduit.Net.IO.Binary
         public virtual Guid ReadGuid()
         {
             return new Guid(ReadBytes(16));
+        }
+        public NbtTag ReadNbt()
+        {
+            return new NbtReader(BaseStream).ReadAsTag();
         }
     }
 }

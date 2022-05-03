@@ -2,6 +2,11 @@
 using System.IO;
 using System.Text;
 
+using fNbt.Tags;
+using fNbt;
+
+using Conduit.Net.Data;
+
 namespace Conduit.Net.IO.Binary
 {
     public class Writer : BinaryWriter
@@ -11,26 +16,22 @@ namespace Conduit.Net.IO.Binary
         public Writer(Stream output, Encoding encoding) : base(output, encoding) { }
         public Writer(Stream output, Encoding encoding, bool leaveOpen) : base(output, encoding, leaveOpen) { }
 
-        public virtual void WriteObject(object @object)
-        {
-            switch (@object)
-            {
-                case bool v: Write(v); return;
-                case sbyte v: Write(v); return;
-                case byte v: Write(v); return;
-                case short v: Write(v); return;
-                case ushort v: Write(v); return;
-                case int v: Write(v); return;
-                case long v: Write(v); return;
-                case float v: Write(v); return;
-                case double v: Write(v); return;
-                case string v: Write(v); return;
-                case Guid v: Write(v); return;
-            }
-        }
         public virtual void Write(Guid guid)
         {
             base.Write(guid.ToByteArray());
+        }
+        public virtual void Write(VarInt varInt)
+        {
+            base.Write7BitEncodedInt(varInt);
+        }
+        public virtual void Write(VarLong varLong)
+        {
+            base.Write7BitEncodedInt64(varLong);
+        }
+        public virtual void Write(NbtCompound tag)
+        {
+            var nbtFile = new NbtFile(tag);
+            nbtFile.SaveToStream(BaseStream, NbtCompression.None);
         }
     }
 }

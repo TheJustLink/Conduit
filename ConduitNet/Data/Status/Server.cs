@@ -1,7 +1,6 @@
-﻿using Conduit.Net.Packets;
-
-namespace Conduit.Net.Data.Status
+﻿namespace Conduit.Net.Data.Status
 {
+    [System.Serializable]
     public class Server
     {
         public Version Version;
