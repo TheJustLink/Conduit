@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Conduit.Net.IO.Packet.Serialization;
 
@@ -21,14 +22,17 @@ namespace Conduit.Net.IO.Packet
             RawPacketReader?.Dispose();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public T Read<T>() where T : Packets.Packet, new()
         {
             return Read<T>(Read());
         }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public T Read<T>(Packets.RawPacket packet) where T : Packets.Packet, new()
         {
             return Deserializer.Deserialize<T>(packet);
         }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public Packets.RawPacket Read()
         {
             return RawPacketReader.Read();

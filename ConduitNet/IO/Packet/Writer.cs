@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Conduit.Net.IO.Packet.Serialization;
 
@@ -21,10 +22,12 @@ namespace Conduit.Net.IO.Packet
             RawPacketWriter?.Dispose();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Write(Packets.Packet packet)
         {
             Write(Serializer.Serialize(packet));
         }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Write(Packets.RawPacket rawPacket)
         {
             RawPacketWriter.Write(rawPacket);

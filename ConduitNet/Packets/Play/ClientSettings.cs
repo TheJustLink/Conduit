@@ -6,12 +6,14 @@ namespace Conduit.Net.Packets.Play
     {
         public string Locale;
         public sbyte ViewDistance;
-        [VarInt]
-        public int ChatMode;
+
+        [VarInt] public int ChatMode;
+
         public bool ChatColors;
         public byte DisplayedSkinParts;
-        [VarInt]
-        public int MainHand;
+
+        [VarInt] public int MainHand;
+
         public bool EnableTextFiltering;
         public bool AllowServerListings;
 

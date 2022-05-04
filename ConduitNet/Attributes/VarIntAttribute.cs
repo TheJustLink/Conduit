@@ -1,4 +1,9 @@
-﻿namespace Conduit.Net.Attributes
+﻿using Conduit.Net.Data;
+
+namespace Conduit.Net.Attributes
 {
-    public class VarIntAttribute : ConduitAttribute { }
+    public class VarIntAttribute : AsAttribute
+    {
+        public VarIntAttribute() : base(VarInt.TypeHash) { }
+    }
 }

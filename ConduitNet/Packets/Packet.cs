@@ -4,9 +4,7 @@ namespace Conduit.Net.Packets
 {
     public class Packet
     {
-        [VarInt]
-        public int Length;
-        [VarInt]
-        public int Id;
+        [VarInt] public int Length;
+        [VarInt] public int Id;
     }
 }

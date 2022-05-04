@@ -4,8 +4,8 @@ namespace Conduit.Net.Packets.Play
 {
     public class EntityVelocity : Packet
     {
-        [VarInt]
-        public int EntityId;
+        [VarInt] public int EntityId;
+
         public short VelocityX;
         public short VelocityY;
         public short VelocityZ;

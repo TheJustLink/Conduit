@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Conduit.Net.IO.RawPacket
@@ -29,6 +30,7 @@ namespace Conduit.Net.IO.RawPacket
             BinaryWriter?.Dispose();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public void Write(Packets.RawPacket rawPacket)
         {
             if (rawPacket.Length < _compressionTreshold)
@@ -36,6 +38,7 @@ namespace Conduit.Net.IO.RawPacket
             else WriteCompressed(rawPacket);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private void WriteUncompressed(Packets.RawPacket rawPacket)
         {
             BinaryWriter.Write7BitEncodedInt(rawPacket.Length + 1);
@@ -43,6 +46,7 @@ namespace Conduit.Net.IO.RawPacket
             BinaryWriter.Write7BitEncodedInt(rawPacket.Id);
             BinaryWriter.Write(rawPacket.Data);
         }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private void WriteCompressed(Packets.RawPacket rawPacket)
         {
             var compressedMemory = new MemoryStream();

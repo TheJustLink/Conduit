@@ -1,93 +1,22 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Threading;
 
 using Conduit.Client.Clients;
 using Conduit.Net.IO.Packet;
-using Conduit.Net.Reflection;
 
 using RawTcpClient = System.Net.Sockets.TcpClient;
 
 namespace Conduit.Client
 {
-    class Writer
-    {
-        public void Write(byte value)
-        {
-            Console.WriteLine("Byte - " + value);
-        }
-        public void Write(int value)
-        {
-            Console.WriteLine("Int - " + value);
-        }
-        public void Write(long value)
-        {
-            Console.WriteLine("Long - " + value);
-        }
-        public void Write(string value)
-        {
-            Console.WriteLine("String - " + value);
-        }
-
-        public int ReadInt()
-        {
-            return 0;
-        }
-        public string ReadString()
-        {
-            return "Abobus";
-        }
-    }
-
     static class Program
     {   
         private static void Main(string[] args)
         {
             InitializeConsole();
-
-            var writer1 = new Writer();
-            var writer2 = new Writer();
             
-            Dispatcher<Writer>.Action(writer1, 124314);
-            Dispatcher<Writer>.Action(writer1, "abobus");
-            
-            var result1 = Dispatcher<Writer>.Func(writer1, typeof(int));
-            var result2 = Dispatcher<Writer>.Func(writer1, typeof(string));
+            TestLocalJoinGame(58542);
 
-            Console.WriteLine(result1);
-            Console.WriteLine(result2);
-
-            var result3 = Dispatcher<Writer>.Func(writer2, typeof(int));
-            var result4 = Dispatcher<Writer>.Func(writer2, typeof(string));
-
-            Console.WriteLine(result3);
-            Console.WriteLine(result4);
-
-            Console.ReadKey(true);
-
-            return;
-            //var host = "95.216.93.67";
-            //var port = 9999;
-
-            //var client = CreateClient(host, port);
-            //client.CheckServerState();
-
-            var client = CreateClient("127.0.0.1", 51779);
-            //var client = CreateClient("95.216.93.67", 9999);
-            client.JoinGame("Cucumber");
-
-            //var client = CreateClient(host, port);
-            //client.JoinGame("Steve");
-
-            //for (int i = 0; i < 100; i++)
-            //{
-            //    //s_lastId = "0x" + i.ToString();
-
-            //    var thread = new Thread(ClientThreadLoop);
-            //    thread.IsBackground = true;
-            //    thread.Start();
-
-            //    Thread.Sleep(2000);
-            //}
+            // KachanAnnihilator(100);
 
             Console.ReadKey(true);
             Console.ReadKey(true);
@@ -98,14 +27,32 @@ namespace Conduit.Client
             Console.Title = "Conduit Minecraft Client";
         }
 
+        private static void TestLocalJoinGame(int port)
+        {
+            var client = CreateLocalhostClient(port);
+            client.JoinGame("Cucumber");
+        }
+        private static IClient CreateLocalhostClient(int port)
+        {
+            return CreateClient("127.0.0.1", port);
+        }
+        private static void KachanAnnihilator(int countBots, int cooldown = 2000)
+        {
+            for (var i = 0; i < countBots; i++)
+            {
+                var thread = new Thread(ClientThreadLoop);
+                thread.IsBackground = true;
+                thread.Start();
+
+                Thread.Sleep(cooldown);
+            }
+        }
         private static void ClientThreadLoop()
         {
-            //var host = "95.216.93.67";
-            //var port = 9999;
-            var host = "127.0.0.1";
-            var port = 62570;
+            var host = "95.216.93.67";
+            var port = 9999;
 
-            var randomPrefixes = new string[]
+            var randomPrefixes = new[]
             {
                 "Aboba",
                 "Jopa",

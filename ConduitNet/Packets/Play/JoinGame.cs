@@ -9,19 +9,21 @@ namespace Conduit.Net.Packets.Play
     {
         public int EntityId;
         public bool IsHardcore;
+        
         public Gamemode Gamemode;
         public sbyte PreviousGamemode;
+        
         public string[] DimensionNames;
         public NbtCompound DimensionCodec;
         public NbtCompound Dimension;
         public string DimensionName;
+
         public long HashedSeed;
-        [VarInt]
-        public int MaxPlayers;
-        [VarInt]
-        public int ViewDistance;
-        [VarInt]
-        public int SimulationDistance;
+
+        [VarInt] public int MaxPlayers;
+        [VarInt] public int ViewDistance;
+        [VarInt] public int SimulationDistance;
+
         public bool ReducedDebugInfo;
         public bool EnableRespawnScreen;
         public bool IsDebug;

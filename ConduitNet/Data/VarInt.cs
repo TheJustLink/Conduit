@@ -1,4 +1,7 @@
 ﻿namespace Conduit.Net.Data
 {
-    public class VarInt : Ref<int> { }
+    public static class VarInt
+    {
+        public static readonly int TypeHash = typeof(VarInt).GetHashCode();
+    }
 }

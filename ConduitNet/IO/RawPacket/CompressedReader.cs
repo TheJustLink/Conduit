@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Conduit.Net.IO.RawPacket
@@ -21,6 +22,7 @@ namespace Conduit.Net.IO.RawPacket
             BinaryReader?.Dispose();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public Packets.RawPacket Read()
         {
             var length = BinaryReader.Read7BitEncodedInt();
@@ -34,6 +36,7 @@ namespace Conduit.Net.IO.RawPacket
                  : ReadCompressed(packetReader, length, uncompressedLength);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static Packets.RawPacket ReadUncompressed(Binary.Reader packetReader, int packetLength)
         {
             var id = packetReader.Read7BitEncodedInt();
@@ -47,6 +50,7 @@ namespace Conduit.Net.IO.RawPacket
                 Data = data
             };
         }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static Packets.RawPacket ReadCompressed(Binary.Reader packetReader, int packetLength, int uncompressedLength)
         {
             var compressedDataLength = packetLength - (int)packetReader.BaseStream.Position;

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Conduit.Net.IO.RawPacket
@@ -14,6 +15,12 @@ namespace Conduit.Net.IO.RawPacket
         }
         public Reader() { }
 
+        public void Dispose()
+        {
+            BinaryReader?.Dispose();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public Packets.RawPacket Read()
         {
             var length = BinaryReader.Read7BitEncodedInt();
@@ -26,11 +33,6 @@ namespace Conduit.Net.IO.RawPacket
             var data = packetReader.ReadBytes(dataLength);
 
             return new Packets.RawPacket { Length = length, Id = id, Data = data };
-        }
-
-        public void Dispose()
-        {
-            BinaryReader?.Dispose();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Conduit.Net.IO.RawPacket
@@ -19,6 +20,7 @@ namespace Conduit.Net.IO.RawPacket
             BinaryWriter?.Dispose();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Write(Packets.RawPacket rawPacket)
         {
             BinaryWriter.Write7BitEncodedInt(rawPacket.Length);

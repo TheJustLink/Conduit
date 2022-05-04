@@ -2,7 +2,7 @@
 {
     public class ServerDifficulty : Packet
     {
-        public byte Difficulty; //value between 0 and 3
+        public byte Difficulty;
         public bool IsLocked;
 
         public ServerDifficulty() => Id = 0x0E;

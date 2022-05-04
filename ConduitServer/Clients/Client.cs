@@ -97,7 +97,7 @@ namespace Conduit.Server.Clients
         {
             var loginStart = _packetReader.Read<Start>();
 
-            SendSetEncryption();
+            //SendSetEncryption();
             SendSetCompression();
 
             var loginSuccess = new Success

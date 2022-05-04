@@ -4,8 +4,7 @@ namespace Conduit.Net.Packets.Play
 {
     public class UpdateViewDistance : Packet
     {
-        [VarInt]
-        public int ViewDistance; //value between 2 and 32
+        [VarInt] public int ViewDistance;
 
         public UpdateViewDistance() => Id = 0x4A;
     }

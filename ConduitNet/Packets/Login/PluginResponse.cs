@@ -4,8 +4,8 @@ namespace Conduit.Net.Packets.Login
 {
     public class PluginResponse : Packet
     {
-        [VarInt]
-        public int MessageId;
+        [VarInt] public int MessageId;
+
         public bool Successful;
         public byte[] Data;
 

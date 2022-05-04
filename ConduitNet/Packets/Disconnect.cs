@@ -1,9 +1,10 @@
-﻿using Conduit.Net.Data;
+﻿using Conduit.Net.Attributes;
+using Conduit.Net.Data;
 
 namespace Conduit.Net.Packets
 {
     public abstract class Disconnect : Packet
     {
-        public Message Reason;
+        [Json] public Message Reason;
     }
 }
