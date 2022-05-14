@@ -14,7 +14,7 @@ namespace Conduit.Client
         {
             InitializeConsole();
             
-            TestLocalJoinGame(58542);
+            TestLocalJoinGame(1516);
 
             // KachanAnnihilator(100);
 

@@ -1,6 +1,6 @@
 ﻿namespace Conduit.Net.Packets.Play
 {
-    public class ServerDifficulty : Packet
+    public sealed class ServerDifficulty : Packet
     {
         public byte Difficulty;
         public bool IsLocked;

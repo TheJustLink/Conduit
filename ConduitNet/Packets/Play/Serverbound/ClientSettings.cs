@@ -2,7 +2,7 @@
 
 namespace Conduit.Net.Packets.Play
 {
-    public class ClientSettings : Packet
+    public sealed class ClientSettings : Packet
     {
         public string Locale;
         public sbyte ViewDistance;

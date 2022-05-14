@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 
 using fNbt.Tags;
@@ -144,8 +145,8 @@ namespace Conduit.Server.Clients
         }
 
         private void PlayState()
-        {   
-            var dimensionCodec = new NbtCompound("", new NbtCompound[]
+        {
+            var dimensionCodec = new NbtCompound(string.Empty, new NbtCompound[]
             {
                 new("minecraft:dimension_type", new NbtTag[]
                 {
@@ -240,7 +241,7 @@ namespace Conduit.Server.Clients
                     })
                 })
             });
-            var dimension = new NbtCompound("", new NbtTag[]
+            var dimension = new NbtCompound(string.Empty, new NbtTag[]
             {
                 new NbtByte("piglin_safe", 0),
                 new NbtByte("natural", 1),

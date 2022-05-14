@@ -2,9 +2,11 @@
 
 namespace Conduit.Net.Packets.Play
 {
-    public class SetExperience : Packet
+    public sealed class SetExperience : Packet
     {
-        // Value between 0 and 1
+        /// <summary>
+        /// Value between 0 and 1
+        /// </summary>
         public float ExperienceBar;
 
         [VarInt] public int Level;

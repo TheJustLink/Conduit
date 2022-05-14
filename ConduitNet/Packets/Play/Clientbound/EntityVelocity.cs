@@ -2,7 +2,7 @@
 
 namespace Conduit.Net.Packets.Play
 {
-    public class EntityVelocity : Packet
+    public sealed class EntityVelocity : Packet
     {
         [VarInt] public int EntityId;
 

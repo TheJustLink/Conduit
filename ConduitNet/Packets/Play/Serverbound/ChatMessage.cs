@@ -1,6 +1,6 @@
 ﻿namespace Conduit.Net.Packets.Play
 {
-    public class ChatMessage : Packet
+    public sealed class ChatMessage : Packet
     {
         public string Message;
 

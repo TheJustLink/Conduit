@@ -2,7 +2,7 @@
 
 namespace Conduit.Net.Packets.Play
 {
-    public class PlayerPositionAndRotation : Packet
+    public sealed class PlayerPositionAndRotation : Packet
     {
         public double X;
         public double Y;

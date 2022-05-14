@@ -33,8 +33,8 @@ namespace Conduit.Server.Services.Listeners
         }
         public override void Stop()
         {
-            _listener.Stop();
             base.Stop();
+            _listener.Stop();
         }
 
         protected override void Tick()

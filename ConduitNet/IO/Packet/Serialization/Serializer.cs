@@ -106,7 +106,7 @@ namespace Conduit.Net.IO.Packet.Serialization
                 SerializeEnum(writer, @object, type, targetTypeHash);
             else if (type.IsArray)
                 SerializeArray(writer, (Array)@object, type, targetTypeHash);
-            else if (type.IsClass)
+            else if (type.IsClass || type.IsValueType)
                 SerializeObject(writer, type, @object);
             else throw new ArgumentException($"Can't serialize object {@object} of type {type}");
         }

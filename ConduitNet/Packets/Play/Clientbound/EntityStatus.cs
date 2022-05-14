@@ -1,6 +1,6 @@
 ﻿namespace Conduit.Net.Packets.Play
 {
-    public class EntityStatus: Packet
+    public sealed class EntityStatus: Packet
     {
         public int EntityId;
         public byte Status;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 
@@ -13,6 +14,7 @@ using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
 
 using Disconnect = Conduit.Net.Packets.Login.Disconnect;
+using PluginMessage = Conduit.Net.Packets.Play.Clientbound.PluginMessage;
 
 namespace Conduit.Client.Clients
 {
@@ -157,7 +159,7 @@ namespace Conduit.Client.Clients
                     //    break;
                     case 0x18:
                         var pluginMessage = _packetReader.Read<PluginMessage>(packet);
-                        Console.WriteLine($"Plugin message [{pluginMessage.Channel}]({pluginMessage.Data})");
+                        Console.WriteLine($"Plugin message [{pluginMessage.Channel}]({Encoding.UTF8.GetString(pluginMessage.Data)})");
                         break;
                     case 0x21:
                         var keepAlive = _packetReader.Read<KeepAlive>(packet);
@@ -261,13 +263,14 @@ namespace Conduit.Client.Clients
         }
         private void ReadPluginRequest(RawPacket packet)
         {
-            Console.WriteLine("PLUGIN REQUEST");
             var request = _packetReader.Read<PluginRequest>(packet);
-            var response = new PluginResponse()
+            Console.WriteLine($"Plugin request - [{request.Channel}] : [{Encoding.UTF8.GetString(request.Data)}]");
+
+            var response = new PluginResponse
             {
                 MessageId = request.MessageId,
                 Successful = true,
-                Data = new byte[0]
+                Data = Array.Empty<byte>()
             };
             _packetWriter.Write(response);
             Console.WriteLine("Response sended");

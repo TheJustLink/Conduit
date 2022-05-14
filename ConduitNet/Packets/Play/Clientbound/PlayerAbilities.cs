@@ -1,6 +1,6 @@
 ﻿namespace Conduit.Net.Packets.Play
 {
-    public class PlayerAbilities : Packet
+    public sealed class PlayerAbilities : Packet
     {
         public sbyte Flags;
         public float FlyingSpeed;

@@ -98,7 +98,7 @@ namespace Conduit.Net.IO.Packet.Serialization
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private static object DeserializePrimitiveObject(BinaryReader input, Type type, int readTypeHash)
-        {;
+        {
             if (BinaryReader.CanReadType(readTypeHash))
                 return input.ReadObject(readTypeHash);
 
@@ -108,7 +108,7 @@ namespace Conduit.Net.IO.Packet.Serialization
             if (type.IsArray)
                 return DeserializeArray(input, type, readTypeHash);
 
-            if (type.IsClass)
+            if (type.IsClass || type.IsValueType)
                 return DeserializeObject(input, type);
 
             throw new ArgumentException($"Can't deserialize {type}");

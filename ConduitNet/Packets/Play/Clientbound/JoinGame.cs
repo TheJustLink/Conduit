@@ -5,7 +5,7 @@ using Conduit.Net.Data;
 
 namespace Conduit.Net.Packets.Play
 {
-    public class JoinGame : Packet
+    public sealed class JoinGame : Packet
     {
         public int EntityId;
         public bool IsHardcore;
