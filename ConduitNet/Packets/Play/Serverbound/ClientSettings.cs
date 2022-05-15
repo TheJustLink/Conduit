@@ -1,6 +1,6 @@
 ﻿using Conduit.Net.Attributes;
 
-namespace Conduit.Net.Packets.Play
+namespace Conduit.Net.Packets.Play.Serverbound
 {
     public sealed class ClientSettings : Packet
     {

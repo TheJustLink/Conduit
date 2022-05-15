@@ -1,7 +1,7 @@
 ﻿using Conduit.Net.Attributes;
 using Conduit.Net.Data.Play;
 
-namespace Conduit.Net.Packets.Play
+namespace Conduit.Net.Packets.Play.Clientbound
 {
     public sealed class UnlockRecipes : Packet
     {

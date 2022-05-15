@@ -11,6 +11,7 @@ using Conduit.Net.Packets;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
+using Conduit.Net.Packets.Play.Clientbound;
 using Conduit.Net.Packets.Status;
 
 using Disconnect = Conduit.Net.Packets.Login.Disconnect;

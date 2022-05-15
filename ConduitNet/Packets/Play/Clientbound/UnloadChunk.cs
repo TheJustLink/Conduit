@@ -1,4 +1,4 @@
-﻿namespace Conduit.Net.Packets.Play
+﻿namespace Conduit.Net.Packets.Play.Clientbound
 {
     // Forget chunk in Mojang edition
     public class UnloadChunk : Packet

@@ -1,9 +1,9 @@
-﻿using fNbt.Tags;
-
-using Conduit.Net.Attributes;
+﻿using Conduit.Net.Attributes;
 using Conduit.Net.Data;
 
-namespace Conduit.Net.Packets.Play
+using fNbt.Tags;
+
+namespace Conduit.Net.Packets.Play.Clientbound
 {
     public sealed class JoinGame : Packet
     {

@@ -14,6 +14,7 @@ using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
 using Conduit.Net.IO.Encryption;
+using Conduit.Net.Packets.Play.Clientbound;
 
 using Version = Conduit.Net.Data.Status.Version;
 

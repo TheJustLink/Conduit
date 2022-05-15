@@ -8,7 +8,18 @@ namespace Conduit.Net.Reflection
     {
         private static readonly Dictionary<int, Func<T, object>> s_table = ConvertMethodsToFunctions();
 
-        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public static bool Contains(int typeHash)
+        {
+            return s_table.ContainsKey(typeHash);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public static bool Contains(Type type)
+        {
+            return s_table.ContainsKey(type.GetHashCode());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public static Dictionary<int, Func<T, object>> ConvertMethodsToFunctions()
         {
             var methods = typeof(T).GetMethods();

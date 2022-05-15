@@ -1,4 +1,4 @@
-﻿namespace Conduit.Net.Packets.Play
+﻿namespace Conduit.Net.Packets.Play.Serverbound
 {
     public sealed class ChatMessage : Packet
     {

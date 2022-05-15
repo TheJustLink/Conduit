@@ -4,11 +4,22 @@ using System.Runtime.CompilerServices;
 
 namespace Conduit.Net.Reflection
 {
-    public class ActionDispatcher<T>
+    public static class ActionDispatcher<T>
     {
         private static readonly Dictionary<int, Action<T, object>> s_table = ConvertMethodsToActions();
 
-        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public static bool Contains(int typeHash)
+        {
+            return s_table.ContainsKey(typeHash);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public static bool Contains(Type type)
+        {
+            return s_table.ContainsKey(type.GetHashCode());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static Dictionary<int, Action<T, object>> ConvertMethodsToActions()
         {
             var methods = typeof(T).GetMethods();

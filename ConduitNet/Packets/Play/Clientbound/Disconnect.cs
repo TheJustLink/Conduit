@@ -1,4 +1,4 @@
-﻿namespace Conduit.Net.Packets.Play
+﻿namespace Conduit.Net.Packets.Play.Clientbound
 {
     public sealed class Disconnect : Packets.Disconnect
     {
