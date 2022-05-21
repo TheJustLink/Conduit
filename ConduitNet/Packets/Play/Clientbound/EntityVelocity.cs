@@ -9,7 +9,5 @@ namespace Conduit.Net.Packets.Play.Clientbound
         public short VelocityX;
         public short VelocityY;
         public short VelocityZ;
-
-        public EntityVelocity() => Id = 0x4F;
     }
 }

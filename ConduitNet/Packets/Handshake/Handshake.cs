@@ -3,7 +3,6 @@ using Conduit.Net.Data;
 
 namespace Conduit.Net.Packets.Handshake
 {
-    [Packet(0x00)]
     public class Handshake : Packet
     {
         [VarInt] public int ProtocolVersion;
@@ -11,6 +10,6 @@ namespace Conduit.Net.Packets.Handshake
         public string ServerAddress;
         public ushort ServerPort;
 
-        [VarInt] public ClientState NextState;
+        [VarInt] public ConnectIntention Intention;
     }
 }

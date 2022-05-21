@@ -1,13 +1,14 @@
 ﻿using System;
 
+using Conduit.Net.Data;
+
 namespace Conduit.Net.IO.Packet
 {
     public interface IReader : IDisposable
     {
-        RawPacket.IReader RawPacketReader { get; set; }
+        void ChangePacketMap(TypeMap packetMap);
+        void ChangeRawPacketReader(RawPacket.IReader reader);
 
-        T Read<T>() where T : Packets.Packet, new();
-        T Read<T>(Packets.RawPacket rawPacket) where T : Packets.Packet, new();
-        Packets.RawPacket Read();
+        Packets.Packet Read();
     }
 }

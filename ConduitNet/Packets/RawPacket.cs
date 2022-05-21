@@ -1,7 +1,12 @@
-﻿namespace Conduit.Net.Packets
+﻿using Conduit.Net.Attributes;
+
+namespace Conduit.Net.Packets
 {
-    public sealed class RawPacket : Packet
+    public class RawPacket
     {
+        [VarInt] public int Length;
+        [VarInt] public int Id;
+
         public byte[] Data;
     }
 }

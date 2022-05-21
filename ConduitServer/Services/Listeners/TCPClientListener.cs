@@ -11,7 +11,7 @@ namespace Conduit.Server.Services.Listeners
 {
     class TcpClientListener : Service, IClientListener
     {
-        public event Action<IClient>? Connected;
+        public event Action<IClient> Connected;
 
         private readonly TcpListener _listener;
         private readonly int _maxQueue;

@@ -14,6 +14,8 @@ using Conduit.Net.Packets.Login;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Status;
 using Conduit.Net.IO.Encryption;
+using Conduit.Net.Packets.Login.Clientbound;
+using Conduit.Net.Packets.Login.Serverbound;
 using Conduit.Net.Packets.Play.Clientbound;
 
 using Version = Conduit.Net.Data.Status.Version;
@@ -22,7 +24,7 @@ namespace Conduit.Server.Clients
 {
     abstract class Client : IClient
     {
-        private ClientState _state;
+        private ConnectIntention _intention;
 
         private readonly IReader _packetReader;
         private readonly IWriter _packetWriter;
@@ -51,14 +53,14 @@ namespace Conduit.Server.Clients
         {
             while (Connected)
             {
-                switch (_state)
+                switch (_intention)
                 {
-                    case ClientState.Handshaking: HandshakingState(); break;
-                    case ClientState.Status: StatusState(); break;
-                    case ClientState.Login: LoginState(); break;
-                    case ClientState.Play: PlayState(); break;
+                    case ConnectIntention.Handshaking: HandshakingState(); break;
+                    case ConnectIntention.Status: StatusState(); break;
+                    case ConnectIntention.Login: LoginState(); break;
+                    case ConnectIntention.Play: PlayState(); break;
                     default:
-                    case ClientState.Disconnected: Disconnect(); break;
+                    case ConnectIntention.Disconnected: Disconnect(); break;
                 }
 
                 Thread.Sleep(1);
@@ -75,7 +77,7 @@ namespace Conduit.Server.Clients
             var handshake = _packetReader.Read<Handshake>();
             _protocolVersion = handshake.ProtocolVersion;
 
-            _state = handshake.NextState;
+            _intention = handshake.Intention;
         }
         private void StatusState()
         {
@@ -93,7 +95,7 @@ namespace Conduit.Server.Clients
             var ping = _packetReader.Read<Ping>();
             _packetWriter.Write(ping);
 
-            _state = ClientState.Disconnected;
+            _intention = ConnectIntention.Disconnected;
         }
         private void LoginState()
         {
@@ -112,7 +114,7 @@ namespace Conduit.Server.Clients
             _username = loginStart.Username;
             Console.WriteLine($"{UserAgent} Logined");
 
-            _state = ClientState.Play;
+            _intention = ConnectIntention.Play;
         }
         private void SendSetEncryption()
         {
@@ -286,7 +288,7 @@ namespace Conduit.Server.Clients
 
             Console.WriteLine($"{UserAgent} Joined");
 
-            _state = ClientState.Disconnected;
+            _intention = ConnectIntention.Disconnected;
         }
     }
 }

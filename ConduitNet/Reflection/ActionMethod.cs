@@ -9,17 +9,17 @@ namespace Conduit.Net.Reflection
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public static Action<T, object> ConvertToBoxedDelegate(MethodInfo method, Type parameterType)
         {
-            return (Action<T, object>)typeof(ActionMethod<T>).
+            return Unsafe.As<Action<T, object>>(typeof(ActionMethod<T>).
                 GetMethod(nameof(ConvertToDelegate), BindingFlags.Static | BindingFlags.Public).
                 MakeGenericMethod(parameterType).
-                Invoke(null, new object[] { method });
+                Invoke(null, new object[] { method }));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static Action<T, object> ConvertToDelegate<TParameter>(MethodInfo method)
+        public static Action<T, object> ConvertToDelegate<TParameter>(MethodInfo method) where TParameter : class
         {
             var action = method.CreateDelegate<Action<T, TParameter>>();
-            return (target, parameter) => action(target, (TParameter)parameter);
+            return (target, parameter) => action(target, Unsafe.As<TParameter>(parameter));
         }
     }
 }

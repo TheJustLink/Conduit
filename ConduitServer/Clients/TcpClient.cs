@@ -14,7 +14,7 @@ namespace Conduit.Server.Clients
             : base(packetReaderFactory, packetWriterFactory)
         {
             _client = client;
-            _internalUserAgent = _client.GetFormatEndPoint();
+            _internalUserAgent = _client.GetFormatRemoteEndPoint();
         }
 
         public override bool Connected => _client.IsConnected();

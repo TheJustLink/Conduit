@@ -9,15 +9,9 @@ namespace Conduit.Net.Reflection
         private static readonly Dictionary<int, Func<T, object>> s_table = ConvertMethodsToFunctions();
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static bool Contains(int typeHash)
-        {
-            return s_table.ContainsKey(typeHash);
-        }
+        public static bool Contains(int typeHash) => s_table.ContainsKey(typeHash);
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static bool Contains(Type type)
-        {
-            return s_table.ContainsKey(type.GetHashCode());
-        }
+        public static bool Contains(Type type) => s_table.ContainsKey(type.GetHashCode());
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public static Dictionary<int, Func<T, object>> ConvertMethodsToFunctions()
@@ -42,15 +36,9 @@ namespace Conduit.Net.Reflection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static object Dispatch(T target, int typeHashCode)
-        {
-            return s_table[typeHashCode](target);
-        }
+        public static object Dispatch(T target, int typeHashCode) => s_table[typeHashCode](target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static object Dispatch(T target, Type type)
-        {
-            return s_table[type.GetHashCode()](target);
-        }
+        public static object Dispatch(T target, Type type) => s_table[type.GetHashCode()](target);
     }
 }

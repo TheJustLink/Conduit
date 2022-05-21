@@ -11,7 +11,5 @@ namespace Conduit.Net.Packets.Play.Clientbound
 
         [VarInt] public int Level;
         [VarInt] public int TotalExperience;
-
-        public SetExperience() => Id = 0x51;
     }
 }

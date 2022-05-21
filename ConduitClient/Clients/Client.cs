@@ -10,11 +10,13 @@ using Conduit.Net.IO.Packet;
 using Conduit.Net.Packets;
 using Conduit.Net.Packets.Handshake;
 using Conduit.Net.Packets.Login;
+using Conduit.Net.Packets.Login.Clientbound;
+using Conduit.Net.Packets.Login.Serverbound;
 using Conduit.Net.Packets.Play;
 using Conduit.Net.Packets.Play.Clientbound;
 using Conduit.Net.Packets.Status;
 
-using Disconnect = Conduit.Net.Packets.Login.Disconnect;
+using Disconnect = Conduit.Net.Packets.Login.Clientbound.Disconnect;
 using PluginMessage = Conduit.Net.Packets.Play.Clientbound.PluginMessage;
 
 namespace Conduit.Client.Clients
@@ -42,7 +44,7 @@ namespace Conduit.Client.Clients
 
         public void CheckServerState()
         {
-            SendHandshake(ClientState.Status);
+            SendHandshake(ConnectIntention.Status);
             _packetWriter.Write(new Request());
 
             var server = _packetReader.Read<Response>().Server;
@@ -57,7 +59,7 @@ namespace Conduit.Client.Clients
         {
             Console.WriteLine("Start join game");
 
-            SendHandshake(ClientState.Login);
+            SendHandshake(ConnectIntention.Login);
             Login(username);
 
             var joinGame = _packetReader.Read<JoinGame>();
@@ -167,7 +169,7 @@ namespace Conduit.Client.Clients
                         _packetWriter.Write(keepAlive.ToResponse());
                         break;
                     case 0x38:
-                        var position = _packetReader.Read<PlayerPositionAndRotation>(packet);
+                        var position = _packetReader.Read<PlayerPositionAndLook>(packet);
                         Console.WriteLine($"X:{position.X} Y:{position.Y} Z:{position.Z} Yaw:{position.Yaw} Pitch:{position.Pitch} TeleportId:{position.TeleportId} DismountVehicle:{position.DismountVehicle}");
                         break;
                     case 0x1A:
@@ -291,14 +293,14 @@ namespace Conduit.Client.Clients
 
             return stopwatch.Elapsed;
         }
-        private void SendHandshake(ClientState nextState)
+        private void SendHandshake(ConnectIntention nextIntention)
         {
             var handshake = new Handshake
             {
                 ProtocolVersion = 757,
                 ServerAddress = Host,
                 ServerPort = (ushort)Port,
-                NextState = nextState
+                Intention = nextIntention
             };
             _packetWriter.Write(handshake);
         }

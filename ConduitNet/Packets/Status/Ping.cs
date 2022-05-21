@@ -3,7 +3,5 @@
     public class Ping : Packet
     {
         public long Payload;
-
-        public Ping() => Id = 1;
     }
 }

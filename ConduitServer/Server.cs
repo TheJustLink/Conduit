@@ -20,18 +20,11 @@ namespace Conduit.Server
         {
             Console.WriteLine($"{client.UserAgent} Connected");
 
-            var thread = new Thread(client.Tick);
-            thread.IsBackground = true;
+            var thread = new Thread(client.Tick) { IsBackground = true };
             thread.Start();
         }
 
-        public void Start()
-        {
-            _listener.Start();
-        }
-        public void Stop()
-        {
-            _listener.Stop();
-        }
+        public void Start() => _listener.Start();
+        public void Stop() => _listener.Stop();
     }
 }

@@ -16,7 +16,5 @@ namespace Conduit.Net.Packets.Play.Serverbound
 
         public bool EnableTextFiltering;
         public bool AllowServerListings;
-
-        public ClientSettings() => Id = 0x05;
     }
 }

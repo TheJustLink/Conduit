@@ -10,16 +10,15 @@ using System.Text.Json.Serialization;
 using Conduit.Net.Attributes;
 using Conduit.Net.Data;
 using Conduit.Net.Extensions;
+using Conduit.Net.Reflection;
 
 using BinaryWriter = Conduit.Net.IO.Binary.Writer;
-using RawPacketWriter = Conduit.Net.IO.RawPacket.Writer;
 
 namespace Conduit.Net.IO.Packet.Serialization
 {
     public static class Serializer
     {
         private static readonly JsonSerializerOptions s_jsonOptions;
-        private static readonly int s_defaultIgnoredBaseTypeHash = typeof(object).GetHashCode();
         
         static Serializer()
         {
@@ -30,17 +29,9 @@ namespace Conduit.Net.IO.Packet.Serialization
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             };
         }
-
+        
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static void Serialize<T>(T packet, Stream output) where T : Packets.Packet
-        {
-            var rawPacket = Serialize(packet);
-
-            using var rawPacketWriter = new RawPacketWriter(output, true);
-            rawPacketWriter.Write(rawPacket);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static Packets.RawPacket Serialize<T>(T packet) where T : Packets.Packet
+        public static Packets.RawPacket Serialize(Packets.Packet packet, int id)
         {
             using var dataStream = new MemoryStream();
             using var binaryWriter = new BinaryWriter(dataStream, Encoding.UTF8);
@@ -50,7 +41,7 @@ namespace Conduit.Net.IO.Packet.Serialization
             
             return new Packets.RawPacket
             {
-                Id = packet.Id,
+                Id = id,
                 Data = data,
                 Length = data.Length + 1
             };
@@ -59,7 +50,7 @@ namespace Conduit.Net.IO.Packet.Serialization
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static void SerializeObject(BinaryWriter writer, Type type, object @object)
         {
-            SerializeObject(writer, type, @object, s_defaultIgnoredBaseTypeHash);
+            SerializeObject(writer, type, @object, Object<object>.HashCode);
         }
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static void SerializeObject(BinaryWriter writer, object @object, Type ignoredBaseType)
@@ -100,12 +91,12 @@ namespace Conduit.Net.IO.Packet.Serialization
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private static void SerializePrimitiveObject(BinaryWriter writer, object @object, Type type, int targetTypeHash)
         {
-            if (BinaryWriter.CanWriteType(targetTypeHash))
+            if (BinaryWriter.CanWrite(targetTypeHash))
                 BinaryWriter.WriteObject(writer, @object, targetTypeHash);
             else if (type.IsEnum)
                 SerializeEnum(writer, @object, type, targetTypeHash);
             else if (type.IsArray)
-                SerializeArray(writer, (Array)@object, type, targetTypeHash);
+                SerializeArray(writer, Unsafe.As<Array>(@object), type, targetTypeHash);
             else if (type.IsClass || type.IsValueType)
                 SerializeObject(writer, type, @object);
             else throw new ArgumentException($"Can't serialize object {@object} of type {type}");

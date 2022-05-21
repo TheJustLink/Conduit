@@ -1,6 +1,4 @@
-﻿using Conduit.Net.Data;
-
-namespace Conduit.Net.Attributes
+﻿namespace Conduit.Net.Attributes
 {
     public class VarIntAttribute : AsAttribute
     {

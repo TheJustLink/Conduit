@@ -28,7 +28,5 @@ namespace Conduit.Net.Packets.Play.Clientbound
         public bool EnableRespawnScreen;
         public bool IsDebug;
         public bool IsFlat;
-
-        public JoinGame() => Id = 0x26;
     }
 }

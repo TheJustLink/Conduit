@@ -13,12 +13,8 @@ namespace Conduit.Net.IO.RawPacket
         {
             BinaryWriter = binaryWriter;
         }
-        public Writer() { }
 
-        public void Dispose()
-        {
-            BinaryWriter?.Dispose();
-        }
+        public void Dispose() => BinaryWriter?.Dispose();
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Write(Packets.RawPacket rawPacket)

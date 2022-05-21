@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -10,7 +9,6 @@ using Conduit.Net.Data;
 using Conduit.Net.Extensions;
 
 using BinaryReader = Conduit.Net.IO.Binary.Reader;
-using RawPacketReader = Conduit.Net.IO.RawPacket.Reader;
 
 namespace Conduit.Net.IO.Packet.Serialization
 {
@@ -25,26 +23,14 @@ namespace Conduit.Net.IO.Packet.Serialization
         private static readonly int s_defaultIgnoredBaseTypeHash = typeof(object).GetHashCode();
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static T Deserialize<T>(Stream input) where T : Packets.Packet, new()
+        public static Packets.Packet Deserialize(Packets.RawPacket rawPacket, Type type)
         {
-            using var rawPacketReader = new RawPacketReader(input, true);
+            var packet = Unsafe.As<Packets.Packet>(RuntimeHelpers.GetUninitializedObject(type));
 
-            return Deserialize<T>(rawPacketReader.Read());
-        }
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static T Deserialize<T>(Packets.RawPacket rawPacket) where T : Packets.Packet, new()
-        {
-            var type = typeof(T);
-            var @object = new T
-            {
-                Length = rawPacket.Length,
-                Id = rawPacket.Id
-            };
-            
-            using var binaryReader = new BinaryReader(rawPacket.Data);
-            PopulateObject(binaryReader, type, @object, typeof(Packets.Packet));
+            using var reader = new BinaryReader(rawPacket.Data);
+            PopulateObject(reader, type, packet);
 
-            return @object;
+            return packet;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]

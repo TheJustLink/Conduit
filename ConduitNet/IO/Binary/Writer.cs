@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-
-using fNbt.Tags;
-using fNbt;
-
-using Conduit.Net.Data;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
+using fNbt;
+using fNbt.Tags;
+
+using Conduit.Net.Reflection;
 
 namespace Conduit.Net.IO.Binary
 {
@@ -15,28 +15,26 @@ namespace Conduit.Net.IO.Binary
     {
         private static readonly Dictionary<int, Action<Writer, object>> s_typeTable = new()
         {
-            { typeof(bool).GetHashCode(), (w, o) => w.Write((bool)o) },
-            { typeof(sbyte).GetHashCode(), (w, o) => w.Write((sbyte)o) },
-            { typeof(byte).GetHashCode(), (w, o) => w.Write((byte)o) },
-            { typeof(short).GetHashCode(), (w, o) => w.Write((short)o) },
-            { typeof(ushort).GetHashCode(), (w, o) => w.Write((ushort)o) },
-            { typeof(int).GetHashCode(), (w, o) => w.Write((int)o) },
-            { typeof(uint).GetHashCode(), (w, o) => w.Write((uint)o) },
-            { typeof(long).GetHashCode(), (w, o) => w.Write((long)o) },
-            { typeof(ulong).GetHashCode(), (w, o) => w.Write((ulong)o) },
-            { typeof(float).GetHashCode(), (w, o) => w.Write((float)o) },
-            { typeof(double).GetHashCode(), (w, o) => w.Write((double)o) },
-            { typeof(string).GetHashCode(), (w, o) => w.Write((string)o) },
-            { typeof(Guid).GetHashCode(), (w, o) => w.Write((Guid)o) },
-            { typeof(VarInt).GetHashCode(), (w, o) => w.Write7BitEncodedInt((int)o) },
-            { typeof(VarLong).GetHashCode(), (w, o) => w.Write7BitEncodedInt64((long)o) },
-            { typeof(NbtCompound).GetHashCode(), (w, o) => w.Write((NbtCompound)o) }
+            { Object<bool>.HashCode, (w, o) => w.Write(Unsafe.Unbox<bool>(o)) },
+            { Object<sbyte>.HashCode, (w, o) => w.Write(Unsafe.Unbox<sbyte>(o)) },
+            { Object<byte>.HashCode, (w, o) => w.Write(Unsafe.Unbox<byte>(o)) },
+            { Object<short>.HashCode, (w, o) => w.Write(Unsafe.Unbox<short>(o)) },
+            { Object<ushort>.HashCode, (w, o) => w.Write(Unsafe.Unbox<ushort>(o)) },
+            { Object<int>.HashCode, (w, o) => w.Write(Unsafe.Unbox<int>(o)) },
+            { Object<uint>.HashCode, (w, o) => w.Write(Unsafe.Unbox<uint>(o)) },
+            { Object<long>.HashCode, (w, o) => w.Write(Unsafe.Unbox<long>(o)) },
+            { Object<ulong>.HashCode, (w, o) => w.Write(Unsafe.Unbox<ulong>(o)) },
+            { Object<float>.HashCode, (w, o) => w.Write(Unsafe.Unbox<float>(o)) },
+            { Object<double>.HashCode, (w, o) => w.Write(Unsafe.Unbox<double>(o)) },
+            { Object<string>.HashCode, (w, o) => w.Write(Unsafe.As<string>(o)) },
+            { Object<Guid>.HashCode, (w, o) => w.Write(Unsafe.Unbox<Guid>(o)) },
+            { Object<NbtCompound>.HashCode, (w, o) => w.Write(Unsafe.As<NbtCompound>(o)) }
         };
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static bool CanWriteType(int typeHashCode) => s_typeTable.ContainsKey(typeHashCode);
+        public static bool CanWrite(int typeHashCode) => s_typeTable.ContainsKey(typeHashCode);
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static bool CanWriteType(Type type) => s_typeTable.ContainsKey(type.GetHashCode());
+        public static bool CanWrite(Type type) => s_typeTable.ContainsKey(type.GetHashCode());
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public static void WriteObject(Writer writer, object @object)

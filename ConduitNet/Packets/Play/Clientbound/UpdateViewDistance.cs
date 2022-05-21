@@ -8,7 +8,5 @@ namespace Conduit.Net.Packets.Play.Clientbound
         /// Value between 2 and 32
         /// </summary>
         [VarInt] public int ViewDistance;
-
-        public UpdateViewDistance() => Id = 0x4A;
     }
 }

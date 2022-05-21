@@ -19,7 +19,5 @@ namespace Conduit.Net.Packets.Play.Clientbound
         public string[] RecipeIds;
         // Only if init mode (optional)
         public string[] NewRecipeIds;
-
-        public UnlockRecipes() => Id = 0x39;
     }
 }

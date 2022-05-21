@@ -9,10 +9,10 @@ namespace Conduit.Net.Reflection
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public static Func<T, object> ConvertToBoxedDelegate(MethodInfo method, Type returnType)
         {
-            return (Func<T, object>)typeof(FuncMethod<T>).
+            return Unsafe.As<Func<T, object>>(typeof(FuncMethod<T>).
                 GetMethod(nameof(ConvertToDelegate), BindingFlags.Static | BindingFlags.Public).
                 MakeGenericMethod(returnType).
-                Invoke(null, new object[] { method });
+                Invoke(null, new object[] { method }));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]

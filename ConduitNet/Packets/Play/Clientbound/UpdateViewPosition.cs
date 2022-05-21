@@ -7,7 +7,5 @@ namespace Conduit.Net.Packets.Play.Clientbound
     {
         [VarInt] public int ChunkX;
         [VarInt] public int ChunkZ;
-
-        public UpdateViewPosition() => Id = 0x49;
     }
 }

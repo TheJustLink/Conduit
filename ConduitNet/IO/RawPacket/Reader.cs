@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace Conduit.Net.IO.RawPacket
 {
@@ -13,12 +13,8 @@ namespace Conduit.Net.IO.RawPacket
         {
             BinaryReader = binaryReader;
         }
-        public Reader() { }
 
-        public void Dispose()
-        {
-            BinaryReader?.Dispose();
-        }
+        public void Dispose() => BinaryReader?.Dispose();
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public Packets.RawPacket Read()
