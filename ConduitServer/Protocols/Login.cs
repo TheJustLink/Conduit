@@ -2,7 +2,6 @@
 using System.Linq;
 
 using Conduit.Net.Protocols;
-using Conduit.Net.Connection;
 using Conduit.Net.Extensions;
 using Conduit.Net.IO.Encryption;
 using Conduit.Net.Protocols.Flow;
@@ -18,8 +17,6 @@ namespace Conduit.Server.Protocols
 
         private byte[] _verifyEncryptionToken;
 
-        public Login(State state, IConnection connection) : base(state, connection) { }
-
         public void Handle(Start start)
         {
             if (LicenceMode) SendEncryptionRequest();
@@ -33,7 +30,7 @@ namespace Conduit.Server.Protocols
                 Guid = start.Username.GetGuid()
             });
 
-            State.Switch(new Play(State, Connection));
+            State.Switch<Play>();
         }
         public void Handle(EncryptionResponse response)
         {

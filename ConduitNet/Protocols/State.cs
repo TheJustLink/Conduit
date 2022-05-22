@@ -8,13 +8,10 @@ namespace Conduit.Net.Protocols
 
         private readonly IConnection _connection;
 
-        public State(IConnection connection, Protocol protocol)
-        {
-            _connection = connection;
+        public State(IConnection connection, Protocol protocol) : this(connection) => Switch(protocol);
+        public State(IConnection connection) => _connection = connection;
 
-            Switch(protocol);
-        }
-
+        public void Switch<T>() where T : Protocol, new() => Switch(new T());
         public void Switch(Protocol protocol)
         {
             if (Current is IEndeable endeable)
@@ -28,6 +25,8 @@ namespace Conduit.Net.Protocols
 
         private void Change(Protocol protocol)
         {
+            protocol.Initialize(this, _connection);
+
             _connection.ChangePacketFlow(protocol.PacketFlow);
 
             Current = protocol;

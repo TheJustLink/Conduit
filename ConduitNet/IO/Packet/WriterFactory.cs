@@ -11,22 +11,19 @@ namespace Conduit.Net.IO.Packet
     {
         private readonly Stream _outputStream;
 
-        public WriterFactory(Stream outputStream)
-        {
-            _outputStream = outputStream;
-        }
+        public WriterFactory(Stream outputStream) => _outputStream = outputStream;
 
         public void AddCompression(IWriter writer, int treshold, CompressionLevel compressionLevel = CompressionLevel.Optimal)
         {
-            var binaryWriter = writer.RawPacketWriter.BinaryWriter;
+            var binaryWriter = writer.Raw.BinaryWriter;
 
-            writer.RawPacketWriter = new CompressedWriter(binaryWriter, treshold, compressionLevel);
+            writer.Raw = new CompressedWriter(binaryWriter, treshold, compressionLevel);
         }
         public void AddEncryption(IWriter writer, byte[] key)
         {
             var encryptionStream = Aes.CreateEncryptionStream(_outputStream, key);
 
-            writer.RawPacketWriter.BinaryWriter = new Binary.Writer(encryptionStream, Encoding.UTF8, true);
+            writer.Raw.BinaryWriter = new Binary.Writer(encryptionStream, Encoding.UTF8, true);
         }
 
         public IWriter Create() => new Writer(_outputStream);

@@ -10,7 +10,7 @@ namespace Conduit.Server
         {
             InitializeConsole();
 
-            var clientListener = new TcpClientListener(0, 666);
+            var clientListener = new TcpConnectionListener(0, 666);
             var server = new Server(clientListener);
             
             server.Start();

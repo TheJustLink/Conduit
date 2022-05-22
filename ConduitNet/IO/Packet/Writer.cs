@@ -9,23 +9,22 @@ namespace Conduit.Net.IO.Packet
 {
     public class Writer : IWriter
     {
-        private RawPacket.IWriter _rawPacketWriter;
+        public RawPacket.IWriter Raw { get; set; }
+
         private TypeMap _packetMap;
 
         public Writer(Stream stream, bool leaveOpen = false) : this(new Binary.Writer(stream, Encoding.UTF8, leaveOpen)) { }
         public Writer(Binary.Writer binaryWriter) : this(new RawPacket.Writer(binaryWriter)) { }
-        public Writer(RawPacket.IWriter rawPacketWriter)
+        public Writer(RawPacket.IWriter raw)
         {
-            _rawPacketWriter = rawPacketWriter;
+            Raw = raw;
         }
 
         public void Dispose()
         {
-            _rawPacketWriter?.Dispose();
+            Raw?.Dispose();
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public void ChangeRawPacketWriter(RawPacket.IWriter writer) => _rawPacketWriter = writer;
+        
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void ChangePacketMap(TypeMap packetMap) => _packetMap = packetMap;
 
@@ -35,7 +34,7 @@ namespace Conduit.Net.IO.Packet
             var id = _packetMap[packet.GetType()];
             var rawPacket = Serializer.Serialize(packet, id);
 
-            _rawPacketWriter.Write(rawPacket);
+            Raw.Write(rawPacket);
         }
     }
 }

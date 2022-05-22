@@ -1,25 +1,24 @@
 ﻿using System;
+using System.Text;
 using System.Security.Cryptography;
 
 using Conduit.Net;
-using Conduit.Net.Protocols;
+using Conduit.Net.Packets;
 using Conduit.Net.Extensions;
-using Conduit.Net.Connection;
+using Conduit.Net.Protocols;
+using Conduit.Net.Protocols.Flow;
 using Conduit.Net.Packets.Login.Clientbound;
 using Conduit.Net.Packets.Login.Serverbound;
-using Conduit.Net.Protocols.Flow;
 
 namespace Conduit.Client.Protocols
 {
     public class Login : ClientAutoProtocol<Login, LoginFlow>, IStarteable
     {
-        public Login(State state, IConnection connection) : base(state, connection) { }
-
-        public void Start() => Connection.Send(new Start());
+        public void Start() => Connection.Send(new Start { Username = "Cucumber" });
 
         public void Handle(Disconnect disconnect)
         {
-            Console.WriteLine("Disconnected, reason - " + disconnect.Reason);
+            Console.WriteLine($"Disconnected, reason - {disconnect.Reason}");
             Connection.Disconnect();
         }
         public void Handle(EncryptionRequest encryption)
@@ -38,9 +37,31 @@ namespace Conduit.Client.Protocols
                 VerifyToken = encryptedVerifyToken
             });
             Connection.AddEncryption(sharedKey);
+
+            Console.WriteLine("Encryption enabled");
         }
-        public void Handle(Success success) => State.Switch(new Play(State, Connection));
-        public void Handle(SetCompression compression) => Connection.AddCompression(compression.Treshold);
-        public void Handle(PluginRequest pluginRequest) => throw new NotImplementedException();
+        public void Handle(Success success)
+        {
+            Console.WriteLine($"Login success, username - [{success.Username}], guid - [{success.Guid}]");
+
+            State.Switch<Play>();
+        }
+        public void Handle(SetCompression compression)
+        {
+            Connection.AddCompression(compression.Treshold);
+
+            Console.WriteLine($"Compression enabled, treshold = {compression.Treshold}");
+        }
+        public void Handle(PluginRequest request)
+        {
+            Console.WriteLine($"Plugin request - [{request.Channel}] : [{Encoding.UTF8.GetString(request.Data)}]");
+
+            Connection.Send(new PluginResponse
+            {
+                MessageId = request.MessageId,
+                Successful = true,
+                Data = Array.Empty<byte>()
+            });
+        }
     }
 }

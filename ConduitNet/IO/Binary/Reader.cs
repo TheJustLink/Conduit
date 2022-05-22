@@ -8,6 +8,7 @@ using System.Text;
 using fNbt;
 using fNbt.Tags;
 
+using Conduit.Net.Data;
 using Conduit.Net.Reflection;
 
 namespace Conduit.Net.IO.Binary
@@ -16,6 +17,8 @@ namespace Conduit.Net.IO.Binary
     {
         private static readonly Dictionary<int, Func<Reader, object>> s_typeTable = new()
         {
+            { Object<VarInt>.HashCode, r => r.Read7BitEncodedInt() },
+            { Object<VarLong>.HashCode, r => r.Read7BitEncodedInt64() },
             { Object<bool>.HashCode, r => r.ReadBoolean() },
             { Object<sbyte>.HashCode, r => r.ReadSByte() },
             { Object<byte>.HashCode, r => r.ReadByte() },

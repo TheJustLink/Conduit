@@ -1,7 +1,8 @@
-﻿using Conduit.Net;
+﻿using System;
+
+using Conduit.Net;
 using Conduit.Net.Data;
 using Conduit.Net.Protocols;
-using Conduit.Net.Connection;
 using Conduit.Net.Protocols.Flow;
 
 namespace Conduit.Client.Protocols
@@ -11,10 +12,8 @@ namespace Conduit.Client.Protocols
         private const int ProtocolVersion = 757;
 
         private readonly ConnectIntention _intention;
+        public Handshake(ConnectIntention intention) => _intention = intention;
 
-        public Handshake(State state, IConnection connection, ConnectIntention intention) : base(state, connection) =>
-            _intention = intention;
-        
         public void Start()
         {
             Connection.Send(new Net.Packets.Handshake.Handshake
@@ -25,10 +24,12 @@ namespace Conduit.Client.Protocols
                 Intention = _intention
             });
 
+            Console.WriteLine($"Handshake was send, intention - {_intention}");
+            
             State.Switch(_intention switch
             {
-                ConnectIntention.Status => new Status(State, Connection),
-                ConnectIntention.Login => new Login(State, Connection)
+                ConnectIntention.Status => new Status(),
+                ConnectIntention.Login => new Login()
             });
         }
     }

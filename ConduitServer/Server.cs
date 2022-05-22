@@ -1,26 +1,29 @@
 ﻿using System;
 using System.Threading;
 
-using Conduit.Server.Clients;
+using Conduit.Net.Connection;
+using Conduit.Server.Protocols;
 using Conduit.Server.Services.Listeners;
 
 namespace Conduit.Server
 {
     class Server
     {
-        private readonly IClientListener _listener;
+        private readonly IConnectionListener _listener;
 
-        public Server(IClientListener listener)
+        public Server(IConnectionListener listener)
         {
             _listener = listener;
-            _listener.Connected += OnClientConnected;
+            _listener.Connected += OnConnection;
         }
 
-        private void OnClientConnected(IClient client)
+        private void OnConnection(IConnection connection)
         {
-            Console.WriteLine($"{client.UserAgent} Connected");
+            Console.WriteLine($"{connection.RemotePoint} Connected");
 
-            var thread = new Thread(client.Tick) { IsBackground = true };
+            var remote = Remote.CreateWith<Handshake>(connection);
+            var thread = new Thread(remote.Tick) { IsBackground = true };
+
             thread.Start();
         }
 

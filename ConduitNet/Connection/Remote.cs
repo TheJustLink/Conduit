@@ -4,22 +4,20 @@ namespace Conduit.Net.Connection
 {
     public class Remote : ITickeable
     {
-        public IConnection Connection { get; }
+        public static Remote CreateWith<T>(IConnection connection) where T : Protocol, new() => new(connection, new T());
 
-        private readonly State _protocol;
+        public readonly IConnection Connection;
 
-        public Remote(IConnection connection, Protocol protocol)
-        {
-            Connection = connection;
+        private readonly State _protocolState;
 
-            _protocol = new State(connection, protocol);
-        }
+        public Remote(IConnection connection, Protocol protocol) =>
+            (Connection, _protocolState) = (connection, new State(connection, protocol));
 
         public void Tick()
         {
-            if (_protocol.Current is ITickeable tickeable)
+            if (_protocolState.Current is ITickeable tickeable)
                 tickeable.Tick();
-            else _protocol.Current.Handle(Connection.Receive());
+            else _protocolState.Current.Handle(Connection.Receive());
         }
     }
 }

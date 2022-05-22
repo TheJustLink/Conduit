@@ -1,4 +1,5 @@
 ﻿using Conduit.Net.Data;
+using Conduit.Net.Packets;
 using Conduit.Net.Packets.Login.Clientbound;
 using Conduit.Net.Packets.Login.Serverbound;
 

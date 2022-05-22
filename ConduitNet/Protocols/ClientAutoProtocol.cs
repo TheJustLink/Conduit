@@ -1,5 +1,4 @@
-﻿using Conduit.Net.Connection;
-using Conduit.Net.Protocols.Flow;
+﻿using Conduit.Net.Protocols.Flow;
 
 namespace Conduit.Net.Protocols
 {
@@ -7,8 +6,6 @@ namespace Conduit.Net.Protocols
         where T : ClientAutoProtocol<T, TFlow>
         where TFlow : ProtocolFlow<TFlow>, new()
     {
-        protected ClientAutoProtocol(State state, IConnection connection) : base(state, connection) { }
-
         public override PacketFlow PacketFlow => ProtocolFlow<TFlow>.ClientFlow;
     }
 }

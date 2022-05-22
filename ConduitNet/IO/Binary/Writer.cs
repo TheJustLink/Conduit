@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using fNbt;
 using fNbt.Tags;
 
+using Conduit.Net.Data;
 using Conduit.Net.Reflection;
 
 namespace Conduit.Net.IO.Binary
@@ -15,6 +16,8 @@ namespace Conduit.Net.IO.Binary
     {
         private static readonly Dictionary<int, Action<Writer, object>> s_typeTable = new()
         {
+            { Object<VarInt>.HashCode, (w, o) => w.Write7BitEncodedInt(Unsafe.Unbox<int>(o)) },
+            { Object<VarLong>.HashCode, (w, o) => w.Write7BitEncodedInt64(Unsafe.Unbox<long>(o)) },
             { Object<bool>.HashCode, (w, o) => w.Write(Unsafe.Unbox<bool>(o)) },
             { Object<sbyte>.HashCode, (w, o) => w.Write(Unsafe.Unbox<sbyte>(o)) },
             { Object<byte>.HashCode, (w, o) => w.Write(Unsafe.Unbox<byte>(o)) },

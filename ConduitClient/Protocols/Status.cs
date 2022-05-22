@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Text.Json;
 
 using Conduit.Net;
-using Conduit.Net.Connection;
 using Conduit.Net.Packets.Status;
 using Conduit.Net.Protocols;
 using Conduit.Net.Protocols.Flow;
@@ -14,28 +14,24 @@ namespace Conduit.Client.Protocols
 
         private DateTime _pingSendTime;
 
-        public Status(State state, IConnection connection) : base(state, connection) { }
-        
         public void Start() => Connection.Send(new Request());
 
         public void Handle(Response response)
         {
+            Console.WriteLine("Server info:\n" + JsonSerializer.Serialize(response.Server, new JsonSerializerOptions { IncludeFields = true }));
+
             Connection.Send(new Ping { Payload = s_pingPayload });
-
             _pingSendTime = DateTime.Now;
-
-            throw new NotImplementedException();
         }
         public void Handle(Ping pingResponse)
         {
             var latency = DateTime.Now - _pingSendTime;
 
             if (pingResponse.Payload == s_pingPayload)
-                throw new NotImplementedException();
-            
-            Connection.Disconnect();
+                Console.WriteLine("Ping ms " + latency.TotalMilliseconds);
+            else throw new NotImplementedException();
 
-            throw new NotImplementedException();
+            Connection.Disconnect();
         }
     }
 }

@@ -6,7 +6,8 @@ namespace Conduit.Net.IO.Packet
 {
     public interface IWriter : IDisposable
     {
-        void ChangeRawPacketWriter(RawPacket.IWriter writer);
+        RawPacket.IWriter Raw { get; set; }
+
         void ChangePacketMap(TypeMap packetMap);
 
         void Write(Packets.Packet packet);

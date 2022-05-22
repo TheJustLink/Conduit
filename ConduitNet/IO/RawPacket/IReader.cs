@@ -4,7 +4,7 @@ namespace Conduit.Net.IO.RawPacket
 {
     public interface IReader : IDisposable
     {
-        Binary.Reader BinaryReader { get; set; }
+        Binary.Reader Binary { get; set; }
         
         public Packets.RawPacket Read();
     }

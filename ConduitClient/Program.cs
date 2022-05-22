@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
+using System.Net.Sockets;
 
-using Conduit.Client.Clients;
-using Conduit.Net.IO.Packet;
-
-using RawTcpClient = System.Net.Sockets.TcpClient;
+using Conduit.Net.Data;
+using Conduit.Net.Connection;
+using Conduit.Client.Protocols;
 
 namespace Conduit.Client
 {
@@ -22,20 +22,13 @@ namespace Conduit.Client
             Console.ReadKey(true);
             Console.ReadKey(true);
         }
-        private static void InitializeConsole()
-        {
+        private static void InitializeConsole() =>
             Console.Title = "Conduit Minecraft Client";
-        }
 
-        private static void TestLocalJoinGame(int port)
-        {
-            var client = CreateLocalhostClient(port);
-            client.JoinGame("Cucumber");
-        }
-        private static IClient CreateLocalhostClient(int port)
-        {
-            return CreateClient("127.0.0.1", port);
-        }
+        private static void TestLocalJoinGame(int port) =>
+            CreateRemote(CreateLocalhostConnection(port), ConnectIntention.Login);
+        private static IConnection CreateLocalhostConnection(int port) =>
+            CreateConnection("127.0.0.1", port);
         private static void KachanAnnihilator(int countBots, int cooldown = 2000)
         {
             for (var i = 0; i < countBots; i++)
@@ -83,19 +76,14 @@ namespace Conduit.Client
                 "Player"
             };
 
-            var client = CreateClient(host, port);
-            client.JoinGame(randomPrefixes[Random.Shared.Next(0, randomPrefixes.Length)] + Random.Shared.Next(0, 10000));
+            var connection = CreateConnection(host, port);
+            var remote = CreateRemote(connection, ConnectIntention.Login);
+            var username = randomPrefixes[Random.Shared.Next(0, randomPrefixes.Length)] + Random.Shared.Next(0, 10000);
         }
 
-        private static IClient CreateClient(string host, int port = 25565)
-        {
-            var rawClient = new RawTcpClient(host, port);
-            var stream = rawClient.GetStream();
-
-            var packetReader = new ReaderFactory(stream);
-            var packetWriter = new WriterFactory(stream);
-
-            return new TcpClient(rawClient, packetReader, packetWriter);
-        }
+        private static Remote CreateRemote(IConnection connection, ConnectIntention intention) =>
+            new(connection, new Handshake(intention));
+        private static IConnection CreateConnection(string host, int port = 25565) =>
+            new TCPConnection(new TcpClient(host, port));
     }
 }

@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using Conduit.Net.Attributes;
 using Conduit.Net.Data;
+using Conduit.Net.Attributes;
 using Conduit.Net.Extensions;
 
 using BinaryReader = Conduit.Net.IO.Binary.Reader;

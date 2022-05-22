@@ -6,8 +6,9 @@ namespace Conduit.Net.IO.Packet
 {
     public interface IReader : IDisposable
     {
+        RawPacket.IReader Raw { get; set; }
+
         void ChangePacketMap(TypeMap packetMap);
-        void ChangeRawPacketReader(RawPacket.IReader reader);
 
         Packets.Packet Read();
     }

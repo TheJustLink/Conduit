@@ -8,10 +8,10 @@ namespace Conduit.Net.Protocols
     {
         public abstract PacketFlow PacketFlow { get; }
 
-        protected readonly State State;
-        protected readonly IConnection Connection;
-
-        public Protocol(State state, IConnection connection)
+        protected State State { get; private set; }
+        protected IConnection Connection { get; private set; }
+        
+        public void Initialize(State state, IConnection connection)
         {
             State = state;
             Connection = connection;
