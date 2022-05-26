@@ -12,7 +12,7 @@ namespace Conduit.Net.Protocols
         {
             if (Dispatcher<T>.ContainsAction(packet.GetType().GetHashCode()))
             {
-                Console.WriteLine($"Dispatch {packet.GetType().Name} to {typeof(T).Name}");
+                // Console.WriteLine($"Dispatch {packet.GetType().Name} to {typeof(T).Name}");
                 Dispatcher<T>.Action(this as T, packet);
             }
             else

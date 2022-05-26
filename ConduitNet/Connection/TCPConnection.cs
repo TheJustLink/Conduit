@@ -3,11 +3,9 @@ using System.Net.Sockets;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 
-using Conduit.Net.Data;
 using Conduit.Net.Packets;
 using Conduit.Net.IO.Packet;
 using Conduit.Net.Extensions;
-using Conduit.Net.Protocols;
 using Conduit.Net.Protocols.Flow;
 
 namespace Conduit.Net.Connection
@@ -44,6 +42,7 @@ namespace Conduit.Net.Connection
         public void Dispose() => _tcpClient?.Dispose();
 
         public bool Connected => _tcpClient.IsConnected();
+        public bool HasData => _tcpClient.Available > 0;
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void AddCompression(int treshold, CompressionLevel compressionLevel = CompressionLevel.Optimal)

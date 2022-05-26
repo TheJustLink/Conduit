@@ -1,8 +1,6 @@
 ﻿using System.IO.Compression;
 
-using Conduit.Net.Data;
 using Conduit.Net.Packets;
-using Conduit.Net.Protocols;
 using Conduit.Net.Protocols.Flow;
 
 namespace Conduit.Net.Connection
@@ -10,6 +8,7 @@ namespace Conduit.Net.Connection
     public interface IConnection
     {
         bool Connected { get; }
+        bool HasData { get; }
 
         EndPoint RemotePoint { get; }
         EndPoint LocalPoint { get; }

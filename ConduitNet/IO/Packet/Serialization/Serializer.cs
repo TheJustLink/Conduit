@@ -91,12 +91,12 @@ namespace Conduit.Net.IO.Packet.Serialization
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private static void SerializePrimitiveObject(BinaryWriter writer, object @object, Type type, int targetTypeHash)
         {
-            if (BinaryWriter.CanWrite(targetTypeHash))
-                BinaryWriter.WriteObject(writer, @object, targetTypeHash);
-            else if (type.IsEnum)
+            if (type.IsEnum)
                 SerializeEnum(writer, @object, type, targetTypeHash);
             else if (type.IsArray)
                 SerializeArray(writer, Unsafe.As<Array>(@object), type, targetTypeHash);
+            else if (BinaryWriter.CanWrite(targetTypeHash))
+                BinaryWriter.WriteObject(writer, @object, targetTypeHash);
             else if (type.IsClass || type.IsValueType)
                 SerializeObject(writer, type, @object);
             else throw new ArgumentException($"Can't serialize object {@object} of type {type}");

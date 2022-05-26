@@ -1,4 +1,6 @@
-﻿using Conduit.Net.Connection;
+﻿using System;
+
+using Conduit.Net.Connection;
 
 namespace Conduit.Net.Protocols
 {
@@ -28,6 +30,8 @@ namespace Conduit.Net.Protocols
             protocol.Initialize(this, _connection);
 
             _connection.ChangePacketFlow(protocol.PacketFlow);
+
+            // Console.WriteLine($"Changed state from {Current} to {protocol}");
 
             Current = protocol;
         }

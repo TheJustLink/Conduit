@@ -17,7 +17,8 @@ namespace Conduit.Net.Connection
         {
             if (_protocolState.Current is ITickeable tickeable)
                 tickeable.Tick();
-            else _protocolState.Current.Handle(Connection.Receive());
+            else if (Connection.HasData)
+                _protocolState.Current.Handle(Connection.Receive());
         }
     }
 }

@@ -19,12 +19,24 @@ namespace Conduit.Server
 
         private void OnConnection(IConnection connection)
         {
-            Console.WriteLine($"{connection.RemotePoint} Connected");
+            // Console.WriteLine($"{connection.RemotePoint} Connected");
 
             var remote = Remote.CreateWith<Handshake>(connection);
-            var thread = new Thread(remote.Tick) { IsBackground = true };
+            var thread = new Thread(remote => ClientLoop((Remote)remote)) { IsBackground = true };
 
-            thread.Start();
+            thread.Start(remote);
+        }
+        private void ClientLoop(Remote remote)
+        {
+            while (remote.Connection.Connected)
+            {
+                remote.Tick();
+
+                //if (remote.Connection.HasData == false)
+                //    Thread.Sleep(1);
+            }
+
+            Console.WriteLine($"Client {remote.Connection.RemotePoint} disconnected");
         }
 
         public void Start() => _listener.Start();

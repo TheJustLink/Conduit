@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using Conduit.Net.Data;
 using Conduit.Net.Attributes;
 using Conduit.Net.Extensions;
+using Conduit.Net.Reflection;
 
 using BinaryReader = Conduit.Net.IO.Binary.Reader;
 
@@ -20,7 +21,6 @@ namespace Conduit.Net.IO.Packet.Serialization
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
-        private static readonly int s_defaultIgnoredBaseTypeHash = typeof(object).GetHashCode();
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public static Packets.Packet Deserialize(Packets.RawPacket rawPacket, Type type)
@@ -28,7 +28,7 @@ namespace Conduit.Net.IO.Packet.Serialization
             var packet = Unsafe.As<Packets.Packet>(RuntimeHelpers.GetUninitializedObject(type));
 
             using var reader = new BinaryReader(rawPacket.Data);
-            PopulateObject(reader, type, packet);
+            PopulateObject(reader, type, packet, Object<Packets.Packet>.HashCode);
 
             return packet;
         }
@@ -46,7 +46,7 @@ namespace Conduit.Net.IO.Packet.Serialization
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static void PopulateObject(BinaryReader input, Type type, object @object)
         {
-            PopulateObject(input, type, @object, s_defaultIgnoredBaseTypeHash);
+            PopulateObject(input, type, @object, Object<object>.HashCode);
         }
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static void PopulateObject(BinaryReader input, Type type, object @object, Type ignoredBaseType)
@@ -85,14 +85,14 @@ namespace Conduit.Net.IO.Packet.Serialization
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private static object DeserializePrimitiveObject(BinaryReader input, Type type, int readTypeHash)
         {
-            if (BinaryReader.CanReadType(readTypeHash))
-                return input.ReadObject(readTypeHash);
-
             if (type.IsEnum)
                 return DeserializeEnum(input, type, readTypeHash);
 
             if (type.IsArray)
                 return DeserializeArray(input, type, readTypeHash);
+
+            if (BinaryReader.CanReadType(readTypeHash))
+                return input.ReadObject(readTypeHash);
 
             if (type.IsClass || type.IsValueType)
                 return DeserializeObject(input, type);
@@ -108,12 +108,12 @@ namespace Conduit.Net.IO.Packet.Serialization
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static object DeserializeEnum(BinaryReader input, Type type, int readTypeHash)
         {
-            var underlyingType = Enum.GetUnderlyingType(type);
-
             if (type.GetHashCode() == readTypeHash)
-                readTypeHash = underlyingType.GetHashCode();
+                readTypeHash = Enum.GetUnderlyingType(type).GetHashCode();
 
-            return BinaryReader.ReadObject(input, readTypeHash);
+            var value = BinaryReader.ReadObject(input, readTypeHash);
+
+            return Converters.Enum.ConvertObject(type, value);
         }
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static object DeserializeArray(BinaryReader input, Type type, int readTypeHash)

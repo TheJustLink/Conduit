@@ -5,7 +5,7 @@ namespace Conduit.Net.Extensions
 {
     public static class RandomExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public static byte[] NextBytes(this Random random, int count)
         {
             var data = new byte[count];

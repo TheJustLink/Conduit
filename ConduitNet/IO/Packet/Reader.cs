@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -25,10 +26,19 @@ namespace Conduit.Net.IO.Packet
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public Packets.Packet Read()
         {
-            var rawPacket = Raw.Read();
-            var packetType = _packetMap[rawPacket.Id];
+            while (true)
+            {
+                var rawPacket = Raw.Read();
 
-            return Deserializer.Deserialize(rawPacket, packetType);
+                if (_packetMap.Has(rawPacket.Id))
+                {
+                    var packetType = _packetMap[rawPacket.Id];
+
+                    return Deserializer.Deserialize(rawPacket, packetType);
+                }
+
+                Console.WriteLine($"Skip packet with id={rawPacket.Id}({rawPacket.Data.Length} bytes), packet type not found");
+            }
         }
     }
 }
