@@ -57,6 +57,7 @@ namespace Conduit.Net.IO.Packet.Serialization
         {
             SerializeObject(writer, @object.GetType(), @object, ignoredBaseType.GetHashCode());
         }
+        
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private static void SerializeObject(BinaryWriter writer, Type type, object @object, int ignoredBaseTypeHash)
         {
@@ -102,6 +103,7 @@ namespace Conduit.Net.IO.Packet.Serialization
             else throw new ArgumentException($"Can't serialize object {@object} of type {type}");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private static void SerializeJson(BinaryWriter writer, object @object, Type type)
         {
             writer.Write(JsonSerializer.Serialize(@object, type, s_jsonOptions));

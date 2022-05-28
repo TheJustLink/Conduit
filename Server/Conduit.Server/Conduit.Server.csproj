@@ -5,10 +5,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>warnings</Nullable>
-    <AssemblyName>Conduit.Client</AssemblyName>
-    <RootNamespace>Conduit.Client</RootNamespace>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <StartupObject>Conduit.Server.Program</StartupObject>
+    <AssemblyName>Conduit.Server</AssemblyName>
+    <RootNamespace>Conduit.Server</RootNamespace>
     <Platforms>AnyCPU;ARM64;x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -36,7 +37,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConduitNet\ConduitNet.csproj" />
+    <ProjectReference Include="..\..\Net\Conduit.Net\Conduit.Net.csproj" />
   </ItemGroup>
 
 </Project>

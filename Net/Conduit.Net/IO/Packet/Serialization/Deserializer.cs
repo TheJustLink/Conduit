@@ -48,11 +48,6 @@ namespace Conduit.Net.IO.Packet.Serialization
         {
             PopulateObject(input, type, @object, Object<object>.HashCode);
         }
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        private static void PopulateObject(BinaryReader input, Type type, object @object, Type ignoredBaseType)
-        {
-            PopulateObject(input, type, @object, ignoredBaseType.GetHashCode());
-        }
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private static void PopulateObject(BinaryReader input, Type type, object @object, int ignoredBaseTypeHash)
         {

@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>warnings</Nullable>
-    <StartupObject>Conduit.Server.Program</StartupObject>
-    <AssemblyName>Conduit.Server</AssemblyName>
-    <RootNamespace>Conduit.Server</RootNamespace>
+    <RootNamespace>Conduit.Net</RootNamespace>
+    <AssemblyName>Conduit.Net</AssemblyName>
     <Platforms>AnyCPU;ARM64;x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
@@ -37,7 +35,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConduitNet\ConduitNet.csproj" />
+    <ProjectReference Include="..\..\fNbt\fNbt.csproj" />
   </ItemGroup>
 
 </Project>

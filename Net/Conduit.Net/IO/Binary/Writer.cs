@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
@@ -76,6 +77,15 @@ namespace Conduit.Net.IO.Binary
             s_typeTable[typeHashCode](this, @object);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public override void Write(ushort value)
+        {
+            //var data = new Span<byte>(BitConverter.GetBytes(value));
+            //data.Reverse();
+            //base.Write(data);
+
+            base.Write(BinaryPrimitives.ReverseEndianness(value));
+        }
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public virtual void Write(Guid guid)
         {

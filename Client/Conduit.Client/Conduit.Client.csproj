@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>warnings</Nullable>
-    <RootNamespace>Conduit.Net</RootNamespace>
-    <AssemblyName>Conduit.Net</AssemblyName>
+    <AssemblyName>Conduit.Client</AssemblyName>
+    <RootNamespace>Conduit.Client</RootNamespace>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <Platforms>AnyCPU;ARM64;x64</Platforms>
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,7 +36,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\fNbt\fNbt.csproj" />
+    <ProjectReference Include="..\..\Net\Conduit.Net\Conduit.Net.csproj" />
   </ItemGroup>
 
 </Project>
