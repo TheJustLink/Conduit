@@ -1,9 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 using fNbt;
 using fNbt.Tags;
@@ -13,7 +13,7 @@ using Conduit.Net.Reflection;
 
 namespace Conduit.Net.IO.Binary
 {
-    public class Reader : BinaryReader
+    public class Reader : BinaryReader, IReader
     {
         private static readonly Dictionary<int, Func<Reader, object>> s_typeTable = new()
         {
@@ -43,14 +43,26 @@ namespace Conduit.Net.IO.Binary
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public static object ReadObject(Reader reader, Type type) => s_typeTable[type.GetHashCode()](reader);
 
+        public Reader() : base(new MemoryStream()) { }
         public Reader(byte[] data) : this(new MemoryStream(data, false), Encoding.UTF8, true) { }
         public Reader(Stream input) : base(input) { }
         public Reader(Stream input, Encoding encoding, bool leaveOpen = false) : base(input, encoding, leaveOpen) { }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public object ReadObject(int typeHashCode) => s_typeTable[typeHashCode](this);
+        public IReader ChangeInput(Stream stream)
+        {
+            base.Close();
+            return new Reader(stream);
+        }
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public object ReadObject(Type type) => s_typeTable[type.GetHashCode()](this);
+        public bool CanReadTypeStatic(int typeHashCode) => CanReadType(typeHashCode);
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public bool CanReadTypeStatic(Type type) => CanReadType(type);
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public object ReadObject(int typeHashCode) => ReadObject(this, typeHashCode);
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public object ReadObject(Type type) => ReadObject(this, type);
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public override ushort ReadUInt16() => BinaryPrimitives.ReadUInt16BigEndian(ReadBytes(2));

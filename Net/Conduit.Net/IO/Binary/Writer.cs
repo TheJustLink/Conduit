@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Buffers.Binary;
 using System.IO;
 using System.Text;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -13,7 +13,7 @@ using Conduit.Net.Reflection;
 
 namespace Conduit.Net.IO.Binary
 {
-    public class Writer : BinaryWriter
+    public class Writer : BinaryWriter, IWriter
     {
         private static readonly Dictionary<int, Action<Writer, object>> s_typeTable = new()
         {
@@ -41,41 +41,37 @@ namespace Conduit.Net.IO.Binary
         public static bool CanWrite(Type type) => s_typeTable.ContainsKey(type.GetHashCode());
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject(Writer writer, object @object)
-        {
-            s_typeTable[@object.GetType().GetHashCode()](writer, @object);
-        }
+        public static void WriteObject(Writer writer, object @object) => s_typeTable[@object.GetType().GetHashCode()](writer, @object);
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject(Writer writer, object @object, Type type)
-        {
-            s_typeTable[type.GetHashCode()](writer, @object);
-        }
+        public static void WriteObject(Writer writer, object @object, Type type) => s_typeTable[type.GetHashCode()](writer, @object);
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject(Writer writer, object @object, int typeHashCode)
-        {
-            s_typeTable[typeHashCode](writer, @object);
-        }
+        public static void WriteObject(Writer writer, object @object, int typeHashCode) => s_typeTable[typeHashCode](writer, @object);
 
         public Writer() : this(new MemoryStream(), Encoding.UTF8, false) { }
         public Writer(Stream output) : base(output) { }
-        public Writer(Stream output, Encoding encoding) : base(output, encoding) { }
-        public Writer(Stream output, Encoding encoding, bool leaveOpen) : base(output, encoding, leaveOpen) { }
+        public Writer(Stream output, Encoding encoding, bool leaveOpen = false) : base(output, encoding, leaveOpen) { }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void WriteObject(object @object)
+        public IWriter ChangeOutput(Stream stream)
         {
-            s_typeTable[@object.GetType().GetHashCode()](this, @object);
+            Dispose(true);
+
+            OutStream = stream;
+
+            return this;
         }
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void WriteObject(object @object, Type type)
-        {
-            s_typeTable[type.GetHashCode()](this, @object);
-        }
+        public bool CanWriteStatic(int typeHashCode) => CanWrite(typeHashCode);
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void WriteObject(object @object, int typeHashCode)
-        {
-            s_typeTable[typeHashCode](this, @object);
-        }
+        public bool CanWriteStatic(Type type) => CanWrite(type);
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public virtual void WriteObject(object @object) => WriteObject(this, @object);
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public virtual void WriteObject(object @object, Type type) => WriteObject(this, @object, type.GetHashCode());
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public virtual void WriteObject(object @object, int typeHashCode) => WriteObject(this, @object, typeHashCode);
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public override void Write(ushort value)
@@ -83,14 +79,11 @@ namespace Conduit.Net.IO.Binary
             //var data = new Span<byte>(BitConverter.GetBytes(value));
             //data.Reverse();
             //base.Write(data);
-
+            
             base.Write(BinaryPrimitives.ReverseEndianness(value));
         }
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void Write(Guid guid)
-        {
-            base.Write(guid.ToByteArray());
-        }
+        public virtual void Write(Guid guid) => base.Write(guid.ToByteArray());
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public virtual void Write(NbtCompound tag)
         {

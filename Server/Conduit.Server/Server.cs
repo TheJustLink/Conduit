@@ -23,7 +23,7 @@ namespace Conduit.Server
 
             var remote = Remote.CreateWith<Handshake>(connection);
             var thread = new Thread(remote => ClientLoop((Remote)remote)) { IsBackground = true };
-
+            
             thread.Start(remote);
         }
         private void ClientLoop(Remote remote)
