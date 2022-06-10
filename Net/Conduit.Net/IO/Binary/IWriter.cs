@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 using fNbt.Tags;
 
@@ -7,14 +6,9 @@ namespace Conduit.Net.IO.Binary
 {
     public interface IWriter : IDisposable
     {
-        IWriter ChangeOutput(Stream stream);
-
-        bool CanWriteStatic(int typeHashCode);
-        bool CanWriteStatic(Type type);
-
-        void WriteObject(object @object);
-        void WriteObject(object @object, Type type);
-        void WriteObject(object @object, int typeHashCode);
+        bool CanWriteStatic(int id);
+        
+        void WriteObject(object @object, int id);
 
         void Write(bool value);
         void Write(byte value);

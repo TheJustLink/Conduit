@@ -11,27 +11,27 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
 
   <ItemGroup>

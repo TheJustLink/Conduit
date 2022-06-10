@@ -15,80 +15,47 @@ namespace Conduit.Net.IO.Binary
 {
     public class Writer : BinaryWriter, IWriter
     {
-        private static readonly Dictionary<int, Action<Writer, object>> s_typeTable = new()
+        private static readonly Action<Writer, object>[] s_writers;
+
+        static Writer()
         {
-            { Object<VarInt>.HashCode, (w, o) => w.Write7BitEncodedInt(Unsafe.Unbox<int>(o)) },
-            { Object<VarLong>.HashCode, (w, o) => w.Write7BitEncodedInt64(Unsafe.Unbox<long>(o)) },
-            { Object<bool>.HashCode, (w, o) => w.Write(Unsafe.Unbox<bool>(o)) },
-            { Object<sbyte>.HashCode, (w, o) => w.Write(Unsafe.Unbox<sbyte>(o)) },
-            { Object<byte>.HashCode, (w, o) => w.Write(Unsafe.Unbox<byte>(o)) },
-            { Object<short>.HashCode, (w, o) => w.Write(Unsafe.Unbox<short>(o)) },
-            { Object<ushort>.HashCode, (w, o) => w.Write(Unsafe.Unbox<ushort>(o)) },
-            { Object<int>.HashCode, (w, o) => w.Write(Unsafe.Unbox<int>(o)) },
-            { Object<uint>.HashCode, (w, o) => w.Write(Unsafe.Unbox<uint>(o)) },
-            { Object<long>.HashCode, (w, o) => w.Write(Unsafe.Unbox<long>(o)) },
-            { Object<ulong>.HashCode, (w, o) => w.Write(Unsafe.Unbox<ulong>(o)) },
-            { Object<float>.HashCode, (w, o) => w.Write(Unsafe.Unbox<float>(o)) },
-            { Object<double>.HashCode, (w, o) => w.Write(Unsafe.Unbox<double>(o)) },
-            { Object<string>.HashCode, (w, o) => w.Write(Unsafe.As<string>(o)) },
-            { Object<Guid>.HashCode, (w, o) => w.Write(Unsafe.Unbox<Guid>(o)) },
-            { Object<NbtCompound>.HashCode, (w, o) => w.Write(Unsafe.As<NbtCompound>(o)) }
-        };
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static bool CanWrite(int typeHashCode) => s_typeTable.ContainsKey(typeHashCode);
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static bool CanWrite(Type type) => s_typeTable.ContainsKey(type.GetHashCode());
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject(Writer writer, object @object) => s_typeTable[@object.GetType().GetHashCode()](writer, @object);
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject(Writer writer, object @object, Type type) => s_typeTable[type.GetHashCode()](writer, @object);
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public static void WriteObject(Writer writer, object @object, int typeHashCode) => s_typeTable[typeHashCode](writer, @object);
-
-        public Writer() : this(new MemoryStream(), Encoding.UTF8, false) { }
+            var dictionary = new Dictionary<int, Action<Writer, object>>
+            {
+                { Object<VarInt>.Id, (w, o) => w.Write7BitEncodedInt(Unsafe.Unbox<int>(o)) },
+                { Object<VarLong>.Id, (w, o) => w.Write7BitEncodedInt64(Unsafe.Unbox<long>(o)) },
+                { Object<bool>.Id, (w, o) => w.Write(Unsafe.Unbox<bool>(o)) },
+                { Object<sbyte>.Id, (w, o) => w.Write(Unsafe.Unbox<sbyte>(o)) },
+                { Object<byte>.Id, (w, o) => w.Write(Unsafe.Unbox<byte>(o)) },
+                { Object<short>.Id, (w, o) => w.Write(Unsafe.Unbox<short>(o)) },
+                { Object<ushort>.Id, (w, o) => w.Write(Unsafe.Unbox<ushort>(o)) },
+                { Object<int>.Id, (w, o) => w.Write(Unsafe.Unbox<int>(o)) },
+                { Object<uint>.Id, (w, o) => w.Write(Unsafe.Unbox<uint>(o)) },
+                { Object<long>.Id, (w, o) => w.Write(Unsafe.Unbox<long>(o)) },
+                { Object<ulong>.Id, (w, o) => w.Write(Unsafe.Unbox<ulong>(o)) },
+                { Object<float>.Id, (w, o) => w.Write(Unsafe.Unbox<float>(o)) },
+                { Object<double>.Id, (w, o) => w.Write(Unsafe.Unbox<double>(o)) },
+                { Object<string>.Id, (w, o) => w.Write(Unsafe.As<string>(o)) },
+                { Object<Guid>.Id, (w, o) => w.Write(Unsafe.Unbox<Guid>(o)) },
+                { Object<NbtCompound>.Id, (w, o) => w.Write(Unsafe.As<NbtCompound>(o)) }
+            };
+            
+            s_writers = new Action<Writer, object>[dictionary.Count];
+            foreach (var pair in dictionary)
+                s_writers[pair.Key] = pair.Value;
+        }
+        
+        public static bool CanWrite(int id) => s_writers.Length > id;
+        public static void WriteObject(Writer writer, object @object, int id) => s_writers[id](writer, @object);
+        
         public Writer(Stream output) : base(output) { }
         public Writer(Stream output, Encoding encoding, bool leaveOpen = false) : base(output, encoding, leaveOpen) { }
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public IWriter ChangeOutput(Stream stream)
-        {
-            Dispose(true);
-
-            OutStream = stream;
-
-            return this;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool CanWriteStatic(int typeHashCode) => CanWrite(typeHashCode);
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public bool CanWriteStatic(Type type) => CanWrite(type);
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void WriteObject(object @object) => WriteObject(this, @object);
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void WriteObject(object @object, Type type) => WriteObject(this, @object, type.GetHashCode());
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void WriteObject(object @object, int typeHashCode) => WriteObject(this, @object, typeHashCode);
-
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public override void Write(ushort value)
-        {
-            //var data = new Span<byte>(BitConverter.GetBytes(value));
-            //data.Reverse();
-            //base.Write(data);
-            
-            base.Write(BinaryPrimitives.ReverseEndianness(value));
-        }
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void Write(Guid guid) => base.Write(guid.ToByteArray());
-        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        public virtual void Write(NbtCompound tag)
-        {
-            var nbtFile = new NbtFile(tag);
-            nbtFile.SaveToStream(BaseStream, NbtCompression.None);
-        }
+        
+        public bool CanWriteStatic(int id) => CanWrite(id);
+        
+        public void WriteObject(object @object, int id) => WriteObject(this, @object, id);
+        
+        public override void Write(ushort value) => base.Write(BinaryPrimitives.ReverseEndianness(value));
+        public void Write(Guid guid) => base.Write(guid.ToByteArray());
+        public void Write(NbtCompound tag) => new NbtFile(tag).SaveToStream(BaseStream, NbtCompression.None);
     }
 }

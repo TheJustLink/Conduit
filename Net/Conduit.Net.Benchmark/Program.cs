@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Diagnostics;
 
 using BenchmarkDotNet.Analysers;
 using BenchmarkDotNet.Configs;
@@ -15,15 +15,19 @@ namespace Conduit.Net.Benchmark
     {
         private static void Main()
         {
+            Initialize();
+            
+            BenchmarkRunner.Run<TestBenchmarks>();
+
+            Console.ReadKey(true);
+        }
+        private static void Initialize()
+        {
             var process = Process.GetCurrentProcess();
             process.PriorityBoostEnabled = true;
             process.PriorityClass = ProcessPriorityClass.High;
-            
+
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
-
-            RunBenchmarks();
-
-            Console.ReadKey(true);
         }
 
         private static void RunBenchmarks()

@@ -10,7 +10,6 @@ using Conduit.Net.IO.Binary;
 
 namespace Conduit.Net.Benchmark.IO.Binary
 {
-    //[GcServer(true)]
     [ShortRunJob]
     [HtmlExporter]
     [MemoryDiagnoser]

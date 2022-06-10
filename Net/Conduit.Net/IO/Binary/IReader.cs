@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 using fNbt.Tags;
 
@@ -7,13 +6,9 @@ namespace Conduit.Net.IO.Binary
 {
     public interface IReader : IDisposable
     {
-        IReader ChangeInput(Stream stream);
-
-        bool CanReadTypeStatic(int typeHashCode);
-        bool CanReadTypeStatic(Type type);
+        bool CanReadTypeStatic(int id);
         
-        object ReadObject(int typeHashCode);
-        object ReadObject(Type type);
+        object ReadObject(int id);
 
         int Read(Span<byte> buffer);
         int Read(Span<char> buffer);
