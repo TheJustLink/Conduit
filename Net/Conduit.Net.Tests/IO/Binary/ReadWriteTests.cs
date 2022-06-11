@@ -39,15 +39,21 @@ namespace Conduit.Net.Tests.IO.Binary
         }
         [Fact] public void Byte()
         {
-            const byte value1 = byte.MinValue;
-            const byte value2 = byte.MaxValue;
+            var value1 = Net.Data.Byte.MinValue;
+            var value2 = Net.Data.Byte.MaxValue;
 
-            _writer.Write(value1);
-            _writer.Write(value2);
+            value1.Write(_memory);
+            value2.Write(_memory);
             _memory.Position = 0;
 
-            Assert.Equal(value1, _reader.ReadByte());
-            Assert.Equal(value2, _reader.ReadByte());
+            var result1 = new Net.Data.Byte();
+            result1.Read(_memory);
+            
+            var result2 = new Net.Data.Byte();
+            result2.Read(_memory);
+
+            Assert.Equal(value1, result1);
+            Assert.Equal(value2, result2);
         }
         [Fact] public void SByte()
         {
@@ -329,7 +335,7 @@ namespace Conduit.Net.Tests.IO.Binary
         {
             var value = new NbtCompound("Test", new NbtTag[]
             {
-                new NbtByte("Byte", 1)
+                new NbtByte("ByteTests", 1)
             });
 
             _writer.Write(value);
@@ -340,7 +346,7 @@ namespace Conduit.Net.Tests.IO.Binary
             Assert.NotNull(readedNbt);
             Assert.Equal(value.Name, readedNbt.Name);
             Assert.Equal(value.Count, readedNbt.Count);
-            Assert.Equal(value.Get("Byte").ByteValue, readedNbt.Get("Byte").ByteValue);
+            Assert.Equal(value.Get("ByteTests").ByteValue, readedNbt.Get("ByteTests").ByteValue);
         }
     }
 }

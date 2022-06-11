@@ -413,7 +413,7 @@ namespace fNbt {
 
         /// <summary> Saves this NBT file to a stream. Nothing is written to stream if RootTag is <c>null</c>. </summary>
         /// <param name="compression"> Compression mode to use for saving. May not be AutoDetect. </param>
-        /// <returns> Byte array containing the serialized NBT data. </returns>
+        /// <returns> ByteTests array containing the serialized NBT data. </returns>
         /// <exception cref="ArgumentException"> If AutoDetect was given as the <paramref name="compression"/> mode. </exception>
         /// <exception cref="ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for <paramref name="compression"/>. </exception>
         /// <exception cref="InvalidDataException"> If given stream does not support writing. </exception>

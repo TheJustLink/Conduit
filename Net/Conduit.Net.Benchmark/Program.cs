@@ -16,7 +16,7 @@ namespace Conduit.Net.Benchmark
         private static void Main()
         {
             Initialize();
-            
+
             BenchmarkRunner.Run<TestBenchmarks>();
 
             Console.ReadKey(true);

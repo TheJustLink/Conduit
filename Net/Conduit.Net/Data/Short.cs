@@ -3,13 +3,13 @@ using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace Conduit.Net.Data
-{   
+{
     public struct Short : ISerializable
     {
         public short Value;
         
         public Short(short value) => Value = value;
-        
+
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Read(Stream stream) => Value = (short)(
             stream.ReadByte() |

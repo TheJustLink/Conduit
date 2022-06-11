@@ -59,4 +59,8 @@
     <ProjectReference Include="..\Conduit.Net\Conduit.Net.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Новая папка\" />
+  </ItemGroup>
+
 </Project>
