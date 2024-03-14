@@ -7,7 +7,9 @@ namespace Conduit.Net.Data
     public struct Short : ISerializable
     {
         public short Value;
-        
+
+        // Try FieldOffset performance
+
         public Short(short value) => Value = value;
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]

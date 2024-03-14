@@ -20,20 +20,20 @@ namespace Conduit.Net.IO.Binary
         {
             var dictionary = new Dictionary<int, Func<Reader, object>>
             {
-                { Object<VarInt>.Id, r => r.Read7BitEncodedInt() },
-                { Object<VarLong>.Id, r => r.Read7BitEncodedInt64() },
-                { Object<bool>.Id, r => r.ReadBoolean() },
-                { Object<sbyte>.Id, r => r.ReadSByte() },
-                { Object<byte>.Id, r => r.ReadByte() },
-                { Object<short>.Id, r => r.ReadInt16() },
-                { Object<ushort>.Id, r => r.ReadUInt16() },
-                { Object<int>.Id, r => r.ReadInt32() },
-                { Object<long>.Id, r => r.ReadInt64() },
-                { Object<float>.Id, r => r.ReadSingle() },
-                { Object<double>.Id, r => r.ReadDouble() },
-                { Object<string>.Id, r => r.ReadString() },
-                { Object<Guid>.Id, r => r.ReadGuid() },
-                { Object<NbtCompound>.Id, r => r.ReadNbt() }
+                { Object<VarInt>.Id, static r => r.Read7BitEncodedInt() },
+                { Object<VarLong>.Id, static r => r.Read7BitEncodedInt64() },
+                { Object<bool>.Id, static r => r.ReadBoolean() },
+                { Object<sbyte>.Id, static r => r.ReadSByte() },
+                { Object<byte>.Id, static r => r.ReadByte() },
+                { Object<short>.Id, static r => r.ReadInt16() },
+                { Object<ushort>.Id, static r => r.ReadUInt16() },
+                { Object<int>.Id, static r => r.ReadInt32() },
+                { Object<long>.Id, static r => r.ReadInt64() },
+                { Object<float>.Id, static r => r.ReadSingle() },
+                { Object<double>.Id, static r => r.ReadDouble() },
+                { Object<string>.Id, static r => r.ReadString() },
+                { Object<Guid>.Id, static r => r.ReadGuid() },
+                { Object<NbtCompound>.Id, static r => r.ReadNbt() }
             };
             
             s_readers = new Func<Reader, object>[dictionary.Count];

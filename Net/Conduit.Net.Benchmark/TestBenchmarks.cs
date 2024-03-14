@@ -16,10 +16,10 @@ namespace Conduit.Net.Benchmark
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
     public class TestBenchmarks
     {
-        private Reader _reader;
-        private Stream _memory;
-        
-        private ISerializable[] _values;
+        private Reader _reader = null!;
+        private Stream _memory = null!;
+
+        private ISerializable[] _values = null!;
 
         [GlobalSetup]
         public void Setup()

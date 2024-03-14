@@ -21,22 +21,22 @@ namespace Conduit.Net.IO.Binary
         {
             var dictionary = new Dictionary<int, Action<Writer, object>>
             {
-                { Object<VarInt>.Id, (w, o) => w.Write7BitEncodedInt(Unsafe.Unbox<int>(o)) },
-                { Object<VarLong>.Id, (w, o) => w.Write7BitEncodedInt64(Unsafe.Unbox<long>(o)) },
-                { Object<bool>.Id, (w, o) => w.Write(Unsafe.Unbox<bool>(o)) },
-                { Object<sbyte>.Id, (w, o) => w.Write(Unsafe.Unbox<sbyte>(o)) },
-                { Object<byte>.Id, (w, o) => w.Write(Unsafe.Unbox<byte>(o)) },
-                { Object<short>.Id, (w, o) => w.Write(Unsafe.Unbox<short>(o)) },
-                { Object<ushort>.Id, (w, o) => w.Write(Unsafe.Unbox<ushort>(o)) },
-                { Object<int>.Id, (w, o) => w.Write(Unsafe.Unbox<int>(o)) },
-                { Object<uint>.Id, (w, o) => w.Write(Unsafe.Unbox<uint>(o)) },
-                { Object<long>.Id, (w, o) => w.Write(Unsafe.Unbox<long>(o)) },
-                { Object<ulong>.Id, (w, o) => w.Write(Unsafe.Unbox<ulong>(o)) },
-                { Object<float>.Id, (w, o) => w.Write(Unsafe.Unbox<float>(o)) },
-                { Object<double>.Id, (w, o) => w.Write(Unsafe.Unbox<double>(o)) },
-                { Object<string>.Id, (w, o) => w.Write(Unsafe.As<string>(o)) },
-                { Object<Guid>.Id, (w, o) => w.Write(Unsafe.Unbox<Guid>(o)) },
-                { Object<NbtCompound>.Id, (w, o) => w.Write(Unsafe.As<NbtCompound>(o)) }
+                { Object<VarInt>.Id, static (w, o) => w.Write7BitEncodedInt(Unsafe.Unbox<int>(o)) },
+                { Object<VarLong>.Id, static (w, o) => w.Write7BitEncodedInt64(Unsafe.Unbox<long>(o)) },
+                { Object<bool>.Id, static (w, o) => w.Write(Unsafe.Unbox<bool>(o)) },
+                { Object<sbyte>.Id, static (w, o) => w.Write(Unsafe.Unbox<sbyte>(o)) },
+                { Object<byte>.Id, static (w, o) => w.Write(Unsafe.Unbox<byte>(o)) },
+                { Object<short>.Id, static (w, o) => w.Write(Unsafe.Unbox<short>(o)) },
+                { Object<ushort>.Id, static (w, o) => w.Write(Unsafe.Unbox<ushort>(o)) },
+                { Object<int>.Id, static (w, o) => w.Write(Unsafe.Unbox<int>(o)) },
+                { Object<uint>.Id, static (w, o) => w.Write(Unsafe.Unbox<uint>(o)) },
+                { Object<long>.Id, static (w, o) => w.Write(Unsafe.Unbox<long>(o)) },
+                { Object<ulong>.Id, static (w, o) => w.Write(Unsafe.Unbox<ulong>(o)) },
+                { Object<float>.Id, static (w, o) => w.Write(Unsafe.Unbox<float>(o)) },
+                { Object<double>.Id, static (w, o) => w.Write(Unsafe.Unbox<double>(o)) },
+                { Object<string>.Id, static (w, o) => w.Write(Unsafe.As<string>(o)) },
+                { Object<Guid>.Id, static (w, o) => w.Write(Unsafe.Unbox<Guid>(o)) },
+                { Object<NbtCompound>.Id, static (w, o) => w.Write(Unsafe.As<NbtCompound>(o)) }
             };
             
             s_writers = new Action<Writer, object>[dictionary.Count];
